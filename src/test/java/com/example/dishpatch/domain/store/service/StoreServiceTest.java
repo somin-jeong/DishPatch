@@ -42,7 +42,7 @@ class StoreServiceTest {
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
 		when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
-		when(storeRepository.countByUser(user)).thenReturn(2);
+		when(storeRepository.countByUserId(any())).thenReturn(2);
 
 		ArgumentCaptor<Store> storeCaptor = ArgumentCaptor.forClass(Store.class);
 
@@ -66,7 +66,7 @@ class StoreServiceTest {
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
 		when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
-		when(storeRepository.countByUser(user)).thenReturn(3); // 최대 초과
+		when(storeRepository.countByUserId(any())).thenReturn(3); // 최대 초과
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,

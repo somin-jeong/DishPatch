@@ -36,13 +36,13 @@ public class ReviewService {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
 
-		Menu menu = menuRepository.findById(request.getMenuId())
+		Menu menu = menuRepository.findById(request.menuId())
 			.orElseThrow(() -> new IllegalArgumentException("해당 메뉴를 찾을 수 없습니다."));
 
-		Review review = new Review(user, store, menu, request.getRating(), request.getContents(), request.getImageUrl(),
-			request.getStatus());
+		Review review = new Review(user, store, menu, request.rating(), request.contents(), request.imageUrl(),
+			request.status());
 		Review saved = reviewRepository.save(review);
 
-		return new ReviewCreateResponse(saved);
+		return ReviewCreateResponse.from(saved);
 	}
 }

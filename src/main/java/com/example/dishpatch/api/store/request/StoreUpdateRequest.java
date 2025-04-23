@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record StoreCreateRequest(
+public record StoreUpdateRequest(
 	@NotBlank
 	String name,
 	@NotBlank

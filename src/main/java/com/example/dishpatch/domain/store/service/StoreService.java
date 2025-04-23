@@ -1,10 +1,14 @@
 package com.example.dishpatch.domain.store.service;
 
 import static com.example.dishpatch.domain.store.exception.StoreErrorCode.*;
+import static com.example.dishpatch.domain.user.exception.UserErrorCode.*;
+
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
+import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.store.entity.Category;
@@ -14,6 +18,8 @@ import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
 import com.example.dishpatch.infra.db.store.repository.DibRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
+import com.example.dishpatch.infra.db.user.entity.UserRole;
+import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +29,7 @@ public class StoreService {
 	private final StoreRepository storeRepository;
 	private final CategoryRepository categoryRepository;
 	private final DibRepository dibRepository;
+	private final UserRepository userRepository;
 
 	public StoreCreateResponse createStore(User user, StoreCreateRequest request) {
 		// TODO: 사용자 role이 사장인지 확인
@@ -40,6 +47,26 @@ public class StoreService {
 		storeRepository.save(store);
 
 		return StoreCreateResponse.from(store);
+	}
+
+	public void updateStore(Long userId, Long storeId, StoreUpdateRequest request) {
+		userRepository.findById(userId).ifPresent(user -> {
+			if (user.getRole() != UserRole.CEO) {
+				throw new BizException(USER_ROLE_NOT_CEO);
+			}
+		});
+
+		Category category = categoryRepository.findById(request.categoryId())
+			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
+
+		Store store = storeRepository.findById(storeId)
+			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
+
+		if (!Objects.equals(store.getUser().getId(), userId)) {
+			throw new BizException(STORE_OWNER_MISMATCH);
+		}
+
+		store.update(request, category);
 	}
 
 	public void dibStore(User user, Long storeId) {

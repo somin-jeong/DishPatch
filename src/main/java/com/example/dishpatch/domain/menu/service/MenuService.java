@@ -65,11 +65,11 @@ public class MenuService {
 			.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
 
 		if (!Objects.equals(menu.getStore().getId(), storeId)) {
-			throw new BizException(MenuErrorCode.MENU_FORBIDDEN);
+			throw new BizException(MenuErrorCode.MENU_STORE_MISMATCH);
 		}
 
 		if (!Objects.equals(menu.getStore().getUser().getId(), userId)) {
-			throw new BizException(MenuErrorCode.MENU_FORBIDDEN);
+			throw new BizException(MenuErrorCode.MENU_OWNER_MISMATCH);
 		}
 
 		menu.update(req.name(), req.price(), req.imageUrl(), req.soldOut());

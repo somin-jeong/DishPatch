@@ -38,22 +38,13 @@ public class ReviewController {
 	}
 
 	@GetMapping("/reviews")
-	public ResponseEntity<List<ReviewResponse>> findAllReviews(
-		@PathVariable Long storeId
-		//@SessionAttribute("loginUser") Long loginUserId
-	) {
-		List<ReviewResponse> responseList = reviewService.findAllReviews(storeId);
-
-		return ResponseEntity.status(HttpStatus.OK).body(responseList);
-	}
-
-	@GetMapping("/reviews")
-	public ResponseEntity<List<ReviewResponse>> findReviewsByRating(
+	public ResponseEntity<List<ReviewResponse>> findReviews(
+		@PathVariable Long storeId,
 		@RequestParam int min,
 		@RequestParam int max
 		//@SessionAttribute("loginUser") Long loginUserId
 	) {
-		List<ReviewResponse> responseList = reviewService.findReviewsByRating(min, max);
+		List<ReviewResponse> responseList = reviewService.findReviews(storeId, min, max);
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseList);
 	}

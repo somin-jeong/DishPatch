@@ -10,16 +10,16 @@ import com.example.dishpatch.infra.db.review.entity.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-	List<Review> findAllByStoreIdOrderByCreatedDate(Long storeId);
-
 	@Query("""
-		    SELECT r
-		    FROM Review r
-		    LEFT JOIN FETCH r.user
-		    LEFT JOIN FETCH r.store
-		    LEFT JOIN FETCH r.menu
-		    WHERE r.rating BETWEEN :min AND :max
+		    SELECT r FROM Review r
+		          WHERE r.store.id = :storeId
+		          AND (
+		                (:min IS NOT NULL AND :max IS NOT NULL AND r.rating BETWEEN :min AND :max)
+		                OR (:min IS NULL AND :max IS NOT NULL AND r.rating = :max)
+		                OR (:min IS NOT NULL AND :max IS NULL AND r.rating = :min)
+		          )
 		""")
-	List<Review> findReviewsByRatingBetween(@Param("min") int min, @Param("max") int max);
+	List<Review> findAllByStoreIdAndRating(@Param("storeId") Long storeId, @Param("min") int min,
+		@Param("max") int max);
 
 }

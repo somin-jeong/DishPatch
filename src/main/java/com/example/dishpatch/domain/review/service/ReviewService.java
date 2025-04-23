@@ -48,7 +48,7 @@ public class ReviewService {
 		return ReviewResponse.from(saved);
 	}
 
-	public List<ReviewResponse> findAllReviews(Long storeId) {
+	public List<ReviewResponse> findReviews(Long storeId, int min, int max) {
 		Long userId = 1L;
 
 		//userId 재설정 해야함
@@ -59,19 +59,7 @@ public class ReviewService {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
 
-		List<Review> reviewList = reviewRepository.findAllByStoreIdOrderByCreatedDate(store.getId());
-
-		return ReviewResponse.from(reviewList);
-	}
-
-	public List<ReviewResponse> findReviewsByRating(int min, int max) {
-		Long userId = 1L;
-
-		//userId 재설정 해야함
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
-
-		List<Review> reviewList = reviewRepository.findReviewsByRatingBetween(min, max);
+		List<Review> reviewList = reviewRepository.findAllByStoreIdAndRating(store.getId(), min, max);
 
 		return ReviewResponse.from(reviewList);
 	}

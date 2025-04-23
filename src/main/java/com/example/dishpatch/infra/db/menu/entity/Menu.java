@@ -2,6 +2,7 @@ package com.example.dishpatch.infra.db.menu.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.example.dishpatch.infra.db.common.SoftDeletableEntity;
 import com.example.dishpatch.infra.db.store.entity.Store;
@@ -16,7 +17,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "menus")
 public class Menu extends SoftDeletableEntity {
@@ -25,23 +35,37 @@ public class Menu extends SoftDeletableEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false, length = 30)
+	@Column(nullable = false, length = 40)
 	private String name;
 
 	@Column(nullable = false)
 	private Integer price;
 
-	@Column(length = 100)
 	private String imageUrl;
 
 	@Column(nullable = false)
-	private boolean isSoldOut;
+	private boolean soldOut;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "store_id", nullable = false)
 	private Store store;
 
-	@OneToMany(mappedBy = "menu_id")
+	@OneToMany(mappedBy = "menu")
 	private List<MenuOption> options = new ArrayList<>();
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj instanceof Menu menu) {
+			return id != null && id.equals(menu.getId());
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(id);
+	}
 }

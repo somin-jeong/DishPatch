@@ -36,6 +36,6 @@ public class UserServiceImpl implements UserService {
 
 		User save = userRepository.save(user);
 
-		return new UserSignupResponse(save);
+		return UserSignupResponse.from(save);
 	}
 }

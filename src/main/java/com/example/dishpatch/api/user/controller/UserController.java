@@ -25,7 +25,7 @@ public class UserController {
 	public ResponseEntity<UserSignupResponse> signUp(@Valid @RequestBody UserSignupRequest request){
 
 		UserSignupResponse userSignupResponse = userService.signUp(
-				request.getEmail(), request.getPassword(), request.getName(), request.getPhone(), request.getCurrentAddress(), request.getRole());
+				request.email(), request.password(), request.name(), request.phone(), request.currentAddress(), request.role());
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(userSignupResponse);
 	}

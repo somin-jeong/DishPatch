@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -12,7 +13,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtUtil {
 
-    private static final String SECRETE_KEY = "dishpatchjwttwjhctaphsidpatchdishjwtjwtpatchdish";
+    @Value("${jwt.secret}")
+    private String secretKey;
+
     private final long expiration = 30 * 60 * 1000L;
 
     /**
@@ -23,7 +26,7 @@ public class JwtUtil {
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(Keys.hmacShaKeyFor(SECRETE_KEY.getBytes()), SignatureAlgorithm.HS256)
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -32,7 +35,7 @@ public class JwtUtil {
      */
     public String extractEmail(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRETE_KEY.getBytes())
+                .setSigningKey(secretKey.getBytes())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()

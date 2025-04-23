@@ -1,9 +1,12 @@
 package com.example.dishpatch.domain.menu.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.menu.request.MenuCreateRequest;
 import com.example.dishpatch.api.menu.response.MenuCreateResponse;
+import com.example.dishpatch.api.menu.response.StoreMenuListResponse;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
 import com.example.dishpatch.infra.db.store.entity.Store;
@@ -37,5 +40,15 @@ public class MenuService {
 		menuRepository.save(menu);
 
 		return MenuCreateResponse.from(menu);
+	}
+
+	public StoreMenuListResponse getStoreMenus(Long storeId) {
+		if (!storeRepository.existsById(storeId)) {
+			// todo : Store 의 ErrorCode 가 생기면 수정
+			throw new RuntimeException("존재하지 않는 가게입니다.");
+		}
+
+		List<Menu> menus = menuRepository.findAllByStoreId(storeId);
+		return StoreMenuListResponse.from(menus);
 	}
 }

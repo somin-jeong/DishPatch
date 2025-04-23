@@ -1,20 +1,29 @@
 package com.example.dishpatch.infra.db.statistics.entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.Getter;
 
+@Getter
 @Entity
-@Table(name = "order_stats_daily")
-public class OrderStatDaily {
+@Table(name = "store_order_stats_daily")
+public class StoreOrderStatDaily implements StatConvertible {
 
 	@EmbeddedId
-	private OrderStatId id;
+	private StoreOrderStatId id;
 
 	@Column(nullable = false)
 	private Integer orderCount;
 
 	@Column(nullable = false)
 	private Long totalSales;
+
+	@Override
+	public LocalDate getDate() {
+		return this.id.getDate();
+	}
 }

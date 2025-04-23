@@ -3,8 +3,9 @@ package com.example.dishpatch.api.review.request;
 import com.example.dishpatch.infra.db.review.entity.Review;
 import com.example.dishpatch.infra.db.review.entity.ReviewStatus;
 
-public record ReviewCreateResponse(
+public record ReviewResponse(
 	Long id,
+	Long storeId,
 	Long menuId,
 	Integer rating,
 	String contents,
@@ -12,10 +13,11 @@ public record ReviewCreateResponse(
 	ReviewStatus status
 ) {
 
-	public static ReviewCreateResponse from(Review review) {
-		return new ReviewCreateResponse(
+	public static ReviewResponse from(Review review) {
+		return new ReviewResponse(
 			review.getId(),
-			review.getMenu().getId(), // 메뉴에 getId() 꼭 있어야 해!
+			review.getStore().getId(),
+			review.getMenu().getId(),
 			review.getRating(),
 			review.getContents(),
 			review.getImageUrl(),

@@ -26,7 +26,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "menus")
 public class Menu extends SoftDeletableEntity {
@@ -52,6 +51,15 @@ public class Menu extends SoftDeletableEntity {
 
 	@OneToMany(mappedBy = "menu")
 	private List<MenuOption> options = new ArrayList<>();
+
+	@Builder
+	public Menu(String name, Integer price, String imageUrl, boolean soldOut, Store store) {
+		this.name = name;
+		this.price = price;
+		this.imageUrl = imageUrl;
+		this.soldOut = soldOut;
+		this.store = store;
+	}
 
 	@Override
 	public boolean equals(Object obj) {

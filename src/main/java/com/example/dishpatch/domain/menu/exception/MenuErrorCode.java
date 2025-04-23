@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MenuErrorCode implements ErrorCode {
 
-	MENU_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "M001", "존재하지 않는 메뉴입니다.");
+	MENU_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "M001", "존재하지 않는 메뉴입니다."),
+	MENU_FORBIDDEN(HttpStatus.FORBIDDEN.value(), "M002", "해당 가게의 메뉴가 아닙니다.");
 
 	private final int status;
 	private final String code;

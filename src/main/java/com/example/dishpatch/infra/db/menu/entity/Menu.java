@@ -18,14 +18,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Entity
 @Table(name = "menus")
 public class Menu extends SoftDeletableEntity {
@@ -59,6 +57,13 @@ public class Menu extends SoftDeletableEntity {
 		this.imageUrl = imageUrl;
 		this.soldOut = soldOut;
 		this.store = store;
+	}
+
+	public void update(String name, Integer price, String imageUrl, boolean soldOut) {
+		this.name = name;
+		this.price = price;
+		this.imageUrl = imageUrl;
+		this.soldOut = soldOut;
 	}
 
 	@Override

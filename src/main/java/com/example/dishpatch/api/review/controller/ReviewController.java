@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dishpatch.api.review.request.ReviewCreateRequest;
 import com.example.dishpatch.api.review.request.ReviewResponse;
+import com.example.dishpatch.api.review.request.ReviewUpdateRequest;
 import com.example.dishpatch.domain.review.service.ReviewService;
 
 import jakarta.validation.Valid;
@@ -48,4 +50,16 @@ public class ReviewController {
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseList);
 	}
+
+	@PatchMapping("/reviews/{reviewId}")
+	public ResponseEntity<ReviewResponse> updateReview(
+		@PathVariable Long reviewId,
+		@Valid @RequestBody ReviewUpdateRequest request
+		//@SessionAttribute("loginUser") Long loginUserId
+	) {
+		ReviewResponse response = reviewService.updateReview(reviewId, request);
+
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
 }

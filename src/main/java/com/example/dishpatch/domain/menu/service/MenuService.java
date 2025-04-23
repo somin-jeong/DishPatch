@@ -24,6 +24,8 @@ public class MenuService {
 			throw new RuntimeException("존재하지 않는 가게입니다.");
 		}
 
+		// todo : 가게의 주인이 맞는지 검증
+
 		Store store = storeRepository.getReferenceById(storeId);
 		Menu menu = Menu.builder()
 			.name(req.name())

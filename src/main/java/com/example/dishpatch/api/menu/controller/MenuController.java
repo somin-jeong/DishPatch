@@ -27,6 +27,7 @@ public class MenuController {
 		@PathVariable("storeId") Long storeId,
 		@Valid @RequestBody MenuCreateRequest req
 	) {
+		// todo : SecurityFilterChain 에서 권한 체크 추가
 		MenuCreateResponse res = menuService.createMenu(storeId, req);
 		return ResponseEntity.status(HttpStatus.CREATED).body(res);
 	}

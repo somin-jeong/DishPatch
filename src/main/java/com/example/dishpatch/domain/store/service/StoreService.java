@@ -8,8 +8,10 @@ import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.store.entity.Category;
+import com.example.dishpatch.infra.db.store.entity.Dib;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
+import com.example.dishpatch.infra.db.store.repository.DibRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
 
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class StoreService {
 	private final StoreRepository storeRepository;
 	private final CategoryRepository categoryRepository;
+	private final DibRepository dibRepository;
 
 	public StoreCreateResponse createStore(User user, StoreCreateRequest request) {
 		// TODO: 사용자 role이 사장인지 확인
@@ -32,23 +35,34 @@ public class StoreService {
 			throw new BizException(STORE_OWN_LIMIT_EXCEEDED);
 		}
 
-		Store store = Store.builder()
-			.name(request.name())
-			.address(request.address())
-			.phone(request.phone())
-			.image(request.imageUrl())
-			.introduction(request.introduction())
-			.deliveryFee(request.deliveryFee())
-			.minDeliveryPrice(request.minDeliveryPrice())
-			.isAdvertised(request.isAdvertised())
-			.openTime(request.getOpenTime())
-			.closeTime(request.getCloseTime())
-			.user(user)
-			.category(category)
-			.build();
+		Store store = Store.of(request, user, category);
 
 		storeRepository.save(store);
 
 		return StoreCreateResponse.from(store);
+	}
+
+	public void dibStore(User user, Long storeId) {
+		Store store = storeRepository.findById(storeId)
+			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
+
+		if (dibRepository.existsByUserIdAndStoreId(user.getId(), storeId)) {
+			throw new BizException(ALREADY_DIB_STORE);
+		}
+
+		Dib dib = Dib.of(user, store);
+
+		dibRepository.save(dib);
+	}
+
+	public void undibStore(User user, Long storeId) {
+		if (!storeRepository.existsById(storeId)) {
+			throw new BizException(STORE_NOT_FOUND);
+		}
+
+		Dib dib = dibRepository.findByUserIdAndStoreId(user.getId(), storeId)
+			.orElseThrow(() -> new BizException(UNDIB_STORE));
+
+		dibRepository.delete(dib);
 	}
 }

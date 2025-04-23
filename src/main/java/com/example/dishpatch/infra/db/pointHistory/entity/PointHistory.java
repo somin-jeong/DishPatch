@@ -36,4 +36,11 @@ public class PointHistory extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+
+	public void updateRemain(int curPoint) {
+		if (curPoint == 0) {
+			this.pointUsed = PointUsed.USED;
+		}
+		this.remain = curPoint;
+	}
 }

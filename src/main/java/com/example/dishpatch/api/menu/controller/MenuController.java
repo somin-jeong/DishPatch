@@ -17,12 +17,12 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/stores/{storeId}")
+@RequestMapping("/stores/{storeId}/menus")
 public class MenuController {
 
 	private final MenuService menuService;
 
-	@PostMapping("/menus")
+	@PostMapping
 	public ResponseEntity<MenuCreateResponse> createMenu(
 		@PathVariable("storeId") Long storeId,
 		@Valid @RequestBody MenuCreateRequest req

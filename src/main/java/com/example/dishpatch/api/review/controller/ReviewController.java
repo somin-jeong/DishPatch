@@ -40,8 +40,8 @@ public class ReviewController {
 	@GetMapping("/reviews")
 	public ResponseEntity<List<ReviewResponse>> findReviews(
 		@PathVariable Long storeId,
-		@RequestParam int min,
-		@RequestParam int max
+		@RequestParam Integer min,
+		@RequestParam Integer max
 		//@SessionAttribute("loginUser") Long loginUserId
 	) {
 		List<ReviewResponse> responseList = reviewService.findReviews(storeId, min, max);

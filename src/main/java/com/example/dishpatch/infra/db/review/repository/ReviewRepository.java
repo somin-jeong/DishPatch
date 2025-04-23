@@ -13,13 +13,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	@Query("""
 		    SELECT r FROM Review r
 		          WHERE r.store.id = :storeId
-		          AND (
-		                (:min IS NOT NULL AND :max IS NOT NULL AND r.rating BETWEEN :min AND :max)
-		                OR (:min IS NULL AND :max IS NOT NULL AND r.rating = :max)
-		                OR (:min IS NOT NULL AND :max IS NULL AND r.rating = :min)
-		          )
+		          AND r.rating BETWEEN :min AND :max
+				  ORDER BY r.createdDate DESC
 		""")
-	List<Review> findAllByStoreIdAndRating(@Param("storeId") Long storeId, @Param("min") int min,
-		@Param("max") int max);
+	List<Review> findAllByStoreIdAndRating(@Param("storeId") Long storeId, @Param("min") Integer min,
+		@Param("max") Integer max);
 
 }

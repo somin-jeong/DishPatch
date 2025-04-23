@@ -12,9 +12,9 @@ public class UserSignupResponse {
     private final String currentAddress;
 
     public UserSignupResponse(User user) {
-        this.email = getEmail();
-        this.name = getName();
-        this.phone = getPhone();
-        this.currentAddress = getCurrentAddress();
+        this.email = user.getEmail();
+        this.name = user.getName();
+        this.phone = user.getPhone();
+        this.currentAddress = user.getCurrentAddress();
     }
 }

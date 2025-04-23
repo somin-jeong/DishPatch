@@ -1,11 +1,9 @@
 package com.example.dishpatch.api.user.request;
 
 import com.example.dishpatch.infra.db.user.entity.UserRole;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
+import org.hibernate.validator.constraints.Length;
 
 @Getter
 public class UserSignupRequest {
@@ -22,7 +20,7 @@ public class UserSignupRequest {
     private String password;
 
     @NotBlank
-    @Min(value = 2)
+    @Length(min = 2)
     private String name;
 
     @NotBlank
@@ -32,7 +30,7 @@ public class UserSignupRequest {
     @NotBlank
     private String currentAddress;
 
-    @NotBlank
+    @NotNull
     private UserRole role;
 
 

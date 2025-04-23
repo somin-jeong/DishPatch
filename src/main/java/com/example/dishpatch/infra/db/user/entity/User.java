@@ -46,7 +46,7 @@ public class User extends SoftDeletableEntity {
 	@Enumerated(EnumType.STRING)
 	private UserGrade grade; // 이넘 D 고마운분, C 귀한분, B 더귀한분, A 천생연분
 
-	@Column(columnDefinition = "INT DEFAULT 0", nullable = false)
+	@Column(columnDefinition = "INT DEFAULT 0")
 	private Integer subscribe; // ACTIVE(1),UNACTIVE(0)< 디폴트값
 
 	@Enumerated(EnumType.STRING)

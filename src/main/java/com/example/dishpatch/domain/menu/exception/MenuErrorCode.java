@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MenuErrorCode implements ErrorCode {
 
-	INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST.value(), "C001", "입력값이 올바르지 않습니다.");
+	MENU_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "M001", "존재하지 않는 메뉴입니다.");
 
 	private final int status;
 	private final String code;

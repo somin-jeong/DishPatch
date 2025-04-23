@@ -1,5 +1,7 @@
 package com.example.dishpatch.domain.review.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.review.request.ReviewCreateRequest;
@@ -44,5 +46,33 @@ public class ReviewService {
 		Review saved = reviewRepository.save(review);
 
 		return ReviewResponse.from(saved);
+	}
+
+	public List<ReviewResponse> findAllReviews(Long storeId) {
+		Long userId = 1L;
+
+		//userId 재설정 해야함
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+
+		//storeId 타입 맞춰야 함
+		Store store = storeRepository.findById(storeId)
+			.orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+
+		List<Review> reviewList = reviewRepository.findAllByStoreIdOrderByCreatedDate(store.getId());
+
+		return ReviewResponse.from(reviewList);
+	}
+
+	public List<ReviewResponse> findReviewsByRating(int min, int max) {
+		Long userId = 1L;
+
+		//userId 재설정 해야함
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+
+		List<Review> reviewList = reviewRepository.findReviewsByRatingBetween(min, max);
+
+		return ReviewResponse.from(reviewList);
 	}
 }

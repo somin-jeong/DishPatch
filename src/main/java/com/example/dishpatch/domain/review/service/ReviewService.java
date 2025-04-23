@@ -85,4 +85,18 @@ public class ReviewService {
 		return ReviewResponse.from(review);
 	}
 
+	public void deleteReview(Long reviewId) {
+		Long userId = 1L;
+		reviewId = 1L;
+
+		//userId 재설정 해야함
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+		reviewRepository.delete(review);
+	}
+
 }

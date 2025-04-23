@@ -54,10 +54,10 @@ public class Review extends SoftDeletableEntity {
 	@Enumerated(EnumType.STRING)
 	private ReviewStatus status;
 
-	public Review(User user, Store stroe, Menu menu, int rating, String contents, String imageUrl,
+	public Review(User user, Store store, Menu menu, int rating, String contents, String imageUrl,
 		ReviewStatus status) {
 		this.user = user;
-		this.store = stroe;
+		this.store = store;
 		this.menu = menu;
 		this.rating = rating;
 		this.contents = contents;

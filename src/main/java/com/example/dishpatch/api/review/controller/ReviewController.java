@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dishpatch.api.review.request.ReviewCreateRequest;
-import com.example.dishpatch.api.review.request.ReviewCreateResponse;
+import com.example.dishpatch.api.review.request.ReviewResponse;
 import com.example.dishpatch.domain.review.service.ReviewService;
 
 import jakarta.validation.Valid;
@@ -23,12 +23,12 @@ public class ReviewController {
 	private final ReviewService reviewService;
 
 	@PostMapping("/reviews")
-	public ResponseEntity<ReviewCreateResponse> createReview(
+	public ResponseEntity<ReviewResponse> createReview(
 		@PathVariable Long storeId,
 		@Valid @RequestBody ReviewCreateRequest request
 		//@SessionAttribute("loginUser") Long loginUserId
 	) {
-		ReviewCreateResponse response = reviewService.createReview(storeId, request);
+		ReviewResponse response = reviewService.createReview(storeId, request);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}

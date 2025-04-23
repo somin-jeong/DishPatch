@@ -3,7 +3,7 @@ package com.example.dishpatch.domain.review.service;
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.review.request.ReviewCreateRequest;
-import com.example.dishpatch.api.review.request.ReviewCreateResponse;
+import com.example.dishpatch.api.review.request.ReviewResponse;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
 import com.example.dishpatch.infra.db.review.entity.Review;
@@ -24,7 +24,7 @@ public class ReviewService {
 	private final StoreRepository storeRepository;
 	private final MenuRepository menuRepository;
 
-	public ReviewCreateResponse createReview(Long storeId, ReviewCreateRequest request) {
+	public ReviewResponse createReview(Long storeId, ReviewCreateRequest request) {
 		Long userId = 1L;
 		storeId = 1L;
 
@@ -43,6 +43,6 @@ public class ReviewService {
 			request.status());
 		Review saved = reviewRepository.save(review);
 
-		return ReviewCreateResponse.from(saved);
+		return ReviewResponse.from(saved);
 	}
 }

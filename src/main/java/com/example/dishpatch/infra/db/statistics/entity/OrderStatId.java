@@ -1,10 +1,14 @@
 package com.example.dishpatch.infra.db.statistics.entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.*;
-
-import java.time.LocalDate;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @EqualsAndHashCode
@@ -13,9 +17,9 @@ import java.time.LocalDate;
 @Embeddable
 public class OrderStatId {
 
-    @Column(nullable = false)
-    private Long storeId;
+	@Column(nullable = false)
+	private Long storeId;
 
-    @Column(nullable = false)
-    private LocalDate date;
+	@Column(nullable = false)
+	private LocalDate date;
 }

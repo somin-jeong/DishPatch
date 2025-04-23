@@ -1,17 +1,20 @@
 package com.example.dishpatch.infra.db.statistics.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "order_stats_daily")
 public class OrderStatDaily {
 
-    @EmbeddedId
-    private OrderStatId id;
+	@EmbeddedId
+	private OrderStatId id;
 
-    @Column(nullable = false)
-    private Integer orderCount;
+	@Column(nullable = false)
+	private Integer orderCount;
 
-    @Column(nullable = false)
-    private Long totalSales;
+	@Column(nullable = false)
+	private Long totalSales;
 }

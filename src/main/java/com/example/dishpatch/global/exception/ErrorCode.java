@@ -2,9 +2,9 @@ package com.example.dishpatch.global.exception;
 
 public interface ErrorCode {
 
-    int getStatus();
+	int getStatus();
 
-    String getCode();
+	String getCode();
 
-    String getMessage();
+	String getMessage();
 }

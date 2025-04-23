@@ -1,29 +1,39 @@
 package com.example.dishpatch.infra.db.pointHistory.entity;
 
-import com.example.dishpatch.infra.db.common.BaseEnity;
+import com.example.dishpatch.infra.db.common.BaseEntity;
 import com.example.dishpatch.infra.db.user.entity.User;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
 @Getter
-public class PointHistory extends BaseEnity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class PointHistory extends BaseEntity {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private int amount;
+	@Column(nullable = false)
+	private int amount;
 
-    @Column(nullable = false)
-    private int remain;
+	@Column(nullable = false)
+	private int remain;
 
-    @Enumerated(EnumType.STRING)
-    private PointUsed pointUsed;
+	@Enumerated(EnumType.STRING)
+	private PointUsed pointUsed;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 }

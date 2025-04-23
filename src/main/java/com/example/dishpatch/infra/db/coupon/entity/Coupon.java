@@ -1,6 +1,13 @@
 package com.example.dishpatch.infra.db.coupon.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 
 @Getter
@@ -8,20 +15,20 @@ import lombok.Getter;
 @Table(name = "coupons")
 public class Coupon {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String name;
+	@Column(nullable = false)
+	private String name;
 
-    @Column(nullable = false)
-    private CouponType coupontype;
+	@Column(nullable = false)
+	private CouponType coupontype;
 
-    @Column(nullable = false)
-    private String deductedPrice;
+	@Column(nullable = false)
+	private String deductedPrice;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private CouponUsed status;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private CouponUsed status;
 }

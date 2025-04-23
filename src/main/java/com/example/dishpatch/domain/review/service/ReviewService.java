@@ -60,7 +60,7 @@ public class ReviewService {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
 
-		List<Review> reviewList = reviewRepository.findAllByStoreIdAndRating(store.getId(), safeMin, safeMax);
+		List<Review> reviewList = reviewRepository.findAllByStoreIdAndRating(userId, store.getId(), safeMin, safeMax);
 
 		return ReviewResponse.from(reviewList);
 	}

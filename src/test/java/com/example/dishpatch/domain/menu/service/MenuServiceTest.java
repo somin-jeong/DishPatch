@@ -67,9 +67,10 @@ class MenuServiceTest {
 	@Test
 	void getStoreMenus_shouldSucceed() {
 		Long storeId = 1L;
+		Store store = mock(Store.class);
 		List<Menu> menus = List.of(
-			new Menu("메뉴 이름1", 10000, "https://image.com/image_url1", false, new Store()),
-			new Menu("메뉴 이름2", 20000, "https://image.com/image_url2", true, new Store())
+			new Menu("메뉴 이름1", 10000, "https://image.com/image_url1", false, store),
+			new Menu("메뉴 이름2", 20000, "https://image.com/image_url2", true, store)
 		);
 
 		given(storeRepository.existsById(storeId)).willReturn(true);

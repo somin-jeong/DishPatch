@@ -2,6 +2,7 @@ package com.example.dishpatch.infra.db.store.entity;
 
 import java.time.LocalTime;
 
+import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.infra.db.common.SoftDeletableEntity;
 import com.example.dishpatch.infra.db.user.entity.User;
 
@@ -86,5 +87,22 @@ public class Store extends SoftDeletableEntity {
 		this.closeTime = closeTime;
 		this.category = category;
 		this.user = user;
+	}
+
+	public static Store of(StoreCreateRequest request, User user, Category category) {
+		return Store.builder()
+			.name(request.name())
+			.address(request.address())
+			.phone(request.phone())
+			.image(request.imageUrl())
+			.introduction(request.introduction())
+			.deliveryFee(request.deliveryFee())
+			.minDeliveryPrice(request.minDeliveryPrice())
+			.isAdvertised(request.isAdvertised())
+			.openTime(request.getOpenTime())
+			.closeTime(request.getCloseTime())
+			.user(user)
+			.category(category)
+			.build();
 	}
 }

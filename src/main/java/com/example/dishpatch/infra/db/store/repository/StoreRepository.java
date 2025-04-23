@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.dishpatch.infra.db.store.entity.Store;
 
 public interface StoreRepository extends JpaRepository<Store, Long> {
-	int countByUserId(Long userId);
+	int countByUserIdAndDeletedDateIsNull(Long userId);
 }

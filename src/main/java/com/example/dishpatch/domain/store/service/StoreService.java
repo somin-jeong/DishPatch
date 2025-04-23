@@ -27,7 +27,7 @@ public class StoreService {
 		Category category = categoryRepository.findById(request.categoryId())
 			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 
-		int storeCount = storeRepository.countByUserId(1L); // TODO: user.getId()
+		int storeCount = storeRepository.countByUserIdAndDeletedDateIsNull(1L); // TODO: user.getId()
 		if (storeCount >= 3) {
 			throw new BizException(STORE_OWN_LIMIT_EXCEEDED);
 		}

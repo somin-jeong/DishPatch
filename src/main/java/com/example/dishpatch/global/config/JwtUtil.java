@@ -21,6 +21,7 @@ public class JwtUtil {
     /**
      * JWT 토큰 생성
      */
+    // deprecated 예정인 메서드라고함
     public String createToken(String email) {
         return Jwts.builder()
                 .setSubject(email)

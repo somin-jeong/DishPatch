@@ -1,8 +1,10 @@
 package com.example.dishpatch.domain.user.exception;
 
 import com.example.dishpatch.global.exception.ErrorCode;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+@RequiredArgsConstructor
 public enum UserErrorCode implements ErrorCode {
 
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "유효하지 않은 비밀번호입니다."),
@@ -11,11 +13,6 @@ public enum UserErrorCode implements ErrorCode {
 
     private final HttpStatus httpStatus;
     private final String message;
-
-    UserErrorCode(HttpStatus httpStatus, String message) {
-        this.httpStatus = httpStatus;
-        this.message = message;
-    }
 
 
     @Override

@@ -5,6 +5,8 @@ import com.example.dishpatch.infra.db.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,4 +33,6 @@ public class CeoReview extends SoftDeletableEntity {
 	@Column(length = 500)
 	private String contents;
 
+	@Enumerated(EnumType.STRING)
+	private ReviewStatus status;
 }

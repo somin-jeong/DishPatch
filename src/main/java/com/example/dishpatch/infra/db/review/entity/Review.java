@@ -7,6 +7,8 @@ import com.example.dishpatch.infra.db.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -48,5 +50,19 @@ public class Review extends SoftDeletableEntity {
 
 	@Column(name = "image_url", columnDefinition = "LONGTEXT")
 	private String imageUrl = DEFAULT_IMAGE_URL;
+
+	@Enumerated(EnumType.STRING)
+	private ReviewStatus status;
+
+	public Review(User user, Store stroe, Menu menu, int rating, String contents, String imageUrl,
+		ReviewStatus status) {
+		this.user = user;
+		this.store = stroe;
+		this.menu = menu;
+		this.rating = rating;
+		this.contents = contents;
+		this.imageUrl = imageUrl;
+		this.status = status;
+	}
 
 }

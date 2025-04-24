@@ -41,11 +41,11 @@ public class UserController {
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<String> logout(HttpServletRequest request) {
+	public ResponseEntity<Void> logout(HttpServletRequest request) {
 
 		userService.logout(request);
 
-		return ResponseEntity.status(HttpStatus.OK).body("로그아웃 완료");
+		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
 }

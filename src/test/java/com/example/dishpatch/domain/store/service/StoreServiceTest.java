@@ -59,9 +59,6 @@ class StoreServiceTest {
 	@Mock
 	private CartRepository cartRepository;
 
-	@Mock
-	private UserRepository userRepository;
-
 	@Test
 	void createStore_shouldSucceed() {
 		// given
@@ -347,7 +344,7 @@ class StoreServiceTest {
 		assertThat(STORE_OWNER_MISMATCH.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
 
-  @Test
+	@Test
 	void deleteStore_whenUserRoleNotCeo_shouldThrowException() {
 		// given
 		Long userId = 1L;
@@ -408,5 +405,5 @@ class StoreServiceTest {
 
 		assertThat(STORE_OWNER_MISMATCH.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
-  
+
 }

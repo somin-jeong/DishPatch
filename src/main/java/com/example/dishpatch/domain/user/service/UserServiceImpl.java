@@ -98,7 +98,9 @@ public class UserServiceImpl implements UserService {
 		User user = userRepository.findById(id).orElseThrow(
 			() -> new BizException(UserErrorCode.INVALID_ID));
 
-		user.updateUser(dto.password(), dto.name(), dto.phone(), dto.currentAddress());
+		String encodedpassword = passwordEncoder.encode(dto.password());
+
+		user.updateUser(encodedpassword, dto.name(), dto.phone(), dto.currentAddress());
 
 		return UserUpdateResponse.from(user);
 	}

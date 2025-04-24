@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.example.dishpatch.infra.db.user.entity.UserRole;
 import com.example.dishpatch.infra.db.user.repository.RedisRepository;
 
 import jakarta.servlet.FilterChain;
@@ -35,7 +36,6 @@ public class SecurityFilter extends OncePerRequestFilter {
 			if (redisRepository.validateKey(token)) {
 				return;
 			}
-			;
 
 			// JWT 유효성 검증
 			try {

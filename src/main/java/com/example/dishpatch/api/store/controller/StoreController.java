@@ -61,9 +61,9 @@ public class StoreController {
 
 	@DeleteMapping("/{storeId}")
 	public void deleteStore(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable("storeId") Long storeId
 	) {
-		storeService.deleteStore(userId, storeId);
+		storeService.deleteStore(userAuth, storeId);
 	}
 }

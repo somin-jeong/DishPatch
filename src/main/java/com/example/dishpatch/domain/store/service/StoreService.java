@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
@@ -25,7 +26,6 @@ import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
 import com.example.dishpatch.infra.db.store.repository.DibRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
-import com.example.dishpatch.infra.db.user.entity.UserRole;
 import com.example.dishpatch.infra.db.user.entity.UserStatus;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
@@ -63,6 +63,7 @@ public class StoreService {
 		return StoreCreateResponse.from(store);
 	}
 
+	@Transactional
 	public void updateStore(UserAuth userAuth, Long storeId, StoreUpdateRequest request) {
 		Category category = categoryRepository.findById(request.categoryId())
 			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
@@ -93,6 +94,7 @@ public class StoreService {
 		dibRepository.save(dib);
 	}
 
+	@Transactional
 	public void undibStore(UserAuth userAuth, Long storeId) {
 		if (!storeRepository.existsByIdAndDeletedDateIsNull(storeId)) {
 			throw new BizException(STORE_NOT_FOUND);
@@ -104,33 +106,25 @@ public class StoreService {
 		dibRepository.delete(dib);
 	}
 
-	public void deleteStore(Long userId, Long storeId) {
-		userRepository.findById(userId).ifPresent(user -> {
-			if (user.getRole() != UserRole.CEO) {
-				throw new BizException(USER_ROLE_NOT_CEO);
-			}
-		});
-
-		Store store = storeRepository.findById(storeId)
+	@Transactional
+	public void deleteStore(UserAuth userAuth, Long storeId) {
+		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
 
-		if (!Objects.equals(store.getUser().getId(), userId)) {
+		if (!Objects.equals(store.getUser().getId(), userAuth.getId())) {
 			throw new BizException(STORE_OWNER_MISMATCH);
 		}
 
-		LocalDateTime now = LocalDateTime.now();
+		store.softDelete();
 
 		reviewRepository.deleteAllByStoreId(storeId);
-		ceoReviewRepository.deleteAllByStoreId(storeId, now);
+		ceoReviewRepository.deleteAllByStoreId(storeId);
 
-		menuRepository.bulkSoftDeleteByStoreId(storeId, now);
-		menuOptionRepository.bulkSoftDeleteByStoreId(storeId, now);
+		menuRepository.bulkSoftDeleteByStoreId(storeId, LocalDateTime.now());
+		menuOptionRepository.bulkSoftDeleteByStoreId(storeId, LocalDateTime.now());
 
 		dibRepository.deleteAllByStoreId(storeId);
 		cartRepository.deleteAllByStoreId(storeId);
-
-		storeRepository.findById(storeId)
-			.orElseThrow(() -> new BizException(STORE_NOT_FOUND)).softDelete();
 	}
 
 }

@@ -47,4 +47,12 @@ public class Cart extends BaseEntity {
 	@Column(nullable = false)
 	private int quantity;
 
+	public Cart(User user, Store store, Menu menu, MenuOption menuOption, int quantity) {
+		this.user = user;
+		this.store = store;
+		this.menu = menu;
+		this.menuOption = menuOption;
+		this.quantity = quantity;
+	}
+
 }

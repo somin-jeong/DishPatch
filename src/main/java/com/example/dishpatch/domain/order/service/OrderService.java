@@ -14,13 +14,13 @@ import com.example.dishpatch.api.order.response.MenuOptionDetailResponseDto;
 import com.example.dishpatch.api.order.response.OrderDetailResponseDto;
 import com.example.dishpatch.api.order.response.OrderItemDetailResponseDto;
 import com.example.dishpatch.api.order.response.OrderResponseDto;
+import com.example.dishpatch.domain.cart.service.CartService;
 import com.example.dishpatch.domain.coupon.exception.CouponErrorCode;
 import com.example.dishpatch.domain.coupon.service.CouponService;
 import com.example.dishpatch.domain.order.exception.OrderErrorCode;
 import com.example.dishpatch.domain.pointHistory.exception.PointErrorCode;
 import com.example.dishpatch.domain.pointHistory.service.PointHistoryService;
 import com.example.dishpatch.domain.store.exception.StoreErrorCode;
-import com.example.dishpatch.domain.store.service.StoreService;
 import com.example.dishpatch.domain.user.exception.UserErrorCode;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
@@ -53,7 +53,6 @@ public class OrderService {
 	private final StoreRepository storeRepository;
 	private final OrderItemService orderItemService;
 	private final OrderItemRepository orderItemRepository;
-	private final StoreService storeService;
 
 	@LogOrderCreation
 	public OrderResponseDto createOrder(OrderRequestDto requestDto, Long userId) {
@@ -169,7 +168,7 @@ public class OrderService {
 
 		Order order = validateOrder(user, orderId);
 
-		if (!order.getStatus().equals(requestDto.getOrderStatus())) {
+		if (!order.getStatus().equals(requestDto.orderStatus())) {
 			throw new BizException(OrderErrorCode.INVALID_ORDER_STATUS);
 		}
 

@@ -1,11 +1,11 @@
 package com.example.dishpatch.domain.review.service;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.review.request.CeoReviewCreateRequest;
+import com.example.dishpatch.api.review.request.CeoReviewUpdateRequest;
 import com.example.dishpatch.api.review.response.CeoReviewResponse;
+import com.example.dishpatch.domain.review.exception.CeoReviewErrorCode;
 import com.example.dishpatch.domain.review.exception.ReviewErrorCode;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.review.entity.CeoReview;
@@ -46,6 +46,38 @@ public class CeoReviewService {
 		//외래키 반영
 		CeoReview saved = ceoReviewRepository.save(ceoReview);
 
-		return CeoReviewResponse.from(List.of(ceoReview)).get(0);
+		return CeoReviewResponse.from(ceoReview);
+	}
+
+	public CeoReviewResponse updateCeoReview(Long reviewId, Long ceoReviewId, CeoReviewUpdateRequest request) {
+
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+		CeoReview ceoReview = ceoReviewRepository.findById(ceoReviewId)
+			.orElseThrow(() -> new BizException(CeoReviewErrorCode.CEO_REVIEW_NOT_FOUND));
+
+		ceoReview.update(request.contents(), request.status());
+
+		return CeoReviewResponse.from(ceoReview);
+	}
+
+	public void deleteCeoReview(Long reviewId, Long ceoReviewId) {
+		Long userId = 1L;
+		ceoReviewId = 1L;
+
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+		//ceoReviewId 재설정 해야함
+		CeoReview ceoReview = ceoReviewRepository.findById(ceoReviewId)
+			.orElseThrow(() -> new BizException(CeoReviewErrorCode.CEO_REVIEW_NOT_FOUND));
+
+		//userId 재설정 해야함
+		if (!userId.equals(ceoReview.getUser().getId())) {
+			new BizException(CeoReviewErrorCode.CEO_REVIEW_AUTHOR_MISMATCH);
+		}
+
+		ceoReviewRepository.deleteById(ceoReview.getId());
 	}
 }

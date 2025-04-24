@@ -5,11 +5,14 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dishpatch.api.user.request.UserLoginRequest;
 import com.example.dishpatch.api.user.request.UserSignupRequest;
+import com.example.dishpatch.api.user.request.UserUpdateRequest;
 import com.example.dishpatch.api.user.response.UserLoginResponse;
 import com.example.dishpatch.api.user.response.UserSignupResponse;
+import com.example.dishpatch.api.user.response.UserUpdateResponse;
 import com.example.dishpatch.domain.user.exception.UserErrorCode;
 import com.example.dishpatch.global.config.JwtUtil;
 import com.example.dishpatch.global.config.SecurityConfig;
@@ -84,5 +87,19 @@ public class UserServiceImpl implements UserService {
 		if (expiration > 0) {
 			redisTemplate.opsForValue().set("blacklist:" + token, "logout", expiration, TimeUnit.MILLISECONDS);
 		}
+	}
+
+	@Transactional
+	@Override
+	public UserUpdateResponse updateUser(UserUpdateRequest dto, HttpServletRequest request) {
+		String token = jwtUtil.extractToken(request);
+		Long id = jwtUtil.extractId(token);
+
+		User user = userRepository.findById(id).orElseThrow(
+			() -> new BizException(UserErrorCode.INVALID_ID));
+
+		user.updateUser(dto.password(), dto.name(), dto.phone(), dto.currentAddress());
+
+		return UserUpdateResponse.from(user);
 	}
 }

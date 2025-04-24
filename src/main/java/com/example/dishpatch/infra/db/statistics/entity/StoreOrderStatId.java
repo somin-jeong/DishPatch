@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(staticName = "of")
 @Embeddable
-public class OrderStatId {
+public class StoreOrderStatId {
 
 	@Column(nullable = false)
 	private Long storeId;

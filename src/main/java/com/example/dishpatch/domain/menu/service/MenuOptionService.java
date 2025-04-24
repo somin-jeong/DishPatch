@@ -54,6 +54,17 @@ public class MenuOptionService {
 		option.update(req.name(), req.price(), req.soldOut());
 	}
 
+	@Transactional
+	public void deleteMenuOption(Long userId, Long menuId, Long optionId) {
+		MenuOption option = menuOptionRepository.findByIdWithMenuAndStore(optionId)
+			.orElseThrow(() -> new BizException(MenuOptionErrorCode.MENU_OPTION_NOT_FOUND));
+
+		validateOptionBelongsToMenu(menuId, option);
+		validateStoreOwner(userId, option.getMenu());
+
+		option.softDelete();
+	}
+
 	private static void validateOptionBelongsToMenu(Long menuId, MenuOption option) {
 		if (!Objects.equals(option.getMenu().getId(), menuId)) {
 			throw new BizException(MenuOptionErrorCode.INVALID_MENU_OPTION_RELATION);
@@ -65,5 +76,4 @@ public class MenuOptionService {
 			throw new BizException(StoreErrorCode.STORE_OWNER_MISMATCH);
 		}
 	}
-
 }

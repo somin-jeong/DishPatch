@@ -3,6 +3,7 @@ package com.example.dishpatch.api.menu.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -44,6 +45,16 @@ public class MenuOptionController {
 		@Valid @RequestBody MenuOptionUpdateRequest req
 	) {
 		menuOptionService.updateMenuOption(userAuth.getId(), menuId, optionId, req);
+		return ResponseEntity.noContent().build();
+	}
+
+	@DeleteMapping("/{optionId}")
+	public ResponseEntity<Void> deleteMenuOption(
+		@PathVariable Long menuId,
+		@PathVariable Long optionId,
+		@AuthenticationPrincipal UserAuth userAuth
+	) {
+		menuOptionService.deleteMenuOption(userAuth.getId(), menuId, optionId);
 		return ResponseEntity.noContent().build();
 	}
 }

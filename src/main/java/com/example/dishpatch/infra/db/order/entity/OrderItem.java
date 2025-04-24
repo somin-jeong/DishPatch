@@ -17,7 +17,7 @@ import lombok.Getter;
 @Getter
 @Entity
 @Table(name = "order_items")
-public class OrderItems {
+public class OrderItem {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,4 +37,12 @@ public class OrderItems {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "menu_option_id")
 	private MenuOption menuOption;
+
+	public OrderItem(int quantity, Order order, Menu menu, MenuOption menuOption) {
+
+	}
+
+	public OrderItem() {
+
+	}
 }

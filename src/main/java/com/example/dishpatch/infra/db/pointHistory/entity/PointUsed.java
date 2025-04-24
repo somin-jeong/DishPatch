@@ -1,7 +1,7 @@
 package com.example.dishpatch.infra.db.pointHistory.entity;
 
 public enum PointUsed {
-	USED("Used"), UNUSED("Unused");
+	USED("Used"), UNUSED("Unused"), DEDUCTED("Deducted");
 
 	private final String value;
 

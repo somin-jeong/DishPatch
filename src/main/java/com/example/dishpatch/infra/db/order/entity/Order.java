@@ -1,5 +1,6 @@
 package com.example.dishpatch.infra.db.order.entity;
 
+import com.example.dishpatch.infra.db.common.BaseEntity;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.user.entity.User;
 
@@ -17,7 +18,7 @@ import lombok.Getter;
 @Getter
 @Entity
 @Table(name = "orders")
-public class Order {
+public class Order extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,4 +38,18 @@ public class Order {
 	@JoinColumn(name = "store_id")
 	private Store store;
 
+	public Order(Integer totalPrice, User user, Store store) {
+		this.totalPrice = totalPrice;
+		this.status = OrderStatus.CHECKING;
+		this.user = user;
+		this.store = store;
+	}
+
+	public Order() {
+
+	}
+
+	public void updateStatus(OrderStatus orderStatus) {
+		this.status = orderStatus;
+	}
 }

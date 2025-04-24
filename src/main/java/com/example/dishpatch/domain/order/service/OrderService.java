@@ -17,6 +17,7 @@ import com.example.dishpatch.domain.coupon.service.CouponService;
 import com.example.dishpatch.domain.pointHistory.service.PointHistoryService;
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
 import com.example.dishpatch.infra.db.coupon.entity.CouponType;
+import com.example.dishpatch.infra.db.order.aop.LogOrderCreation;
 import com.example.dishpatch.infra.db.order.entity.Order;
 import com.example.dishpatch.infra.db.order.entity.OrderItem;
 import com.example.dishpatch.infra.db.order.entity.OrderStatus;
@@ -45,6 +46,7 @@ public class OrderService {
 	private final OrderItemService orderItemService;
 	private final OrderItemRepository orderItemRepository;
 
+	@LogOrderCreation
 	public OrderResponseDto createOrder(OrderRequestDto requestDto, Long userId) {
 
 		Coupon coupon = null;

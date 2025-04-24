@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointHistory;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointUsed;
 import com.example.dishpatch.infra.db.pointHistory.repository.PointHistoryRepository;
+import com.example.dishpatch.infra.db.user.entity.User;
+import com.example.dishpatch.infra.db.user.repository.UserRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.transaction.Transactional;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class PointHistoryService {
 
 	private final PointHistoryRepository pointHistoryRepository;
+	private final UserRepository userRepository;
 
 	@Autowired
 	private JPAQueryFactory queryFactory;
@@ -50,5 +53,15 @@ public class PointHistoryService {
 
 			index++;
 		}
+	}
+
+	public void getPoint(Long userId, Integer totalPrice) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new RuntimeException("User not found"));
+
+		PointHistory pointHistory = new PointHistory(totalPrice / 100, totalPrice / 100, user);
+
+		pointHistoryRepository.save(pointHistory);
+
 	}
 }

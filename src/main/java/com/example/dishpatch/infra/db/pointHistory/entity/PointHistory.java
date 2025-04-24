@@ -37,6 +37,13 @@ public class PointHistory extends BaseEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
+	public PointHistory(Integer amount, Integer remain, User user) {
+		this.amount = amount;
+		this.remain = remain;
+		this.user = user;
+		this.pointUsed = PointUsed.UNUSED;
+	}
+
 	public void updateRemain(int curPoint) {
 		if (curPoint == 0) {
 			this.pointUsed = PointUsed.USED;

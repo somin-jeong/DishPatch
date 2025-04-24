@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.order.request.OrderRequestDto;
+import com.example.dishpatch.api.order.request.OrderStatusRequestDto;
 import com.example.dishpatch.api.order.response.OrderResponseDto;
 import com.example.dishpatch.domain.coupon.service.CouponService;
 import com.example.dishpatch.domain.pointHistory.service.PointHistoryService;
@@ -20,6 +21,7 @@ import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -118,11 +120,15 @@ public class OrderService {
 	}
 
 	@Transactional
-	public OrderResponseDto updateOrder(Long userId, Long orderId) {
+	public OrderResponseDto updateOrder(Long userId, Long orderId, @Valid OrderStatusRequestDto requestDto) {
 
 		User user = validateUser(userId);
 
 		Order order = validateOrder(user, orderId);
+
+		if (!order.getStatus().equals(requestDto.getOrderStatus())) {
+			throw new RuntimeException("현재 상태와 일치하지 않습니다.");
+		}
 
 		if (order.getStatus() == OrderStatus.CHECKING) {
 			order.updateStatus(OrderStatus.COOKING);
@@ -130,6 +136,7 @@ public class OrderService {
 			order.updateStatus(OrderStatus.DELIVERING);
 		} else if (order.getStatus() == OrderStatus.DELIVERING) {
 			order.updateStatus(OrderStatus.FINISHED);
+			pointHistoryService.getPoint(userId, order.getTotalPrice());
 		}
 
 		List<Long> menuIds = orderItemService.getOrderItems(orderId);

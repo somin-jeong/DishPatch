@@ -3,9 +3,9 @@ spring:
     name: DishPatch
 
   datasource:
-    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/dishpatch}
-    username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:root}
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/dishpatch?rewriteBatchedStatements=true}
+    username: ${MYSQL_USERNAME:testuser}
+    password: ${MYSQL_PASSWORD:testpass}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   data:
@@ -22,6 +22,10 @@ spring:
         format_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQLDialect
+        jdbc.batch_size: 100
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
 
 jwt:
   secret: ${JWT_SECRET:default-secret}

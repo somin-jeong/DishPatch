@@ -1,8 +1,5 @@
 package com.example.dishpatch.api.review.response;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.example.dishpatch.infra.db.review.entity.Review;
 import com.example.dishpatch.infra.db.review.entity.ReviewStatus;
 
@@ -26,9 +23,5 @@ public record ReviewResponse(
 			review.getImageUrl(),
 			review.getStatus()
 		);
-	}
-
-	public static List<ReviewResponse> from(List<Review> reviewList) {
-		return reviewList.stream().map(ReviewResponse::from).collect(Collectors.toList());
 	}
 }

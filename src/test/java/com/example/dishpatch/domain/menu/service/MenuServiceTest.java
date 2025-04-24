@@ -16,6 +16,7 @@ import com.example.dishpatch.api.menu.response.MenuCreateResponse;
 import com.example.dishpatch.api.menu.response.StoreMenuListResponse;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
+import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,8 +62,8 @@ class MenuServiceTest {
 	void getStoreMenus_shouldSucceed() {
 		Long storeId = 1L;
 		List<Menu> menus = List.of(
-			// new Menu("메뉴 이름1", 10000, "https://image.com/image_url1", false, new Store()),
-			// new Menu("메뉴 이름2", 20000, "https://image.com/image_url2", true, new Store())
+			new Menu("메뉴 이름1", 10000, "https://image.com/image_url1", false, new Store()),
+			new Menu("메뉴 이름2", 20000, "https://image.com/image_url2", true, new Store())
 		);
 
 		given(storeRepository.existsById(storeId)).willReturn(true);

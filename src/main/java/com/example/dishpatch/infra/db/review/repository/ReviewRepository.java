@@ -26,4 +26,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		@Param("min") Integer min,
 		@Param("max") Integer max);
 
+	/**
+	 * 가게 폐업 시 리뷰 삭제
+	 * @param storeId
+	 */
+	void deleteAllByStoreId(Long storeId);
+
 }

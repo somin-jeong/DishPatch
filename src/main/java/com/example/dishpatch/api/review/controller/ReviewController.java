@@ -2,6 +2,7 @@ package com.example.dishpatch.api.review.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,6 +62,16 @@ public class ReviewController {
 		ReviewResponse response = reviewService.updateReview(reviewId, request);
 
 		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
+	@DeleteMapping("/reviews/{reviewId}")
+	public ResponseEntity<Void> deleteReview(
+		@PathVariable Long reviewId
+		//@SessionAttribute("loginUser") Long loginUserId
+	) {
+		reviewService.deleteReview(reviewId);
+
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 }

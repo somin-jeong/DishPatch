@@ -91,4 +91,20 @@ public class ReviewService {
 		return ReviewResponse.from(review);
 	}
 
+	public void deleteReview(Long reviewId) {
+		Long userId = 1L;
+		reviewId = 1L;
+
+		//reviewId 재설정 해야함
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+		//userId 재설정 해야함
+		if (!userId.equals(review.getUser().getId())) {
+			new BizException(ReviewErrorCode.REVIEW_AUTHOR_MISMATCH);
+		}
+
+		reviewRepository.delete(review);
+	}
+
 }

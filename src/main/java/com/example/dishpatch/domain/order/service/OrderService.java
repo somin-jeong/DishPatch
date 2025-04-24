@@ -175,4 +175,18 @@ public class OrderService {
 
 		return user;
 	}
+
+	@Transactional
+	public void refuseOrder(Long userId, Long orderId) {
+
+		User user = validateUser(userId);
+
+		Order order = validateOrder(user, orderId);
+
+		if (!order.getStatus().equals(OrderStatus.CHECKING)) {
+			throw new RuntimeException("거절할 수 없는 상태 입니다.");
+		}
+
+		order.updateStatus(OrderStatus.REFUSED);
+	}
 }

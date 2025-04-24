@@ -2,6 +2,7 @@ package com.example.dishpatch.api.order.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,6 +49,18 @@ public class OrderController {
 		OrderResponseDto responseDto = orderService.updateOrder(userId, orderId, requestDto);
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+	}
+
+	@DeleteMapping("/{orderId}/refuse")
+	public ResponseEntity<Void> refuseOrder(
+		HttpServletRequest request,
+		@PathVariable Long orderId
+	) {
+		Long userId = (Long)request.getSession().getAttribute("userId");
+
+		orderService.refuseOrder(userId, orderId);
+
+		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
 }

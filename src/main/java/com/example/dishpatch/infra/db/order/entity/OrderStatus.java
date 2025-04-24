@@ -4,7 +4,8 @@ public enum OrderStatus {
 	CHECKING("확인중"),
 	COOKING("조리중"),
 	DELIVERING("배달중"),
-	FINISHED("배달완료");
+	FINISHED("배달완료"),
+	REFUSED("거절됨");
 
 	private final String description;
 

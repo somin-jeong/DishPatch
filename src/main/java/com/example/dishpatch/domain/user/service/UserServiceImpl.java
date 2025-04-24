@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.dishpatch.api.user.request.UserDeleteRequest;
 import com.example.dishpatch.api.user.request.UserLoginRequest;
 import com.example.dishpatch.api.user.request.UserSignupRequest;
 import com.example.dishpatch.api.user.request.UserUpdateRequest;
@@ -61,9 +62,14 @@ public class UserServiceImpl implements UserService {
 		User user = userRepository.findByEmail(request.email()).orElseThrow(
 			() -> new BizException(UserErrorCode.INVALID_EMAIL));
 
+		if (user.getStatus() == UserStatus.UNACTIVE) {
+			throw new BizException(UserErrorCode.INVALID_ID);
+		}
+
 		if (!passwordEncoder.matches(request.password(), user.getPassword())) {
 			throw new BizException(UserErrorCode.INVALID_PASSWORD);
 		}
+
 
 		String token = jwtUtil.createToken(user.getId(),user.getRole());
 
@@ -102,5 +108,19 @@ public class UserServiceImpl implements UserService {
 		user.updateUser(encodedpassword, dto.name(), dto.phone(), dto.currentAddress());
 
 		return UserUpdateResponse.from(user);
+	}
+
+	@Transactional
+	@Override
+	public void deleteUser(UserDeleteRequest request,UserAuth userAuth) {
+
+		User user = userRepository.findById(userAuth.getId()).orElseThrow(
+			() -> new BizException(UserErrorCode.INVALID_ID));
+
+		if(!passwordEncoder.matches(request.password(),user.getPassword())){
+			throw new BizException(UserErrorCode.INVALID_PASSWORD);
+		}
+
+		user.deleteUser(UserStatus.UNACTIVE);
 	}
 }

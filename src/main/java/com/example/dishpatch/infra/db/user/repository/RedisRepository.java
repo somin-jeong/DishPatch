@@ -18,7 +18,7 @@ public class RedisRepository {
 
 	public boolean validateKey(String token) {
 		// Redis 블랙리스트 검사
-		String blacklistKey = "blackList:" + token;
+		String blacklistKey = "blacklist:" + token;
 
 		try {
 			return redisTemplate.hasKey(blacklistKey);

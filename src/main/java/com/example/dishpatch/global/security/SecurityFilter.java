@@ -2,15 +2,21 @@ package com.example.dishpatch.global.security;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.example.dishpatch.infra.db.user.entity.User;
+import com.example.dishpatch.infra.db.user.entity.UserStatus;
 import com.example.dishpatch.infra.db.user.repository.RedisRepository;
+import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,7 +31,6 @@ public class SecurityFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
 	private final RedisRepository redisRepository;
-	private final ResourcePatternResolver resourcePatternResolver;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -36,11 +41,8 @@ public class SecurityFilter extends OncePerRequestFilter {
 		if (header != null && header.startsWith("Bearer ")) {
 			String token = header.substring(7);
 
-			if (redisRepository.validateKey(token)) {
-				return;
-			}
-
-		if (redisRepository.validateKey("blackList:" + token)){
+			// JWT 블랙리스트 검증
+		if (redisRepository.validateKey(token)){
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"이미 로그아웃된 아이디입니다.");
 			return;
 		}
@@ -60,7 +62,6 @@ public class SecurityFilter extends OncePerRequestFilter {
 						new UsernamePasswordAuthenticationToken(userAuth, null, authorities);
 
 					SecurityContextHolder.getContext().setAuthentication(authToken);
-
 				}
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 접근입니다.");

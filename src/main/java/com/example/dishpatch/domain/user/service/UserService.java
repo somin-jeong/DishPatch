@@ -1,5 +1,6 @@
 package com.example.dishpatch.domain.user.service;
 
+import com.example.dishpatch.api.user.request.UserDeleteRequest;
 import com.example.dishpatch.api.user.request.UserLoginRequest;
 import com.example.dishpatch.api.user.request.UserSignupRequest;
 import com.example.dishpatch.api.user.request.UserUpdateRequest;
@@ -19,4 +20,6 @@ public interface UserService {
 	void logout(HttpServletRequest request);
 
 	UserUpdateResponse updateUser(UserUpdateRequest dto, UserAuth userAuth);
+
+	void deleteUser(UserDeleteRequest request,UserAuth userAuth);
 }

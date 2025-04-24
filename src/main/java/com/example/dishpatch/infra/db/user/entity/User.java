@@ -79,5 +79,9 @@ public class User extends SoftDeletableEntity {
 		this.currentAddress = currentAddress;
 	}
 
+	public void deleteUser(UserStatus status){
+		this.status = status;
+	}
+
 
 }

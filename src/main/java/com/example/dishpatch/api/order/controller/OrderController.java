@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,11 +33,9 @@ public class OrderController {
 
 	@PostMapping
 	public ResponseEntity<OrderResponseDto> createOrder(
-		HttpServletRequest request,
+		@AuthenticationPrincipal Long userId,
 		@Valid @RequestBody OrderRequestDto requestDto
 	) {
-		Long userId = (Long)request.getSession().getAttribute("userId");
-
 		OrderResponseDto responseDto = orderService.createOrder(requestDto, userId);
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -57,11 +56,9 @@ public class OrderController {
 
 	@DeleteMapping("/{orderId}/refuse")
 	public ResponseEntity<Void> refuseOrder(
-		HttpServletRequest request,
+		@AuthenticationPrincipal Long userId,
 		@PathVariable Long orderId
 	) {
-		Long userId = (Long)request.getSession().getAttribute("userId");
-
 		orderService.refuseOrder(userId, orderId);
 
 		return ResponseEntity.status(HttpStatus.OK).build();
@@ -69,10 +66,8 @@ public class OrderController {
 
 	@GetMapping
 	public ResponseEntity<List<OrderResponseDto>> findAllOrders(
-		HttpServletRequest request
+		@AuthenticationPrincipal Long userId
 	) {
-		Long userId = (Long)request.getSession().getAttribute("userId");
-
 		List<OrderResponseDto> responseDtos = orderService.findAllOrders(userId);
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
@@ -80,11 +75,9 @@ public class OrderController {
 
 	@GetMapping("/{orderId}/details")
 	public ResponseEntity<OrderDetailResponseDto> findOrderDetails(
-		HttpServletRequest request,
+		@AuthenticationPrincipal Long userId,
 		@PathVariable Long orderId
 	) {
-		Long userId = (Long)request.getSession().getAttribute("userId");
-
 		OrderDetailResponseDto responseDto = orderService.findOrderDetails(userId, orderId);
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseDto);

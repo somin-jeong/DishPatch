@@ -1,4 +1,4 @@
-package com.example.dishpatch.infra.db.statistics.entity;
+package com.example.dishpatch.infra.db.common;
 
 import java.time.LocalDate;
 

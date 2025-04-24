@@ -2,6 +2,8 @@ package com.example.dishpatch.infra.db.statistics.entity;
 
 import java.time.LocalDate;
 
+import com.example.dishpatch.infra.db.common.StatConvertible;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;

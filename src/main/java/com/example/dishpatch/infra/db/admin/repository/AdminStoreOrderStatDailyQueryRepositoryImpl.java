@@ -3,7 +3,7 @@ package com.example.dishpatch.infra.db.admin.repository;
 import org.springframework.stereotype.Repository;
 
 import com.example.dishpatch.infra.db.admin.entity.AdminStoreOrderStatDaily;
-import com.example.dishpatch.infra.db.statistics.entity.QAdminStoreOrderStatDaily;
+import com.example.dishpatch.infra.db.admin.entity.QAdminStoreOrderStatDaily;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository

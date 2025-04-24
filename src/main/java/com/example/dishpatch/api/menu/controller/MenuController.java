@@ -31,10 +31,10 @@ public class MenuController {
 	@PostMapping
 	public ResponseEntity<MenuCreateResponse> createMenu(
 		@PathVariable("storeId") Long storeId,
+		@AuthenticationPrincipal Long userId,
 		@Valid @RequestBody MenuCreateRequest req
 	) {
-		// todo : 로그인된 사용자로 처리되게 수정, SecurityFilterChain 에서 권한 체크 추가
-		MenuCreateResponse res = menuService.createMenu(1L, storeId, req);
+		MenuCreateResponse res = menuService.createMenu(userId, storeId, req);
 		return ResponseEntity.status(HttpStatus.CREATED).body(res);
 	}
 
@@ -50,10 +50,10 @@ public class MenuController {
 	public ResponseEntity<Void> updateMenu(
 		@PathVariable("storeId") Long storeId,
 		@PathVariable("menuId") Long menuId,
+		@AuthenticationPrincipal Long userId,
 		@Valid @RequestBody MenuUpdateRequest req
 	) {
-		// todo : 로그인된 사용자로 처리되게 수정, SecurityFilterChain 에서 권한 체크 추가
-		menuService.updateMenu(1L, storeId, menuId, req);
+		menuService.updateMenu(userId, storeId, menuId, req);
 		return ResponseEntity.noContent().build();
 	}
 

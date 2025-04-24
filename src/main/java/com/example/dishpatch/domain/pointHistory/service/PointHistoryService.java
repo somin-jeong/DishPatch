@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.dishpatch.domain.user.exception.UserErrorCode;
+import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointHistory;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointUseHistory;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointUsed;
@@ -42,7 +44,7 @@ public class PointHistoryService {
 
 	public void getPoint(Long userId, Integer totalPrice) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new RuntimeException("User not found"));
+			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
 
 		PointHistory pointHistory = new PointHistory(totalPrice / 100, totalPrice / 100, user);
 

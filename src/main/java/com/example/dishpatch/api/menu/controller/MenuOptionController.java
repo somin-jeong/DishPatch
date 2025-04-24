@@ -14,6 +14,7 @@ import com.example.dishpatch.api.menu.request.MenuOptionAddRequest;
 import com.example.dishpatch.api.menu.request.MenuOptionUpdateRequest;
 import com.example.dishpatch.api.menu.response.MenuOptionAddResponse;
 import com.example.dishpatch.domain.menu.service.MenuOptionService;
+import com.example.dishpatch.global.security.UserAuth;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,10 @@ public class MenuOptionController {
 	@PostMapping
 	public ResponseEntity<MenuOptionAddResponse> addMenuOption(
 		@PathVariable Long menuId,
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@Valid @RequestBody MenuOptionAddRequest req
 	) {
-		MenuOptionAddResponse res = menuOptionService.addMenuOption(userId, menuId, req);
+		MenuOptionAddResponse res = menuOptionService.addMenuOption(userAuth.getId(), menuId, req);
 		return ResponseEntity.status(HttpStatus.CREATED).body(res);
 	}
 
@@ -39,10 +40,10 @@ public class MenuOptionController {
 	public ResponseEntity<Void> updateMenuOption(
 		@PathVariable Long menuId,
 		@PathVariable Long optionId,
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@Valid @RequestBody MenuOptionUpdateRequest req
 	) {
-		menuOptionService.updateMenuOption(userId, menuId, optionId, req);
+		menuOptionService.updateMenuOption(userAuth.getId(), menuId, optionId, req);
 		return ResponseEntity.noContent().build();
 	}
 }

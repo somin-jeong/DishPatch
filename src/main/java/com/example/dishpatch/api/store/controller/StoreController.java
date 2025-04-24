@@ -2,6 +2,7 @@ package com.example.dishpatch.api.store.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +32,7 @@ public class StoreController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(storeService.createStore(new User(), request));
 	}
 
-	@PostMapping("/{storeId}")
+	@PostMapping("/{storeId}/like")
 	public void dibStore(
 		// TODO: authentication user
 		@PathVariable("storeId") Long storeId
@@ -39,11 +40,19 @@ public class StoreController {
 		storeService.dibStore(new User(), storeId);
 	}
 
-	@DeleteMapping("/{storeId}")
+	@DeleteMapping("/{storeId}/like")
 	public void undibStore(
 		// TODO: authentication user
 		@PathVariable("storeId") Long storeId
 	) {
 		storeService.undibStore(new User(), storeId);
+	}
+
+	@DeleteMapping("/{storeId}")
+	public void deleteStore(
+		@AuthenticationPrincipal Long userId,
+		@PathVariable("storeId") Long storeId
+	) {
+		storeService.deleteStore(userId, storeId);
 	}
 }

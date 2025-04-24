@@ -1,6 +1,7 @@
 package com.example.dishpatch.domain.order.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -52,5 +53,9 @@ public class OrderItemService {
 	public List<Long> getOrderItems(Long orderId) {
 
 		return orderItemRepository.findIdsByOrderId(orderId);
+	}
+
+	public Collection<Object> findOrderItem(Long orderId) {
+		return null;
 	}
 }

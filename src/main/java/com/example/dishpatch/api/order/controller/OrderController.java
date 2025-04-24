@@ -1,8 +1,11 @@
 package com.example.dishpatch.api.order.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dishpatch.api.order.request.OrderRequestDto;
 import com.example.dishpatch.api.order.request.OrderStatusRequestDto;
+import com.example.dishpatch.api.order.response.OrderDetailResponseDto;
 import com.example.dishpatch.api.order.response.OrderResponseDto;
 import com.example.dishpatch.domain.order.service.OrderService;
 
@@ -61,6 +65,29 @@ public class OrderController {
 		orderService.refuseOrder(userId, orderId);
 
 		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+
+	@GetMapping
+	public ResponseEntity<List<OrderResponseDto>> findAllOrders(
+		HttpServletRequest request
+	) {
+		Long userId = (Long)request.getSession().getAttribute("userId");
+
+		List<OrderResponseDto> responseDtos = orderService.findAllOrders(userId);
+
+		return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
+	}
+
+	@GetMapping("/{orderId}/details")
+	public ResponseEntity<OrderDetailResponseDto> findOrderDetails(
+		HttpServletRequest request,
+		@PathVariable Long orderId
+	) {
+		Long userId = (Long)request.getSession().getAttribute("userId");
+
+		OrderDetailResponseDto responseDto = orderService.findOrderDetails(userId, orderId);
+
+		return ResponseEntity.status(HttpStatus.OK).body(responseDto);
 	}
 
 }

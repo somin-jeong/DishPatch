@@ -1,23 +1,31 @@
 package com.example.dishpatch.domain.order.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.order.request.OrderRequestDto;
 import com.example.dishpatch.api.order.request.OrderStatusRequestDto;
+import com.example.dishpatch.api.order.response.MenuOptionDetailResponseDto;
+import com.example.dishpatch.api.order.response.OrderDetailResponseDto;
+import com.example.dishpatch.api.order.response.OrderItemDetailResponseDto;
 import com.example.dishpatch.api.order.response.OrderResponseDto;
 import com.example.dishpatch.domain.coupon.service.CouponService;
 import com.example.dishpatch.domain.pointHistory.service.PointHistoryService;
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
 import com.example.dishpatch.infra.db.coupon.entity.CouponType;
 import com.example.dishpatch.infra.db.order.entity.Order;
+import com.example.dishpatch.infra.db.order.entity.OrderItem;
 import com.example.dishpatch.infra.db.order.entity.OrderStatus;
+import com.example.dishpatch.infra.db.order.repository.OrderItemRepository;
 import com.example.dishpatch.infra.db.order.repository.OrderRepository;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
+import com.example.dishpatch.infra.db.user.entity.UserRole;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -35,6 +43,7 @@ public class OrderService {
 	private final UserRepository userRepository;
 	private final StoreRepository storeRepository;
 	private final OrderItemService orderItemService;
+	private final OrderItemRepository orderItemRepository;
 
 	public OrderResponseDto createOrder(OrderRequestDto requestDto, Long userId) {
 
@@ -188,5 +197,82 @@ public class OrderService {
 		}
 
 		order.updateStatus(OrderStatus.REFUSED);
+	}
+
+	public List<OrderResponseDto> findAllOrders(Long userId) {
+
+		User user = validateUser(userId);
+
+		List<Order> orders = new ArrayList<>();
+
+		if (user.getRole().equals(UserRole.USER)) {
+			orders = orderRepository.findByUser(user);
+		} else if (user.getRole().equals(UserRole.CEO)) {
+			List<Long> storeIds = storeRepository.findIdByUser(user);
+			orders = orderRepository.findByStoreIds(storeIds);
+		} else {
+			throw new RuntimeException("허용되지 않은 유저 역할입니다.");
+		}
+
+		List<OrderResponseDto> responseDtos = new ArrayList<>();
+
+		return orders.stream()
+			.map(order -> new OrderResponseDto(
+				order.getId(),
+				order.getUser().getId(),
+				order.getStore().getId(),
+				orderItemService.getOrderItems(order.getId()),
+				order.getTotalPrice(),
+				order.getStatus()
+			))
+			.collect(Collectors.toList());
+	}
+
+	public OrderDetailResponseDto findOrderDetails(Long userId, Long orderId) {
+
+		User user = validateUser(userId);
+
+		Order order = validateDetailOrder(user, orderId);
+
+		List<OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
+
+		List<OrderItemDetailResponseDto> orderItemDtos = orderItems.stream()
+			.map(orderItem -> new OrderItemDetailResponseDto(
+				orderItem.getMenu().getId(),
+				orderItem.getMenu().getName(),
+				orderItem.getMenuOption() != null ?
+					List.of(new MenuOptionDetailResponseDto(
+						orderItem.getMenuOption().getId(),
+						orderItem.getMenuOption().getName()
+					)) : List.of(),
+				orderItem.getQuantity()
+			))
+			.toList();
+
+		return new OrderDetailResponseDto(
+			order.getId(),
+			order.getUser().getId(),
+			order.getStore().getId(),
+			orderItemDtos,
+			order.getTotalPrice(),
+			order.getStatus(),
+			order.getCreatedDate()
+		);
+	}
+
+	private Order validateDetailOrder(User user, Long orderId) {
+
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> new RuntimeException("주문이 존재하지 않습니다."));
+
+		if (order.getUser().getId().equals(user.getId())) {
+			return order;
+		}
+
+		if (order.getStore().getUser().getId().equals(user.getId())) {
+			return order;
+		}
+
+		throw new RuntimeException("접근할 수 없는 주문입니다.");
 	}
 }

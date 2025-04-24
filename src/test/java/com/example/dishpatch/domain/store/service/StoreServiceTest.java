@@ -126,16 +126,23 @@ class StoreServiceTest {
 	@Test
 	void dibStore_shouldSucceed() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+
+		Long storeId = 3L;
 		Store store = mock(Store.class);
 
-		when(storeRepository.findById(user.getId())).thenReturn(Optional.of(store));
-		when(dibRepository.existsByUserIdAndStoreId(user.getId(), store.getId())).thenReturn(false);
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
+		when(dibRepository.existsByUserIdAndStoreId(userId, storeId)).thenReturn(false);
 
 		ArgumentCaptor<Dib> dibCaptor = ArgumentCaptor.forClass(Dib.class);
 
 		// when
-		storeService.dibStore(user, store.getId());
+		storeService.dibStore(userAuth, storeId);
 
 		// then
 		verify(dibRepository, times(1)).save(dibCaptor.capture());
@@ -147,14 +154,20 @@ class StoreServiceTest {
 	@Test
 	void dibStore_whenNotFoundStore_shouldThrowException() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
-		Store store = mock(Store.class);
 
-		when(storeRepository.findById(user.getId())).thenReturn(Optional.empty());
+		Long storeId = 3L;
+
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.empty());
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.dibStore(user, store.getId()));
+			() -> storeService.dibStore(userAuth, storeId));
 
 		assertThat(STORE_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -162,15 +175,22 @@ class StoreServiceTest {
 	@Test
 	void dibStore_whenAlreadyDibStore_shouldThrowException() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+
+		Long storeId = 3L;
 		Store store = mock(Store.class);
 
-		when(storeRepository.findById(user.getId())).thenReturn(Optional.of(store));
-		when(dibRepository.existsByUserIdAndStoreId(user.getId(), store.getId())).thenReturn(true);
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
+		when(dibRepository.existsByUserIdAndStoreId(userId, storeId)).thenReturn(true);
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.dibStore(user, store.getId()));
+			() -> storeService.dibStore(userAuth, storeId));
 
 		assertThat(ALREADY_DIB_STORE.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -178,17 +198,24 @@ class StoreServiceTest {
 	@Test
 	void undibStore_shouldSucceed() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+
+		Long storeId = 3L;
 		Store store = mock(Store.class);
+
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
 		Dib dib = Dib.of(user, store);
 
-		when(storeRepository.existsById(store.getId())).thenReturn(true);
-		when(dibRepository.findByUserIdAndStoreId(user.getId(), store.getId())).thenReturn(Optional.of(dib));
+		when(storeRepository.existsByIdAndDeletedDateIsNull(storeId)).thenReturn(true);
+		when(dibRepository.findByUserIdAndStoreId(userId, storeId)).thenReturn(Optional.of(dib));
 
 		ArgumentCaptor<Dib> dibCaptor = ArgumentCaptor.forClass(Dib.class);
 
 		// when
-		storeService.undibStore(user, store.getId());
+		storeService.undibStore(userAuth, storeId);
 
 		// then
 		verify(dibRepository, times(1)).delete(dibCaptor.capture());
@@ -200,14 +227,15 @@ class StoreServiceTest {
 	@Test
 	void undibStore_whenNotFoundStore_shouldThrowException() {
 		// given
-		User user = mock(User.class);
-		Store store = mock(Store.class);
+		Long storeId = 3L;
 
-		when(storeRepository.existsById(store.getId())).thenReturn(false);
+		UserAuth userAuth = mock(UserAuth.class);
+
+		when(storeRepository.existsByIdAndDeletedDateIsNull(storeId)).thenReturn(false);
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.undibStore(user, store.getId()));
+			() -> storeService.undibStore(userAuth, storeId));
 
 		assertThat(STORE_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -215,15 +243,18 @@ class StoreServiceTest {
 	@Test
 	void undibStore_whenUndibStore_shouldThrowException() {
 		// given
-		User user = mock(User.class);
-		Store store = mock(Store.class);
+		Long userId = 1L;
+		Long storeId = 3L;
 
-		when(storeRepository.existsById(store.getId())).thenReturn(true);
-		when(dibRepository.findByUserIdAndStoreId(user.getId(), store.getId())).thenReturn(Optional.empty());
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
+		when(storeRepository.existsByIdAndDeletedDateIsNull(storeId)).thenReturn(true);
+		when(dibRepository.findByUserIdAndStoreId(userId, storeId)).thenReturn(Optional.empty());
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.undibStore(user, store.getId()));
+			() -> storeService.undibStore(userAuth, storeId));
 
 		assertThat(UNDIB_STORE.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}

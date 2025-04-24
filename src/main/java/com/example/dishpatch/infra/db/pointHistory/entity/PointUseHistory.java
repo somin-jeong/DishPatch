@@ -1,7 +1,6 @@
-package com.example.dishpatch.infra.db.order.entity;
+package com.example.dishpatch.infra.db.pointHistory.entity;
 
-import com.example.dishpatch.infra.db.menu.entity.Menu;
-import com.example.dishpatch.infra.db.menu.entity.MenuOption;
+import com.example.dishpatch.infra.db.common.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,27 +13,24 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 
-@Getter
 @Entity
-@Table(name = "order_items")
-public class OrderItems {
+@Getter
+@Table(name = "pointUseHistories")
+public class PointUseHistory extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(nullable = false)
-	private Integer quantity;
+	private Integer pointUsed;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "order_id")
-	private Order order;
+	@JoinColumn(name = "point_history_id", nullable = false)
+	private PointHistory pointHistory;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "menu_id")
-	private Menu menu;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "menu_option_id")
-	private MenuOption menuOption;
+	public PointUseHistory(PointHistory ph, Integer point) {
+		this.pointHistory = ph;
+		this.pointUsed = point;
+	}
 }

@@ -1,10 +1,7 @@
-package com.example.dishpatch.infra.db.cart.entity;
+package com.example.dishpatch.infra.db.order.entity;
 
-import com.example.dishpatch.infra.db.common.BaseEntity;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.entity.MenuOption;
-import com.example.dishpatch.infra.db.store.entity.Store;
-import com.example.dishpatch.infra.db.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,25 +13,22 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Entity
-@NoArgsConstructor
 @Getter
-@Table(name = "cart")
-public class Cart extends BaseEntity {
+@Entity
+@Table(name = "order_items")
+public class OrderItem {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
+	@Column(nullable = false)
+	private Integer quantity;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "store_id")
-	private Store store;
+	@JoinColumn(name = "order_id")
+	private Order order;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "menu_id")
@@ -44,15 +38,11 @@ public class Cart extends BaseEntity {
 	@JoinColumn(name = "menu_option_id")
 	private MenuOption menuOption;
 
-	@Column(nullable = false)
-	private int quantity;
+	public OrderItem(int quantity, Order order, Menu menu, MenuOption menuOption) {
 
-	public Cart(User user, Store store, Menu menu, MenuOption menuOption, int quantity) {
-		this.user = user;
-		this.store = store;
-		this.menu = menu;
-		this.menuOption = menuOption;
-		this.quantity = quantity;
 	}
 
+	public OrderItem() {
+
+	}
 }

@@ -20,11 +20,6 @@ import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.global.exception.BizException;
-import com.example.dishpatch.infra.db.cart.repository.CartRepository;
-import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
-import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
-import com.example.dishpatch.infra.db.review.repository.CeoReviewRepository;
-import com.example.dishpatch.infra.db.review.repository.ReviewRepository;
 import com.example.dishpatch.infra.db.store.entity.Category;
 import com.example.dishpatch.infra.db.store.entity.Dib;
 import com.example.dishpatch.infra.db.store.entity.Store;
@@ -33,6 +28,7 @@ import com.example.dishpatch.infra.db.store.repository.DibRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.entity.UserRole;
+import com.example.dishpatch.infra.db.user.entity.UserStatus;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,31 +44,25 @@ class StoreServiceTest {
 	private DibRepository dibRepository;
 	@Mock
 	private UserRepository userRepository;
-	@Mock
-	private ReviewRepository reviewRepository;
-	@Mock
-	private CeoReviewRepository ceoReviewRepository;
-	@Mock
-	private MenuRepository menuRepository;
-	@Mock
-	private MenuOptionRepository menuOptionRepository;
-	@Mock
-	private CartRepository cartRepository;
 
 	@Test
 	void createStore_shouldSucceed() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+		when(user.getRole()).thenReturn(UserRole.CEO);
+
 		Category category = mock(Category.class);
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
 		when(storeRepository.countByUserIdAndDeletedDateIsNull(any())).thenReturn(2);
 
 		ArgumentCaptor<Store> storeCaptor = ArgumentCaptor.forClass(Store.class);
 
 		// when
-		StoreCreateResponse response = storeService.createStore(user, request);
+		StoreCreateResponse response = storeService.createStore(userId, request);
 
 		// then
 		verify(storeRepository, times(1)).save(storeCaptor.capture());
@@ -86,16 +76,20 @@ class StoreServiceTest {
 	@Test
 	void createMenu_whenStoreOwnLimitExceed_shouldThrowException() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+		when(user.getRole()).thenReturn(UserRole.CEO);
+
 		Category category = mock(Category.class);
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
 		when(storeRepository.countByUserIdAndDeletedDateIsNull(any())).thenReturn(3); // 최대 초과
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.createStore(user, request));
+			() -> storeService.createStore(userId, request));
 
 		assertThat(STORE_OWN_LIMIT_EXCEEDED.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -103,14 +97,18 @@ class StoreServiceTest {
 	@Test
 	void createMenu_whenNotFoundCategory_shouldThrowException() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+		when(user.getRole()).thenReturn(UserRole.CEO);
+
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.empty());
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.createStore(user, request));
+			() -> storeService.createStore(userId, request));
 
 		assertThat(CATEGORY_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}

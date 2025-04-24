@@ -1,4 +1,4 @@
-package com.example.dishpatch.api.review.request;
+package com.example.dishpatch.api.review.response;
 
 import java.util.List;
 import java.util.stream.Collectors;

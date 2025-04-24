@@ -33,8 +33,7 @@ public class MenuService {
 			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
 
 		if (!Objects.equals(store.getUser().getId(), userId)) {
-			// todo : 가게의 주인이 아니다 라는 예외로 변경해야함
-			throw new BizException(StoreErrorCode.STORE_NOT_FOUND);
+			throw new BizException(StoreErrorCode.STORE_OWNER_MISMATCH);
 		}
 
 		Menu menu = Menu.builder()

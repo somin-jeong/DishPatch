@@ -1,10 +1,12 @@
 package com.example.dishpatch.infra.db.pointHistory.repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
 import com.example.dishpatch.infra.db.pointHistory.entity.PointHistory;
+import com.example.dishpatch.infra.db.pointHistory.entity.PointUseHistory;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointUsed;
 import com.example.dishpatch.infra.db.pointHistory.entity.QPointHistory;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -34,7 +36,7 @@ public class CustomPointHistoryRepositoryImpl implements CustomPointHistoryRepos
 
 	@Override
 	@Transactional
-	public void applyUserPointUsage(Long userId, Integer point) {
+	public List<PointUseHistory> applyUserPointUsage(Long userId, Integer point) {
 		QPointHistory q = QPointHistory.pointHistory;
 
 		List<PointHistory> pointHistories = queryFactory
@@ -44,20 +46,24 @@ public class CustomPointHistoryRepositoryImpl implements CustomPointHistoryRepos
 			.orderBy(q.createdDate.asc())
 			.fetch();
 
+		List<PointUseHistory> usedHistories = new ArrayList<>();
+
 		for (PointHistory ph : pointHistories) {
 			if (point == 0)
 				break;
 
-			int cur = ph.getRemain();
-
-			if (cur > point) {
-				ph.updateRemain(cur - point);
+			int remain = ph.getRemain();
+			if (remain > point) {
+				ph.updateRemain(remain - point);
+				usedHistories.add(new PointUseHistory(ph, point));
 				point = 0;
 			} else {
-				point -= cur;
+				point -= remain;
+				usedHistories.add(new PointUseHistory(ph, remain));
 				ph.updateRemain(0);
 			}
 		}
+		return usedHistories;
 	}
 
 }

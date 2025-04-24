@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dishpatch.api.review.request.ReviewCreateRequest;
-import com.example.dishpatch.api.review.request.ReviewResponse;
 import com.example.dishpatch.api.review.request.ReviewUpdateRequest;
+import com.example.dishpatch.api.review.response.ReviewResponse;
 import com.example.dishpatch.domain.review.service.ReviewService;
 
 import jakarta.validation.Valid;

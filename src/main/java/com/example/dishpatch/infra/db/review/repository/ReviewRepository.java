@@ -14,10 +14,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		    SELECT r FROM Review r
 		          WHERE r.store.id = :storeId
 		          AND r.rating BETWEEN :min AND :max
-				  AND (
-		            		  r.user.id = :userId
-		            		  OR r.status = 'PUBLIC'
-		          		  )
+				  AND  (r.status = 'PUBLIC' or r.user.id = :userId)
 				  ORDER BY r.createdDate DESC
 		""")
 	List<Review> findAllByStoreIdAndRating(
@@ -25,5 +22,4 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		@Param("storeId") Long storeId,
 		@Param("min") Integer min,
 		@Param("max") Integer max);
-
 }

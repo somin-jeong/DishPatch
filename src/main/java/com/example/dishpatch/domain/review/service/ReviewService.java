@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.review.request.ReviewCreateRequest;
-import com.example.dishpatch.api.review.request.ReviewResponse;
 import com.example.dishpatch.api.review.request.ReviewUpdateRequest;
+import com.example.dishpatch.api.review.response.ReviewResponse;
 import com.example.dishpatch.domain.review.exception.ReviewErrorCode;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
@@ -52,9 +52,10 @@ public class ReviewService {
 	}
 
 	public List<ReviewResponse> findReviews(Long storeId, Integer min, Integer max) {
-		Long userId = 1L;
 		Integer safeMin = (min != null) ? min : 1;
 		Integer safeMax = (max != null) ? max : 5;
+
+		Long userId = 1L;
 
 		//userId 재설정 해야함
 		User user = userRepository.findById(userId)
@@ -63,7 +64,6 @@ public class ReviewService {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
 
-		//userId 재설정 해야함
 		List<Review> reviewList = reviewRepository.findAllByStoreIdAndRating(userId, store.getId(), safeMin, safeMax);
 
 		return ReviewResponse.from(reviewList);

@@ -92,9 +92,7 @@ public class UserServiceImpl implements UserService {
 
 	@Transactional
 	@Override
-	public UserUpdateResponse updateUser(UserUpdateRequest dto, HttpServletRequest request) {
-		String token = jwtUtil.extractToken(request);
-		UserAuth userAuth = jwtUtil.extractUserAuth(token);
+	public UserUpdateResponse updateUser(UserUpdateRequest dto, UserAuth userAuth) {
 
 		User user = userRepository.findById(userAuth.getId()).orElseThrow(
 			() -> new BizException(UserErrorCode.INVALID_ID));

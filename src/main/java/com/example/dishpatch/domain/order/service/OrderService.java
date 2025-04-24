@@ -14,9 +14,15 @@ import com.example.dishpatch.api.order.response.MenuOptionDetailResponseDto;
 import com.example.dishpatch.api.order.response.OrderDetailResponseDto;
 import com.example.dishpatch.api.order.response.OrderItemDetailResponseDto;
 import com.example.dishpatch.api.order.response.OrderResponseDto;
+import com.example.dishpatch.domain.cart.service.CartService;
+import com.example.dishpatch.domain.coupon.exception.CouponErrorCode;
 import com.example.dishpatch.domain.coupon.service.CouponService;
+import com.example.dishpatch.domain.order.exception.OrderErrorCode;
+import com.example.dishpatch.domain.pointHistory.exception.PointErrorCode;
 import com.example.dishpatch.domain.pointHistory.service.PointHistoryService;
-import com.example.dishpatch.domain.store.service.StoreService;
+import com.example.dishpatch.domain.store.exception.StoreErrorCode;
+import com.example.dishpatch.domain.user.exception.UserErrorCode;
+import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
 import com.example.dishpatch.infra.db.coupon.entity.CouponType;
 import com.example.dishpatch.infra.db.order.aop.LogOrderCreation;
@@ -47,7 +53,6 @@ public class OrderService {
 	private final StoreRepository storeRepository;
 	private final OrderItemService orderItemService;
 	private final OrderItemRepository orderItemRepository;
-	private final StoreService storeService;
 
 	@LogOrderCreation
 	public OrderResponseDto createOrder(OrderRequestDto requestDto, Long userId) {
@@ -63,20 +68,20 @@ public class OrderService {
 		if (requestDto.point() != null) {
 			remainingPoint = pointHistoryService.getRemainingPoint(userId);
 			if (remainingPoint == null) {
-				throw new RuntimeException("포인트가 없습니다.");
+				throw new BizException(PointErrorCode.NO_POINT);
 			}
 
 			if (requestDto.point() > remainingPoint) {
-				throw new RuntimeException("포인트가 부족합니다.");
+				throw new BizException(PointErrorCode.INSUFFICIENT_POINT);
 			}
 		}
 
 		List<CartResponseDto> cartResponseDtoList = cartService.findCarts(userId);
 
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
 		Store store = storeRepository.findById(cartResponseDtoList.get(0).storeId())
-			.orElseThrow(() -> new RuntimeException("존재하지 않는 매장입니다."));
+			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
 
 		int totalPrice = 0;
 
@@ -90,7 +95,7 @@ public class OrderService {
 		totalPrice = checkCoupon(totalPrice, coupon);
 
 		if (totalPrice < remainingPoint) {
-			throw new RuntimeException("사용하려는 포인트가 금액보다 더 높습니다.");
+			throw new BizException(PointErrorCode.EXCEEDING_POINT_AMOUNT);
 		}
 
 		totalPrice -= remainingPoint;
@@ -127,11 +132,10 @@ public class OrderService {
 		LocalTime now = LocalTime.now();
 
 		if (totalPrice < store.getMinDeliveryPrice()) {
-			throw new RuntimeException("주문하려는 금액이 최소주문금액보다 작습니다.");
+			throw new BizException(OrderErrorCode.UNDER_MINIMUM_ORDER_PRICE);
 		}
 		if (store.getOpenTime().isAfter(now) || store.getCloseTime().isBefore(now)) {
-			throw new RuntimeException(
-				"매장 영업 시간은 " + store.getOpenTime() + " ~ " + store.getCloseTime() + "입니다. 현재 시간: " + now);
+			throw new BizException(OrderErrorCode.STORE_CLOSED);
 		}
 	}
 
@@ -148,7 +152,7 @@ public class OrderService {
 			}
 		} else if (coupon.getCoupontype() == CouponType.B) {
 			if (coupon.getDeductedPrice() > totalPrice) {
-				throw new RuntimeException("쿠폰이 금액보다 큽니다.");
+				throw new BizException(CouponErrorCode.COUPON_EXCEEDS_TOTAL);
 			} else {
 				totalPrice -= coupon.getDeductedPrice();
 			}
@@ -164,8 +168,8 @@ public class OrderService {
 
 		Order order = validateOrder(user, orderId);
 
-		if (!order.getStatus().equals(requestDto.getOrderStatus())) {
-			throw new RuntimeException("현재 상태와 일치하지 않습니다.");
+		if (!order.getStatus().equals(requestDto.orderStatus())) {
+			throw new BizException(OrderErrorCode.INVALID_ORDER_STATUS);
 		}
 
 		if (order.getStatus() == OrderStatus.CHECKING) {
@@ -193,14 +197,14 @@ public class OrderService {
 	private Order validateOrder(User user, Long orderId) {
 
 		Order order = orderRepository.findById(orderId)
-			.orElseThrow(() -> new RuntimeException("존재하지 않는 주문입니다."));
+			.orElseThrow(() -> new BizException(OrderErrorCode.ORDER_NOT_FOUND));
 
 		if (!Objects.equals(order.getStore().getUser().getId(), user.getId())) {
-			throw new RuntimeException("해당 가게의 사장이 아닙니다.");
+			throw new BizException(StoreErrorCode.STORE_OWNER_MISMATCH);
 		}
 
 		if (order.getStatus() == OrderStatus.FINISHED) {
-			throw new RuntimeException("이미 완료된 주문입니다.");
+			throw new BizException(OrderErrorCode.ORDER_ALREADY_FINISHED);
 		}
 
 		return order;
@@ -209,7 +213,7 @@ public class OrderService {
 	private User validateUser(Long userId) {
 
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
 
 		return user;
 	}
@@ -222,7 +226,7 @@ public class OrderService {
 		Order order = validateOrder(user, orderId);
 
 		if (!order.getStatus().equals(OrderStatus.CHECKING)) {
-			throw new RuntimeException("거절할 수 없는 상태 입니다.");
+			throw new BizException(OrderErrorCode.INVALID_ORDER_REJECTION);
 		}
 
 		order.updateStatus(OrderStatus.REFUSED);
@@ -239,11 +243,7 @@ public class OrderService {
 		} else if (user.getRole().equals(UserRole.CEO)) {
 			List<Long> storeIds = storeRepository.findIdByUser(user);
 			orders = orderRepository.findByStoreIds(storeIds);
-		} else {
-			throw new RuntimeException("허용되지 않은 유저 역할입니다.");
 		}
-
-		List<OrderResponseDto> responseDtos = new ArrayList<>();
 
 		return orders.stream()
 			.map(order -> new OrderResponseDto(
@@ -292,7 +292,7 @@ public class OrderService {
 	private Order validateDetailOrder(User user, Long orderId) {
 
 		Order order = orderRepository.findById(orderId)
-			.orElseThrow(() -> new RuntimeException("주문이 존재하지 않습니다."));
+			.orElseThrow(() -> new BizException(OrderErrorCode.ORDER_NOT_FOUND));
 
 		if (order.getUser().getId().equals(user.getId())) {
 			return order;
@@ -302,6 +302,6 @@ public class OrderService {
 			return order;
 		}
 
-		throw new RuntimeException("접근할 수 없는 주문입니다.");
+		throw new BizException(OrderErrorCode.INACCESSIBLE_ORDER);
 	}
 }

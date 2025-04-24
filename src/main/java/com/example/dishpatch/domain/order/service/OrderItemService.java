@@ -1,11 +1,13 @@
 package com.example.dishpatch.domain.order.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.dishpatch.domain.menu.exception.MenuErrorCode;
+import com.example.dishpatch.domain.order.exception.OrderErrorCode;
+import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.entity.MenuOption;
 import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
@@ -33,10 +35,10 @@ public class OrderItemService {
 		for (CartResponseDto cartResponseDto : cartResponseDtoList) {
 
 			Order order = orderRepository.findById(orderId)
-				.orElseThrow(() -> new RuntimeException("주문이 존재하지 않습니다."));
+				.orElseThrow(() -> new BizException(OrderErrorCode.ORDER_NOT_FOUND));
 
 			Menu menu = menuRepository.findById(cartResponseDto.menuId())
-				.orElseThrow(() -> new RuntimeException("메뉴가 존재하지 않습니다."));
+				.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
 
 			MenuOption menuOption = menuOptionRepository(cartResponseDto.menuOptionId())
 				.orElse(null);
@@ -53,9 +55,5 @@ public class OrderItemService {
 	public List<Long> getOrderItems(Long orderId) {
 
 		return orderItemRepository.findIdsByOrderId(orderId);
-	}
-
-	public Collection<Object> findOrderItem(Long orderId) {
-		return null;
 	}
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.infra.db.pointHistory.entity.PointHistory;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointUsed;
+import com.example.dishpatch.infra.db.pointHistory.entity.QPointHistory;
 import com.example.dishpatch.infra.db.pointHistory.repository.PointHistoryRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
@@ -34,24 +35,29 @@ public class PointHistoryService {
 	@Transactional
 	public void usePoint(Long userId, Integer point) {
 
-		List<PointHistory> pointHistories = pointHistoryRepository
-			.findByUserIdAndStatusOrderByCreatedDateAsc(userId, PointUsed.UNUSED);
+		QPointHistory qPointHistory = QPointHistory.pointHistory;
 
-		int index = 0;
+		List<PointHistory> pointHistories = queryFactory
+			.selectFrom(qPointHistory)
+			.where(qPointHistory.user.id.eq(userId)
+				.and(qPointHistory.pointUsed.eq(PointUsed.UNUSED)))
+			.orderBy(qPointHistory.createdDate.asc())
+			.fetch();
 
-		while (point > 0) {
-			int curPoint = pointHistories.get(index).getRemain();
+		for (PointHistory pointHistory : pointHistories) {
+			if (point == 0)
+				break;
+
+			int curPoint = pointHistory.getRemain();
 
 			if (curPoint > point) {
 				curPoint -= point;
 				point = 0;
-				pointHistories.get(index).updateRemain(curPoint);
+				pointHistory.updateRemain(curPoint);
 			} else {
 				point -= curPoint;
-				pointHistories.get(index).updateRemain(0);
+				pointHistory.updateRemain(0);
 			}
-
-			index++;
 		}
 	}
 

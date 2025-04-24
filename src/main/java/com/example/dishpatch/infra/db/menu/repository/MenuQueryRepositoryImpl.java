@@ -20,7 +20,7 @@ public class MenuQueryRepositoryImpl implements MenuQueryRepository {
 	private final QMenu qMenu = QMenu.menu;
 
 	@Override
-	public List<Menu> findAllByStoreId(Long storeId) {
+	public List<Menu> findAllByStoreIdWithOptions(Long storeId) {
 		return queryFactory
 			.selectFrom(qMenu)
 			.leftJoin(qMenu.options).fetchJoin()

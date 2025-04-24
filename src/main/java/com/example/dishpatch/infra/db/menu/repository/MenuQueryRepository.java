@@ -7,7 +7,7 @@ import com.example.dishpatch.infra.db.menu.entity.Menu;
 
 public interface MenuQueryRepository {
 
-	List<Menu> findAllByStoreId(Long storeId);
+	List<Menu> findAllByStoreIdWithOptions(Long storeId);
 
 	Optional<Menu> findByMenuId(Long menuId);
 }

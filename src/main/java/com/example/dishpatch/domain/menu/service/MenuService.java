@@ -54,7 +54,7 @@ public class MenuService {
 			throw new BizException(StoreErrorCode.STORE_NOT_FOUND);
 		}
 
-		List<Menu> menus = menuRepository.findAllByStoreId(storeId);
+		List<Menu> menus = menuRepository.findAllByStoreIdWithOptions(storeId);
 		return StoreMenuListResponse.from(menus);
 	}
 

@@ -5,8 +5,8 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.dishpatch.api.menu.request.MenuAddRequest;
-import com.example.dishpatch.api.menu.response.MenuAddResponse;
+import com.example.dishpatch.api.menu.request.MenuOptionAddRequest;
+import com.example.dishpatch.api.menu.response.MenuOptionAddResponse;
 import com.example.dishpatch.domain.menu.exception.MenuErrorCode;
 import com.example.dishpatch.domain.store.exception.StoreErrorCode;
 import com.example.dishpatch.global.exception.BizException;
@@ -25,7 +25,7 @@ public class MenuOptionService {
 	private final MenuRepository menuRepository;
 
 	@Transactional
-	public MenuAddResponse addMenuOption(Long userId, Long menuId, MenuAddRequest req) {
+	public MenuOptionAddResponse addMenuOption(Long userId, Long menuId, MenuOptionAddRequest req) {
 		Menu menu = menuRepository.findByMenuId(menuId)
 			.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
 
@@ -41,6 +41,6 @@ public class MenuOptionService {
 			.build();
 		menuOptionRepository.save(menuOption);
 
-		return MenuAddResponse.from(menuOption);
+		return MenuOptionAddResponse.from(menuOption);
 	}
 }

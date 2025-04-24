@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.dishpatch.api.menu.request.MenuAddRequest;
-import com.example.dishpatch.api.menu.response.MenuAddResponse;
+import com.example.dishpatch.api.menu.request.MenuOptionAddRequest;
+import com.example.dishpatch.api.menu.response.MenuOptionAddResponse;
 import com.example.dishpatch.domain.menu.service.MenuOptionService;
 
 import jakarta.validation.Valid;
@@ -24,12 +24,12 @@ public class MenuOptionController {
 	private final MenuOptionService menuOptionService;
 
 	@PostMapping
-	public ResponseEntity<MenuAddResponse> addMenuOption(
+	public ResponseEntity<MenuOptionAddResponse> addMenuOption(
 		@PathVariable Long menuId,
 		@AuthenticationPrincipal Long userId,
-		@Valid @RequestBody MenuAddRequest req
+		@Valid @RequestBody MenuOptionAddRequest req
 	) {
-		MenuAddResponse res = menuOptionService.addMenuOption(userId, menuId, req);
+		MenuOptionAddResponse res = menuOptionService.addMenuOption(userId, menuId, req);
 		return ResponseEntity.status(HttpStatus.CREATED).body(res);
 	}
 }

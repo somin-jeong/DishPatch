@@ -5,7 +5,7 @@ import org.hibernate.validator.constraints.Length;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record MenuAddRequest(
+public record MenuOptionAddRequest(
 	@NotBlank
 	@Length(min = 1, max = 20)
 	String name,

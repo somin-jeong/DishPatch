@@ -1,5 +1,6 @@
 package com.example.dishpatch.domain.menu.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,6 +15,7 @@ import com.example.dishpatch.domain.menu.exception.MenuErrorCode;
 import com.example.dishpatch.domain.store.exception.StoreErrorCode;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
+import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
@@ -26,6 +28,7 @@ public class MenuService {
 
 	private final StoreRepository storeRepository;
 	private final MenuRepository menuRepository;
+	private final MenuOptionRepository menuOptionRepository;
 
 	@Transactional
 	public MenuCreateResponse createMenu(Long userId, Long storeId, MenuCreateRequest req) {
@@ -76,6 +79,7 @@ public class MenuService {
 		validateMenuOwner(userId, menu);
 
 		menu.softDelete();
+		menuOptionRepository.bulkSoftDeleteByStoreId(storeId, LocalDateTime.now());
 	}
 
 	private void validateMenuStoreMatch(Long storeId, Menu menu) {

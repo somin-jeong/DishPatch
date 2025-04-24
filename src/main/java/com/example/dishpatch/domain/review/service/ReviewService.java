@@ -10,6 +10,7 @@ import com.example.dishpatch.api.review.request.ReviewUpdateRequest;
 import com.example.dishpatch.api.review.response.ReviewPageResponse;
 import com.example.dishpatch.api.review.response.ReviewResponse;
 import com.example.dishpatch.domain.review.exception.ReviewErrorCode;
+import com.example.dishpatch.domain.store.exception.StoreErrorCode;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
@@ -64,7 +65,7 @@ public class ReviewService {
 			.orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
 
 		Store store = storeRepository.findById(storeId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
 
 		Pageable pageable = PageRequest.of(page, size);
 

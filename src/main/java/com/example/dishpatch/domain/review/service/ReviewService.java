@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
+	private final CeoReviewService ceoReviewService;
 	private final UserRepository userRepository;
 	private final StoreRepository storeRepository;
 	private final MenuRepository menuRepository;

@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 
 public record CeoReviewCreateRequest(
-	Long userId,
 
 	@Max(255)
 	String contents,

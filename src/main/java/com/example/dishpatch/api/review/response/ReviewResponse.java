@@ -1,5 +1,7 @@
 package com.example.dishpatch.api.review.response;
 
+import java.util.List;
+
 import com.example.dishpatch.infra.db.review.entity.Review;
 import com.example.dishpatch.infra.db.review.entity.ReviewStatus;
 
@@ -10,7 +12,8 @@ public record ReviewResponse(
 	Integer rating,
 	String contents,
 	String imageUrl,
-	ReviewStatus status
+	ReviewStatus status,
+	List<CeoReviewResponse> ceoReviewResponses
 ) {
 
 	public static ReviewResponse from(Review review) {
@@ -21,7 +24,8 @@ public record ReviewResponse(
 			review.getRating(),
 			review.getContents(),
 			review.getImageUrl(),
-			review.getStatus()
+			review.getStatus(),
+			CeoReviewResponse.from(review.getCeoReviews())
 		);
 	}
 }

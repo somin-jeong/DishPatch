@@ -13,6 +13,16 @@ public record CeoReviewResponse(
 	String contents,
 	ReviewStatus status
 ) {
+	public static CeoReviewResponse from(CeoReview ceoReview) {
+		return new CeoReviewResponse(
+			ceoReview.getId(),
+			ceoReview.getReview().getId(),
+			ceoReview.getUser().getId(),
+			ceoReview.getContents(),
+			ceoReview.getStatus()
+		);
+	}
+
 	public static List<CeoReviewResponse> from(List<CeoReview> ceoReviews) {
 		return ceoReviews.stream()
 			.map(ceoReview -> new CeoReviewResponse(

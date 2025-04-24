@@ -36,10 +36,11 @@ public class CeoReviewController {
 
 	@PatchMapping("/ceoreview/{ceoReviewId}")
 	public ResponseEntity<CeoReviewResponse> updateCeoReview(
+		@PathVariable Long reviewId,
 		@PathVariable Long ceoReviewId,
 		@Valid @RequestBody CeoReviewUpdateRequest request
 	) {
-		CeoReviewResponse response = ceoReviewService.updateCeoReview(ceoReviewId, request);
+		CeoReviewResponse response = ceoReviewService.updateCeoReview(reviewId, ceoReviewId, request);
 
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}

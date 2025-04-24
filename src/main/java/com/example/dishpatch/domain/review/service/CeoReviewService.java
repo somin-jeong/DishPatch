@@ -1,7 +1,5 @@
 package com.example.dishpatch.domain.review.service;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.review.request.CeoReviewCreateRequest;
@@ -48,16 +46,19 @@ public class CeoReviewService {
 		//외래키 반영
 		CeoReview saved = ceoReviewRepository.save(ceoReview);
 
-		return CeoReviewResponse.from(List.of(ceoReview)).get(0);
+		return CeoReviewResponse.from(ceoReview);
 	}
 
-	public CeoReviewResponse updateCeoReview(Long ceoReviewId, CeoReviewUpdateRequest request) {
+	public CeoReviewResponse updateCeoReview(Long reviewId, Long ceoReviewId, CeoReviewUpdateRequest request) {
+
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));
 
 		CeoReview ceoReview = ceoReviewRepository.findById(ceoReviewId)
 			.orElseThrow(() -> new BizException(CeoReviewErrorCode.CEO_REVIEW_NOT_FOUND));
 
 		ceoReview.update(request.contents(), request.status());
 
-		return CeoReviewResponse.from(List.of(ceoReview)).get(0);
+		return CeoReviewResponse.from(ceoReview);
 	}
 }

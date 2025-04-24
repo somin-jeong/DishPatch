@@ -1,7 +1,7 @@
 package com.example.dishpatch.infra.db.user.entity;
 
-public enum UserProvider {
+public enum UserStatus {
 
-	LOCAL, NAVER;
+	ACTIVE, UNACTIVE
 
 }

@@ -1,13 +1,16 @@
 package com.example.dishpatch.domain.review.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.review.request.ReviewCreateRequest;
-import com.example.dishpatch.api.review.request.ReviewResponse;
 import com.example.dishpatch.api.review.request.ReviewUpdateRequest;
+import com.example.dishpatch.api.review.response.ReviewPageResponse;
+import com.example.dishpatch.api.review.response.ReviewResponse;
 import com.example.dishpatch.domain.review.exception.ReviewErrorCode;
+import com.example.dishpatch.domain.store.exception.StoreErrorCode;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
@@ -51,22 +54,25 @@ public class ReviewService {
 		return ReviewResponse.from(saved);
 	}
 
-	public List<ReviewResponse> findReviews(Long storeId, Integer min, Integer max) {
-		Long userId = 1L;
+	public ReviewPageResponse findReviews(Long storeId, Integer min, Integer max, int page, int size) {
 		Integer safeMin = (min != null) ? min : 1;
 		Integer safeMax = (max != null) ? max : 5;
+
+		Long userId = 1L;
 
 		//userId 재설정 해야함
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
 
 		Store store = storeRepository.findById(storeId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
 
-		//userId 재설정 해야함
-		List<Review> reviewList = reviewRepository.findAllByStoreIdAndRating(userId, store.getId(), safeMin, safeMax);
+		Pageable pageable = PageRequest.of(page, size);
 
-		return ReviewResponse.from(reviewList);
+		Page<Review> reviewPage = reviewRepository.findAllByStoreIdAndRating(
+			userId, store.getId(), safeMin, safeMax, pageable);
+
+		return ReviewPageResponse.from(reviewPage);
 	}
 
 	public ReviewResponse updateReview(Long reviewId, ReviewUpdateRequest request) {
@@ -83,6 +89,22 @@ public class ReviewService {
 		review.update(request.rating(), request.contents(), request.imageUrl(), request.status());
 
 		return ReviewResponse.from(review);
+	}
+
+	public void deleteReview(Long reviewId) {
+		Long userId = 1L;
+		reviewId = 1L;
+
+		//reviewId 재설정 해야함
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+		//userId 재설정 해야함
+		if (!userId.equals(review.getUser().getId())) {
+			new BizException(ReviewErrorCode.REVIEW_AUTHOR_MISMATCH);
+		}
+
+		reviewRepository.delete(review);
 	}
 
 }

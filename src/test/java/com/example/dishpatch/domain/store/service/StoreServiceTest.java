@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
+import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.cart.repository.CartRepository;
@@ -57,6 +58,9 @@ class StoreServiceTest {
 	private MenuOptionRepository menuOptionRepository;
 	@Mock
 	private CartRepository cartRepository;
+
+	@Mock
+	private UserRepository userRepository;
 
 	@Test
 	void createStore_shouldSucceed() {
@@ -220,6 +224,130 @@ class StoreServiceTest {
 	}
 
 	@Test
+	void updateStore_shouldSucceed() {
+		// given
+		Long userId = 1L;
+		Long storeId = 10L;
+		Long categoryId = 3L;
+
+		User user = new User();
+		ReflectionTestUtils.setField(user, "id", userId);
+		ReflectionTestUtils.setField(user, "role", UserRole.CEO);
+
+		Category category = new Category();
+		ReflectionTestUtils.setField(category, "id", categoryId);
+
+		Store store = new Store();
+		ReflectionTestUtils.setField(store, "id", storeId);
+		ReflectionTestUtils.setField(store, "user", user);
+
+		StoreUpdateRequest request = new StoreUpdateRequest("새이름", "주소", "전화번호", "이미지", 1000, "소개", 12000, false,
+			"10:00", "22:00", categoryId);
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+		when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
+
+		// when
+		storeService.updateStore(userId, storeId, request);
+
+		// then
+		assertThat(store.getName()).isEqualTo("새이름");
+		assertThat(store.getUser().getId()).isEqualTo(userId);
+		assertThat(store.getCategory().getId()).isEqualTo(categoryId);
+	}
+
+	@Test
+	void updateStore_whenNotFoundCategory_shouldThrowException() {
+		Long storeId = 1L;
+		Long userId = 1L;
+		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
+
+		User user = new User();
+		ReflectionTestUtils.setField(user, "role", UserRole.CEO);
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(categoryRepository.findById(any())).thenReturn(Optional.empty());
+
+		// when & then
+		BizException exception = assertThrows(BizException.class,
+			() -> storeService.updateStore(userId, storeId, request));
+
+		assertThat(CATEGORY_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
+	}
+
+	@Test
+	void updateStore_whenNotFoundStore_shouldThrowException() {
+		Long storeId = 1L;
+		Long userId = 1L;
+		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
+
+		User user = new User();
+		ReflectionTestUtils.setField(user, "role", UserRole.CEO);
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(new Category()));
+		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+
+		// when & then
+		BizException exception = assertThrows(BizException.class,
+			() -> storeService.updateStore(userId, storeId, request));
+
+		assertThat(STORE_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
+	}
+
+	@Test
+	void updateStore_whenUserRoleNotCeo_shouldThrowException() {
+		// given
+		Long storeId = 1L;
+		Long userId = 3L;
+		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
+
+		User user = new User();
+		ReflectionTestUtils.setField(user, "id", userId);
+		ReflectionTestUtils.setField(user, "role", UserRole.USER);
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+		// when & then
+		BizException exception = assertThrows(BizException.class,
+			() -> storeService.updateStore(userId, storeId, request));
+
+		assertThat(USER_ROLE_NOT_CEO.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
+	}
+
+	@Test
+	void updateStore_whenStoreOwnerMismatch_shouldThrowException() {
+		// given
+		Long storeId = 1L;
+		Long userId = 3L;
+		Long ownerId = 10L;
+		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
+
+		User owner = new User();
+		ReflectionTestUtils.setField(owner, "id", ownerId);
+		ReflectionTestUtils.setField(owner, "role", UserRole.CEO);
+
+		User user = new User();
+		ReflectionTestUtils.setField(user, "id", userId);
+		ReflectionTestUtils.setField(user, "role", UserRole.CEO);
+
+		Store store = new Store();
+		ReflectionTestUtils.setField(store, "id", storeId);
+		ReflectionTestUtils.setField(store, "user", owner);
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(new Category()));
+		when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
+
+		// when & then
+		BizException exception = assertThrows(BizException.class,
+			() -> storeService.updateStore(userId, storeId, request));
+
+		assertThat(STORE_OWNER_MISMATCH.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
+	}
+
+  @Test
 	void deleteStore_whenUserRoleNotCeo_shouldThrowException() {
 		// given
 		Long userId = 1L;
@@ -280,5 +408,5 @@ class StoreServiceTest {
 
 		assertThat(STORE_OWNER_MISMATCH.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
-
+  
 }

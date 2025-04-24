@@ -3,6 +3,8 @@ package com.example.dishpatch.domain.store.service;
 import static com.example.dishpatch.domain.store.exception.StoreErrorCode.*;
 import static com.example.dishpatch.domain.user.exception.UserErrorCode.*;
 
+import java.util.Objects;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -10,6 +12,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
+import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.cart.repository.CartRepository;
@@ -60,6 +63,26 @@ public class StoreService {
 		return StoreCreateResponse.from(store);
 	}
 
+	public void updateStore(Long userId, Long storeId, StoreUpdateRequest request) {
+		userRepository.findById(userId).ifPresent(user -> {
+			if (user.getRole() != UserRole.CEO) {
+				throw new BizException(USER_ROLE_NOT_CEO);
+			}
+		});
+
+		Category category = categoryRepository.findById(request.categoryId())
+			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
+
+		Store store = storeRepository.findById(storeId)
+			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
+
+		if (!Objects.equals(store.getUser().getId(), userId)) {
+			throw new BizException(STORE_OWNER_MISMATCH);
+		}
+
+		store.update(request, category);
+	}
+
 	public void dibStore(User user, Long storeId) {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
@@ -84,7 +107,6 @@ public class StoreService {
 		dibRepository.delete(dib);
 	}
 
-	@Modifying(clearAutomatically = true)
 	public void deleteStore(Long userId, Long storeId) {
 		userRepository.findById(userId).ifPresent(user -> {
 			if (user.getRole() != UserRole.CEO) {

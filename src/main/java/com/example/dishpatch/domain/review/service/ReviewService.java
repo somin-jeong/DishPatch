@@ -89,12 +89,14 @@ public class ReviewService {
 		Long userId = 1L;
 		reviewId = 1L;
 
-		//userId 재설정 해야함
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
-
+		//reviewId 재설정 해야함
 		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+		//userId 재설정 해야함
+		if (!userId.equals(review.getUser().getId())) {
+			new BizException(ReviewErrorCode.REVIEW_AUTHOR_MISMATCH);
+		}
 
 		reviewRepository.delete(review);
 	}

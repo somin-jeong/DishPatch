@@ -16,7 +16,6 @@ import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.domain.store.service.StoreService;
 import com.example.dishpatch.global.security.UserAuth;
-import com.example.dishpatch.infra.db.user.entity.User;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,18 +36,18 @@ public class StoreController {
 
 	@PostMapping("/{storeId}/like")
 	public void dibStore(
-		// TODO: authentication user
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable("storeId") Long storeId
 	) {
-		storeService.dibStore(new User(), storeId);
+		storeService.dibStore(userAuth, storeId);
 	}
 
 	@DeleteMapping("/{storeId}/like")
 	public void undibStore(
-		// TODO: authentication user
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable("storeId") Long storeId
 	) {
-		storeService.undibStore(new User(), storeId);
+		storeService.undibStore(userAuth, storeId);
 	}
 
 	@PutMapping("/{storeId}")

@@ -87,11 +87,14 @@ public class StoreService {
 		store.update(request, category);
 	}
 
-	public void dibStore(User user, Long storeId) {
-		Store store = storeRepository.findById(storeId)
+	public void dibStore(UserAuth userAuth, Long storeId) {
+		User user = userRepository.findByIdAndStatus(userAuth.getId(), UserStatus.ACTIVE)
+			.orElseThrow(() -> new BizException(INVALID_ID));
+
+		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
 
-		if (dibRepository.existsByUserIdAndStoreId(user.getId(), storeId)) {
+		if (dibRepository.existsByUserIdAndStoreId(userAuth.getId(), storeId)) {
 			throw new BizException(ALREADY_DIB_STORE);
 		}
 
@@ -100,12 +103,12 @@ public class StoreService {
 		dibRepository.save(dib);
 	}
 
-	public void undibStore(User user, Long storeId) {
-		if (!storeRepository.existsById(storeId)) {
+	public void undibStore(UserAuth userAuth, Long storeId) {
+		if (!storeRepository.existsByIdAndDeletedDateIsNull(storeId)) {
 			throw new BizException(STORE_NOT_FOUND);
 		}
 
-		Dib dib = dibRepository.findByUserIdAndStoreId(user.getId(), storeId)
+		Dib dib = dibRepository.findByUserIdAndStoreId(userAuth.getId(), storeId)
 			.orElseThrow(() -> new BizException(UNDIB_STORE));
 
 		dibRepository.delete(dib);

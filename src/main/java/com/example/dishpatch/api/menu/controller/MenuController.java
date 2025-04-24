@@ -17,6 +17,7 @@ import com.example.dishpatch.api.menu.request.MenuUpdateRequest;
 import com.example.dishpatch.api.menu.response.MenuCreateResponse;
 import com.example.dishpatch.api.menu.response.StoreMenuListResponse;
 import com.example.dishpatch.domain.menu.service.MenuService;
+import com.example.dishpatch.global.security.UserAuth;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +32,10 @@ public class MenuController {
 	@PostMapping
 	public ResponseEntity<MenuCreateResponse> createMenu(
 		@PathVariable("storeId") Long storeId,
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@Valid @RequestBody MenuCreateRequest req
 	) {
-		MenuCreateResponse res = menuService.createMenu(userId, storeId, req);
+		MenuCreateResponse res = menuService.createMenu(userAuth.getId(), storeId, req);
 		return ResponseEntity.status(HttpStatus.CREATED).body(res);
 	}
 
@@ -50,10 +51,10 @@ public class MenuController {
 	public ResponseEntity<Void> updateMenu(
 		@PathVariable("storeId") Long storeId,
 		@PathVariable("menuId") Long menuId,
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@Valid @RequestBody MenuUpdateRequest req
 	) {
-		menuService.updateMenu(userId, storeId, menuId, req);
+		menuService.updateMenu(userAuth.getId(), storeId, menuId, req);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -61,9 +62,9 @@ public class MenuController {
 	public ResponseEntity<Void> deleteMenu(
 		@PathVariable("storeId") Long storeId,
 		@PathVariable("menuId") Long menuId,
-		@AuthenticationPrincipal Long userId
+		@AuthenticationPrincipal UserAuth userAuth
 	) {
-		menuService.deleteMenu(userId, storeId, menuId);
+		menuService.deleteMenu(userAuth.getId(), storeId, menuId);
 		return ResponseEntity.noContent().build();
 	}
 }

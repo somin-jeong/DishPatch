@@ -102,7 +102,7 @@ class MenuServiceTest {
 		);
 
 		given(storeRepository.existsById(storeId)).willReturn(true);
-		given(menuRepository.findAllByStoreId(1L)).willReturn(menus);
+		given(menuRepository.findAllByStoreIdWithOptions(1L)).willReturn(menus);
 
 		StoreMenuListResponse res = menuService.getStoreMenus(storeId);
 

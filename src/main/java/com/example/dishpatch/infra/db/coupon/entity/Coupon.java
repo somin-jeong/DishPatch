@@ -36,4 +36,8 @@ public class Coupon extends SoftDeletableEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private CouponUsed status;
+
+	public void useCoupon() {
+		this.status = CouponUsed.A;
+	}
 }

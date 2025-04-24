@@ -1,5 +1,6 @@
 package com.example.dishpatch.domain.order.service;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +16,7 @@ import com.example.dishpatch.api.order.response.OrderItemDetailResponseDto;
 import com.example.dishpatch.api.order.response.OrderResponseDto;
 import com.example.dishpatch.domain.coupon.service.CouponService;
 import com.example.dishpatch.domain.pointHistory.service.PointHistoryService;
+import com.example.dishpatch.domain.store.service.StoreService;
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
 import com.example.dishpatch.infra.db.coupon.entity.CouponType;
 import com.example.dishpatch.infra.db.order.aop.LogOrderCreation;
@@ -45,6 +47,7 @@ public class OrderService {
 	private final StoreRepository storeRepository;
 	private final OrderItemService orderItemService;
 	private final OrderItemRepository orderItemRepository;
+	private final StoreService storeService;
 
 	@LogOrderCreation
 	public OrderResponseDto createOrder(OrderRequestDto requestDto, Long userId) {
@@ -70,6 +73,11 @@ public class OrderService {
 
 		List<CartResponseDto> cartResponseDtoList = cartService.findCarts(userId);
 
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+		Store store = storeRepository.findById(cartResponseDtoList.get(0).storeId())
+			.orElseThrow(() -> new RuntimeException("존재하지 않는 매장입니다."));
+
 		int totalPrice = 0;
 
 		for (CartResponseDto cartResponseDto : cartResponseDtoList) {
@@ -77,7 +85,9 @@ public class OrderService {
 				cartResponseDto.qunatity() * (cartResponseDto.menuPrice() + cartResponseDto.menuOptionPrice());
 		}
 
-		totalPrice = applyCoupon(totalPrice, coupon);
+		verifyStore(store, totalPrice);
+
+		totalPrice = checkCoupon(totalPrice, coupon);
 
 		if (totalPrice < remainingPoint) {
 			throw new RuntimeException("사용하려는 포인트가 금액보다 더 높습니다.");
@@ -85,10 +95,7 @@ public class OrderService {
 
 		totalPrice -= remainingPoint;
 
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
-		Store store = storeRepository.findById(cartResponseDtoList.get(0).storeId())
-			.orElseThrow(() -> new RuntimeException("존재하지 않는 매장입니다."));
+		totalPrice += store.getDeliveryFee();
 
 		Order order = new Order(totalPrice, user, store);
 
@@ -96,7 +103,14 @@ public class OrderService {
 
 		List<Long> orderItemIds = orderItemService.addOrderItem(savedOrder.getId(), cartResponseDtoList);
 
-		pointHistoryService.usePoint(userId, requestDto.point());
+		if (coupon != null) {
+			couponService.useCoupon(coupon);
+		}
+
+		if (requestDto.point() != null) {
+			pointHistoryService.usePoint(userId, requestDto.point());
+
+		}
 
 		return new OrderResponseDto(
 			savedOrder.getId(),
@@ -108,7 +122,20 @@ public class OrderService {
 		);
 	}
 
-	private int applyCoupon(int totalPrice, Coupon coupon) {
+	private void verifyStore(Store store, int totalPrice) {
+
+		LocalTime now = LocalTime.now();
+
+		if (totalPrice < store.getMinDeliveryPrice()) {
+			throw new RuntimeException("주문하려는 금액이 최소주문금액보다 작습니다.");
+		}
+		if (store.getOpenTime().isAfter(now) || store.getCloseTime().isBefore(now)) {
+			throw new RuntimeException(
+				"매장 영업 시간은 " + store.getOpenTime() + " ~ " + store.getCloseTime() + "입니다. 현재 시간: " + now);
+		}
+	}
+
+	private int checkCoupon(int totalPrice, Coupon coupon) {
 		if (coupon == null) {
 			return totalPrice;
 		}

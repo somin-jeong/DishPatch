@@ -6,6 +6,7 @@ import com.example.dishpatch.infra.db.coupon.entity.Coupon;
 import com.example.dishpatch.infra.db.coupon.entity.CouponUsed;
 import com.example.dishpatch.infra.db.coupon.repository.CouponRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,5 +25,10 @@ public class CouponService {
 			throw new RuntimeException("이미 만료된 쿠폰입니다.");
 		}
 		return coupon;
+	}
+
+	@Transactional
+	public void useCoupon(Coupon coupon) {
+		coupon.useCoupon();
 	}
 }

@@ -21,7 +21,6 @@ import com.example.dishpatch.api.order.response.OrderResponseDto;
 import com.example.dishpatch.domain.order.service.OrderService;
 import com.example.dishpatch.global.security.UserAuth;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -65,7 +64,7 @@ public class OrderController {
 
 	@GetMapping
 	public ResponseEntity<List<OrderResponseDto>> findAllOrders(
-		@AuthenticationPrincipal UserAuth userAuth,
+		@AuthenticationPrincipal UserAuth userAuth
 	) {
 		List<OrderResponseDto> responseDtos = orderService.findAllOrders(userAuth.getId());
 

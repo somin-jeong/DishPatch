@@ -1,6 +1,7 @@
 package com.example.dishpatch.domain.store.service;
 
 import static com.example.dishpatch.domain.store.exception.StoreErrorCode.*;
+import static com.example.dishpatch.domain.user.exception.UserErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -13,10 +14,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.global.exception.BizException;
+import com.example.dishpatch.infra.db.cart.repository.CartRepository;
+import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
+import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
+import com.example.dishpatch.infra.db.review.repository.CeoReviewRepository;
+import com.example.dishpatch.infra.db.review.repository.ReviewRepository;
 import com.example.dishpatch.infra.db.store.entity.Category;
 import com.example.dishpatch.infra.db.store.entity.Dib;
 import com.example.dishpatch.infra.db.store.entity.Store;
@@ -24,6 +31,8 @@ import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
 import com.example.dishpatch.infra.db.store.repository.DibRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
+import com.example.dishpatch.infra.db.user.entity.UserRole;
+import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class StoreServiceTest {
@@ -32,12 +41,22 @@ class StoreServiceTest {
 
 	@Mock
 	private StoreRepository storeRepository;
-
 	@Mock
 	private CategoryRepository categoryRepository;
-
 	@Mock
 	private DibRepository dibRepository;
+	@Mock
+	private UserRepository userRepository;
+	@Mock
+	private ReviewRepository reviewRepository;
+	@Mock
+	private CeoReviewRepository ceoReviewRepository;
+	@Mock
+	private MenuRepository menuRepository;
+	@Mock
+	private MenuOptionRepository menuOptionRepository;
+	@Mock
+	private CartRepository cartRepository;
 
 	@Test
 	void createStore_shouldSucceed() {
@@ -199,4 +218,67 @@ class StoreServiceTest {
 
 		assertThat(UNDIB_STORE.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
+
+	@Test
+	void deleteStore_whenUserRoleNotCeo_shouldThrowException() {
+		// given
+		Long userId = 1L;
+		User user = mock(User.class);
+		ReflectionTestUtils.setField(user, "id", userId);
+		ReflectionTestUtils.setField(user, "role", UserRole.USER);
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+		// when & then
+		BizException exception = assertThrows(BizException.class,
+			() -> storeService.deleteStore(userId, 10L));
+
+		assertThat(USER_ROLE_NOT_CEO.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
+	}
+
+	@Test
+	void deleteStore_whenStoreNotFound_shouldThrowException() {
+		// given
+		Long userId = 1L;
+		Long storeId = 10L;
+
+		User user = mock(User.class);
+		when(user.getRole()).thenReturn(UserRole.CEO);
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+
+		// when & then
+		BizException exception = assertThrows(BizException.class,
+			() -> storeService.deleteStore(userId, storeId));
+
+		assertThat(STORE_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
+	}
+
+	@Test
+	void deleteStore_whenStoreOwnerMismatch_shouldThrowException() {
+		// given
+		Long userId = 1L;
+		Long ownerId = 3L;
+		Long storeId = 10L;
+
+		User owner = mock(User.class);
+		when(owner.getId()).thenReturn(ownerId);
+
+		Store store = mock(Store.class);
+		when(store.getUser()).thenReturn(owner);
+
+		User user = mock(User.class);
+		when(user.getRole()).thenReturn(UserRole.CEO);
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
+
+		// when & then
+		BizException exception = assertThrows(BizException.class,
+			() -> storeService.deleteStore(userId, storeId));
+
+		assertThat(STORE_OWNER_MISMATCH.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
+	}
+
 }

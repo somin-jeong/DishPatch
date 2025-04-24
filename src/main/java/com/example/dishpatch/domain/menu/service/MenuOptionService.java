@@ -48,15 +48,15 @@ public class MenuOptionService {
 		MenuOption option = menuOptionRepository.findByIdWithMenuAndStore(optionId)
 			.orElseThrow(() -> new BizException(MenuOptionErrorCode.MENU_OPTION_NOT_FOUND));
 
-		validateOptionMenuMatch(menuId, option);
+		validateOptionBelongsToMenu(menuId, option);
 		validateStoreOwner(userId, option.getMenu());
 
 		option.update(req.name(), req.price(), req.soldOut());
 	}
 
-	private static void validateOptionMenuMatch(Long menuId, MenuOption option) {
+	private static void validateOptionBelongsToMenu(Long menuId, MenuOption option) {
 		if (!Objects.equals(option.getMenu().getId(), menuId)) {
-			throw new BizException(MenuOptionErrorCode.MENU_OPTION_MISMATCH);
+			throw new BizException(MenuOptionErrorCode.INVALID_MENU_OPTION_RELATION);
 		}
 	}
 

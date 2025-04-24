@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public enum MenuOptionErrorCode implements ErrorCode {
 
 	MENU_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "MO001", "존재하지 않는 메뉴 옵션입니다."),
-	MENU_OPTION_MISMATCH(HttpStatus.BAD_REQUEST.value(), "M004", "해당 메뉴에 속하지 않는 옵션입니다.");
+	INVALID_MENU_OPTION_RELATION(HttpStatus.BAD_REQUEST.value(), "MO002", "해당 메뉴에 속하지 않는 옵션입니다.");
 
 	private final int status;
 	private final String code;

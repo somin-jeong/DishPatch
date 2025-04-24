@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Component
-public class MonthlyOrderStatStrategy implements StoreOrderStatStrategy {
+public class AdminMonthlyOrderStatStrategy implements AdminStoreOrderStatStrategy {
 
 	private final AdminStoreOrderStatMonthlyRepository monthlyRepo;
 

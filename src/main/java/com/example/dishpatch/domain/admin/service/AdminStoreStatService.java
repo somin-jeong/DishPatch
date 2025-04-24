@@ -11,7 +11,7 @@ import com.example.dishpatch.api.admin.request.StoreOrderStatPeriodType;
 import com.example.dishpatch.api.admin.request.StoreOrderStatRequest;
 import com.example.dishpatch.api.admin.response.StoreOrderStatResponse;
 import com.example.dishpatch.domain.admin.exception.StatErrorCode;
-import com.example.dishpatch.domain.admin.service.strategy.StoreOrderStatStrategy;
+import com.example.dishpatch.domain.admin.service.strategy.AdminStoreOrderStatStrategy;
 import com.example.dishpatch.global.exception.BizException;
 
 import jakarta.annotation.PostConstruct;
@@ -19,23 +19,23 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class StoreStatService {
+public class AdminStoreStatService {
 
-	private final List<StoreOrderStatStrategy> storeOrderStatStrategies;
+	private final List<AdminStoreOrderStatStrategy> storeOrderStatStrategies;
 
-	private Map<StoreOrderStatPeriodType, StoreOrderStatStrategy> storeOrderStatMap;
+	private Map<StoreOrderStatPeriodType, AdminStoreOrderStatStrategy> storeOrderStatMap;
 
 	@PostConstruct
 	private void initStrategyMap() {
 		this.storeOrderStatMap = storeOrderStatStrategies.stream()
 			.collect(Collectors.toMap(
-				StoreOrderStatStrategy::getPeriodType,
+				AdminStoreOrderStatStrategy::getPeriodType,
 				Function.identity()
 			));
 	}
 
 	public StoreOrderStatResponse getOrderStat(StoreOrderStatRequest req) {
-		StoreOrderStatStrategy strategy = storeOrderStatMap.get(req.period());
+		AdminStoreOrderStatStrategy strategy = storeOrderStatMap.get(req.period());
 		if (strategy == null) {
 			throw new BizException(StatErrorCode.UNSUPPORTED_STAT_PERIOD);
 		}

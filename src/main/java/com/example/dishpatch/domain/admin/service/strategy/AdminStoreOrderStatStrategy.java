@@ -8,7 +8,7 @@ import com.example.dishpatch.api.admin.response.StoreOrderStatItem;
 import com.example.dishpatch.api.admin.response.StoreOrderStatResponse;
 import com.example.dishpatch.infra.db.common.StatConvertible;
 
-public interface StoreOrderStatStrategy {
+public interface AdminStoreOrderStatStrategy {
 	StoreOrderStatPeriodType getPeriodType();
 
 	StoreOrderStatResponse getStatistics(StoreOrderStatRequest request);

@@ -18,6 +18,7 @@ import com.example.dishpatch.api.menu.request.MenuUpdateRequest;
 import com.example.dishpatch.api.menu.response.MenuCreateResponse;
 import com.example.dishpatch.api.menu.response.StoreMenuListResponse;
 import com.example.dishpatch.domain.menu.exception.MenuErrorCode;
+import com.example.dishpatch.domain.store.exception.StoreErrorCode;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
@@ -39,12 +40,19 @@ class MenuServiceTest {
 
 	@Test
 	void createMenu_shouldSucceed() {
+		Long userId = 1L;
 		Long storeId = 1L;
 		MenuCreateRequest menuCreateRequest = new MenuCreateRequest("메뉴 이름", 10000, "https://image.com/image_url");
 
-		given(storeRepository.existsById(storeId)).willReturn(true);
+		User user = new User();
+		ReflectionTestUtils.setField(user, "id", userId);
 
-		MenuCreateResponse res = menuService.createMenu(1L, storeId, menuCreateRequest);
+		Store store = Store.builder().user(user).build();
+		ReflectionTestUtils.setField(store, "id", storeId);
+
+		given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+		MenuCreateResponse res = menuService.createMenu(userId, storeId, menuCreateRequest);
 
 		verify(menuRepository, times(1)).save(any());
 		assertEquals(res.name(), menuCreateRequest.name());
@@ -54,14 +62,34 @@ class MenuServiceTest {
 
 	@Test
 	void createMenu_whenStoreNotFound_shouldThrowException() {
+		Long userId = 1L;
 		Long storeId = 1L;
 		MenuCreateRequest menuCreateRequest = new MenuCreateRequest("메뉴 이름", 10000, "https://image.com/image_url");
 
-		given(storeRepository.existsById(storeId)).willReturn(false);
+		given(storeRepository.findById(storeId)).willReturn(Optional.empty());
 
-		RuntimeException exception = assertThrows(RuntimeException.class,
-			() -> menuService.createMenu(1L, storeId, menuCreateRequest));
-		assertEquals("존재하지 않는 가게입니다.", exception.getMessage());
+		BizException exception = assertThrows(BizException.class,
+			() -> menuService.createMenu(userId, 1L, menuCreateRequest));
+		assertEquals(StoreErrorCode.STORE_NOT_FOUND, exception.getErrorCode());
+	}
+
+	@Test
+	void createMenu_whenNotStoreOwner_shouldThrowException() {
+		Long userId = 1L;
+		Long storeId = 1L;
+		MenuCreateRequest menuCreateRequest = new MenuCreateRequest("메뉴 이름", 10000, "https://image.com/image_url");
+
+		User user = new User();
+		ReflectionTestUtils.setField(user, "id", userId);
+
+		Store store = Store.builder().user(user).build();
+		ReflectionTestUtils.setField(store, "id", storeId);
+
+		given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+		BizException exception = assertThrows(BizException.class,
+			() -> menuService.createMenu(2L, storeId, menuCreateRequest));
+		assertEquals(StoreErrorCode.STORE_NOT_FOUND, exception.getErrorCode());
 	}
 
 	@Test
@@ -89,8 +117,8 @@ class MenuServiceTest {
 
 		given(storeRepository.existsById(storeId)).willReturn(false);
 
-		RuntimeException exception = assertThrows(RuntimeException.class, () -> menuService.getStoreMenus(storeId));
-		assertEquals("존재하지 않는 가게입니다.", exception.getMessage());
+		BizException exception = assertThrows(BizException.class, () -> menuService.getStoreMenus(storeId));
+		assertEquals(StoreErrorCode.STORE_NOT_FOUND, exception.getErrorCode());
 	}
 
 	@Test

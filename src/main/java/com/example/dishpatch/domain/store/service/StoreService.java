@@ -48,10 +48,6 @@ public class StoreService {
 		User user = userRepository.findByIdAndStatus(userAuth.getId(), UserStatus.ACTIVE)
 			.orElseThrow(() -> new BizException(INVALID_ID));
 
-		if (userAuth.getRole() != UserRole.CEO) {
-			throw new BizException(USER_ROLE_NOT_CEO);
-		}
-
 		Category category = categoryRepository.findById(request.categoryId())
 			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 
@@ -67,20 +63,14 @@ public class StoreService {
 		return StoreCreateResponse.from(store);
 	}
 
-	public void updateStore(Long userId, Long storeId, StoreUpdateRequest request) {
-		userRepository.findById(userId).ifPresent(user -> {
-			if (user.getRole() != UserRole.CEO) {
-				throw new BizException(USER_ROLE_NOT_CEO);
-			}
-		});
-
+	public void updateStore(UserAuth userAuth, Long storeId, StoreUpdateRequest request) {
 		Category category = categoryRepository.findById(request.categoryId())
 			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 
-		Store store = storeRepository.findById(storeId)
+		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
 
-		if (!Objects.equals(store.getUser().getId(), userId)) {
+		if (!Objects.equals(store.getUser().getId(), userAuth.getId())) {
 			throw new BizException(STORE_OWNER_MISMATCH);
 		}
 

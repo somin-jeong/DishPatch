@@ -52,11 +52,11 @@ public class StoreController {
 
 	@PutMapping("/{storeId}")
 	public void updateStore(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable("storeId") Long storeId,
 		@Valid @RequestBody StoreUpdateRequest request
 	) {
-		storeService.updateStore(userId, storeId, request);
+		storeService.updateStore(userAuth, storeId, request);
 	}
 
 	@DeleteMapping("/{storeId}")

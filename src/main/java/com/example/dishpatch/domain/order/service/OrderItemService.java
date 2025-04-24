@@ -25,7 +25,7 @@ public class OrderItemService {
 	private final MenuRepository menuRepository;
 	private final MenuOptionRepository menuOptionRepository;
 
-	public List<Long> addMenu(Long orderId, List<CartResponseDto> cartResponseDtoList) {
+	public List<Long> addOrderItem(Long orderId, List<CartResponseDto> cartResponseDtoList) {
 
 		List<Long> addedIds = new ArrayList<>();
 
@@ -47,5 +47,10 @@ public class OrderItemService {
 			addedIds.add(savedOrderItem.getId());
 		}
 		return addedIds;
+	}
+
+	public List<Long> getOrderItems(Long orderId) {
+
+		return orderItemRepository.findIdsByOrderId(orderId);
 	}
 }

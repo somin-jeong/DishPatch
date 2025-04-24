@@ -2,6 +2,8 @@ package com.example.dishpatch.api.order.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +32,18 @@ public class OrderController {
 		Long userId = (Long)request.getSession().getAttribute("userId");
 
 		OrderResponseDto responseDto = orderService.createOrder(requestDto, userId);
+
+		return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+	}
+
+	@PatchMapping("/{orderId}/update")
+	public ResponseEntity<OrderResponseDto> updateOrder(
+		HttpServletRequest request,
+		@PathVariable Long orderId
+	) {
+		Long userId = (Long)request.getSession().getAttribute("userId");
+
+		OrderResponseDto responseDto = orderService.updateOrder(userId, orderId);
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseDto);
 	}

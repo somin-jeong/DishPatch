@@ -40,12 +40,16 @@ public class Order extends BaseEntity {
 
 	public Order(Integer totalPrice, User user, Store store) {
 		this.totalPrice = totalPrice;
-		this.status = OrderStatus.A;
+		this.status = OrderStatus.CHECKING;
 		this.user = user;
 		this.store = store;
 	}
 
 	public Order() {
-		
+
+	}
+
+	public void updateStatus(OrderStatus orderStatus) {
+		this.status = orderStatus;
 	}
 }

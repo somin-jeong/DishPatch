@@ -1,6 +1,7 @@
 package com.example.dishpatch.domain.order.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
@@ -11,12 +12,14 @@ import com.example.dishpatch.domain.pointHistory.service.PointHistoryService;
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
 import com.example.dishpatch.infra.db.coupon.entity.CouponType;
 import com.example.dishpatch.infra.db.order.entity.Order;
+import com.example.dishpatch.infra.db.order.entity.OrderStatus;
 import com.example.dishpatch.infra.db.order.repository.OrderRepository;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -78,7 +81,7 @@ public class OrderService {
 
 		Order savedOrder = orderRepository.save(order);
 
-		List<Long> orderItemIds = orderItemService.addMenu(savedOrder.getId(), cartResponseDtoList);
+		List<Long> orderItemIds = orderItemService.addOrderItem(savedOrder.getId(), cartResponseDtoList);
 
 		pointHistoryService.usePoint(userId, requestDto.point());
 
@@ -112,5 +115,57 @@ public class OrderService {
 		}
 
 		return totalPrice;
+	}
+
+	@Transactional
+	public OrderResponseDto updateOrder(Long userId, Long orderId) {
+
+		User user = validateUser(userId);
+
+		Order order = validateOrder(user, orderId);
+
+		if (order.getStatus() == OrderStatus.CHECKING) {
+			order.updateStatus(OrderStatus.COOKING);
+		} else if (order.getStatus() == OrderStatus.COOKING) {
+			order.updateStatus(OrderStatus.DELIVERING);
+		} else if (order.getStatus() == OrderStatus.DELIVERING) {
+			order.updateStatus(OrderStatus.FINISHED);
+		}
+
+		List<Long> menuIds = orderItemService.getOrderItems(orderId);
+
+		return new OrderResponseDto(
+			order.getId(),
+			userId,
+			order.getStore().getId(),
+			menuIds,
+			order.getTotalPrice(),
+			order.getStatus()
+		);
+
+	}
+
+	private Order validateOrder(User user, Long orderId) {
+
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> new RuntimeException("존재하지 않는 주문입니다."));
+
+		if (!Objects.equals(order.getStore().getUser().getId(), user.getId())) {
+			throw new RuntimeException("해당 가게의 사장이 아닙니다.");
+		}
+
+		if (order.getStatus() == OrderStatus.FINISHED) {
+			throw new RuntimeException("이미 완료된 주문입니다.");
+		}
+
+		return order;
+	}
+
+	private User validateUser(Long userId) {
+
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+		return user;
 	}
 }

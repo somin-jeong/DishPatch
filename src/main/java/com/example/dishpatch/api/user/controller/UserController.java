@@ -3,6 +3,7 @@ package com.example.dishpatch.api.user.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,5 +63,4 @@ public class UserController {
 
 		return ResponseEntity.status(HttpStatus.OK).body(userUpdateResponse);
 	}
-
 }

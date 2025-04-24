@@ -3,6 +3,7 @@ package com.example.dishpatch.global.security;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +16,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -23,6 +25,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
 	private final RedisRepository redisRepository;
+	private final ResourcePatternResolver resourcePatternResolver;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -36,6 +39,11 @@ public class SecurityFilter extends OncePerRequestFilter {
 			if (redisRepository.validateKey(token)) {
 				return;
 			}
+
+		if (redisRepository.validateKey("blackList:" + token)){
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"이미 로그아웃된 아이디입니다.");
+			return;
+		}
 
 			// JWT 유효성 검증
 			try {

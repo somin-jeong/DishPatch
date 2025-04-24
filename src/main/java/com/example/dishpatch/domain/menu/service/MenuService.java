@@ -11,6 +11,7 @@ import com.example.dishpatch.api.menu.request.MenuUpdateRequest;
 import com.example.dishpatch.api.menu.response.MenuCreateResponse;
 import com.example.dishpatch.api.menu.response.StoreMenuListResponse;
 import com.example.dishpatch.domain.menu.exception.MenuErrorCode;
+import com.example.dishpatch.domain.store.exception.StoreErrorCode;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
@@ -28,14 +29,14 @@ public class MenuService {
 
 	@Transactional
 	public MenuCreateResponse createMenu(Long userId, Long storeId, MenuCreateRequest req) {
-		if (!storeRepository.existsById(storeId)) {
-			// todo : Store 의 ErrorCode 가 생기면 수정
-			throw new RuntimeException("존재하지 않는 가게입니다.");
+		Store store = storeRepository.findById(storeId)
+			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
+
+		if (!Objects.equals(store.getUser().getId(), userId)) {
+			// todo : 가게의 주인이 아니다 라는 예외로 변경해야함
+			throw new BizException(StoreErrorCode.STORE_NOT_FOUND);
 		}
 
-		// todo : 가게의 주인이 맞는지 검증
-
-		Store store = storeRepository.getReferenceById(storeId);
 		Menu menu = Menu.builder()
 			.name(req.name())
 			.price(req.price())
@@ -51,8 +52,7 @@ public class MenuService {
 	@Transactional(readOnly = true)
 	public StoreMenuListResponse getStoreMenus(Long storeId) {
 		if (!storeRepository.existsById(storeId)) {
-			// todo : Store 의 ErrorCode 가 생기면 수정
-			throw new RuntimeException("존재하지 않는 가게입니다.");
+			throw new BizException(StoreErrorCode.STORE_NOT_FOUND);
 		}
 
 		List<Menu> menus = menuRepository.findAllByStoreId(storeId);

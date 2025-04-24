@@ -25,7 +25,7 @@ public class DailyOrderStatStrategy implements StoreOrderStatStrategy {
 
 	@Override
 	public StoreOrderStatResponse getStatistics(Long storeId, StoreOrderStatRequest request) {
-		List<StoreOrderStatDaily> stats = dailyRepo.findByStoreIdAndDateRange(
+		List<StoreOrderStatDaily> stats = dailyRepo.findAllByStoreIdAndDateRange(
 			storeId, request.from(), request.to());
 		return toResponse(stats);
 	}

@@ -15,18 +15,18 @@ import lombok.extern.slf4j.Slf4j;
 public class StoreOrderStatJobScheduler {
 
 	private final JobLauncher jobLauncher;
-	private final Job storeOrderStatJob;
+	private final Job storeOrderStatDailyJob;
 
-	@Scheduled(cron = "0 1 0 * * *")
+	@Scheduled(cron = "0 13 21 * * *")
 	public void run() {
 		try {
-			log.info("StoreOrderStatJob started");
-			jobLauncher.run(storeOrderStatJob,
+			log.info("storeOrderStatDailyJob started");
+			jobLauncher.run(storeOrderStatDailyJob,
 				new JobParametersBuilder()
 					.addLong("time", System.currentTimeMillis())
 					.toJobParameters());
 		} catch (Exception e) {
-			log.error("StoreOrderStatJob failed", e);
+			log.error("storeOrderStatDailyJob failed", e);
 		}
 	}
 }

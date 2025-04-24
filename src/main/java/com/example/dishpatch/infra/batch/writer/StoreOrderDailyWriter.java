@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Component
-public class StoreOrderWriter implements ItemWriter<StoreOrderStatDaily> {
+public class StoreOrderDailyWriter implements ItemWriter<StoreOrderStatDaily> {
 
 	private final StoreOrderStatDailyRepository dailyRepository;
 

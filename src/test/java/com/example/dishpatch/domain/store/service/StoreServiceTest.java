@@ -20,6 +20,7 @@ import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.global.exception.BizException;
+import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.store.entity.Category;
 import com.example.dishpatch.infra.db.store.entity.Dib;
 import com.example.dishpatch.infra.db.store.entity.Store;
@@ -50,7 +51,10 @@ class StoreServiceTest {
 		// given
 		Long userId = 1L;
 		User user = mock(User.class);
-		when(user.getRole()).thenReturn(UserRole.CEO);
+
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+		when(userAuth.getRole()).thenReturn(UserRole.CEO);
 
 		Category category = mock(Category.class);
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
@@ -62,7 +66,7 @@ class StoreServiceTest {
 		ArgumentCaptor<Store> storeCaptor = ArgumentCaptor.forClass(Store.class);
 
 		// when
-		StoreCreateResponse response = storeService.createStore(userId, request);
+		StoreCreateResponse response = storeService.createStore(userAuth, request);
 
 		// then
 		verify(storeRepository, times(1)).save(storeCaptor.capture());
@@ -78,7 +82,10 @@ class StoreServiceTest {
 		// given
 		Long userId = 1L;
 		User user = mock(User.class);
-		when(user.getRole()).thenReturn(UserRole.CEO);
+
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+		when(userAuth.getRole()).thenReturn(UserRole.CEO);
 
 		Category category = mock(Category.class);
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
@@ -89,7 +96,7 @@ class StoreServiceTest {
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.createStore(userId, request));
+			() -> storeService.createStore(userAuth, request));
 
 		assertThat(STORE_OWN_LIMIT_EXCEEDED.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -99,7 +106,10 @@ class StoreServiceTest {
 		// given
 		Long userId = 1L;
 		User user = mock(User.class);
-		when(user.getRole()).thenReturn(UserRole.CEO);
+
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+		when(userAuth.getRole()).thenReturn(UserRole.CEO);
 
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
@@ -108,7 +118,7 @@ class StoreServiceTest {
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.createStore(userId, request));
+			() -> storeService.createStore(userAuth, request));
 
 		assertThat(CATEGORY_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}

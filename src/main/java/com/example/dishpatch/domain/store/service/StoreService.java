@@ -12,6 +12,7 @@ import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.global.exception.BizException;
+import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.cart.repository.CartRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
@@ -43,18 +44,18 @@ public class StoreService {
 	private final MenuOptionRepository menuOptionRepository;
 	private final CartRepository cartRepository;
 
-	public StoreCreateResponse createStore(Long userId, StoreCreateRequest request) {
-		User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
+	public StoreCreateResponse createStore(UserAuth userAuth, StoreCreateRequest request) {
+		User user = userRepository.findByIdAndStatus(userAuth.getId(), UserStatus.ACTIVE)
 			.orElseThrow(() -> new BizException(INVALID_ID));
 
-		if (user.getRole() != UserRole.CEO) {
+		if (userAuth.getRole() != UserRole.CEO) {
 			throw new BizException(USER_ROLE_NOT_CEO);
 		}
 
 		Category category = categoryRepository.findById(request.categoryId())
 			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 
-		int storeCount = storeRepository.countByUserIdAndDeletedDateIsNull(userId);
+		int storeCount = storeRepository.countByUserIdAndDeletedDateIsNull(userAuth.getId());
 		if (storeCount >= 3) {
 			throw new BizException(STORE_OWN_LIMIT_EXCEEDED);
 		}

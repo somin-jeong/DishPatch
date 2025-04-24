@@ -15,6 +15,7 @@ import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.domain.store.service.StoreService;
+import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.user.entity.User;
 
 import jakarta.validation.Valid;
@@ -28,10 +29,10 @@ public class StoreController {
 
 	@PostMapping
 	public ResponseEntity<StoreCreateResponse> createStore(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@Valid @RequestBody StoreCreateRequest request
 	) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(storeService.createStore(userId, request));
+		return ResponseEntity.status(HttpStatus.CREATED).body(storeService.createStore(userAuth, request));
 	}
 
 	@PostMapping("/{storeId}/like")

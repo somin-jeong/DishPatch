@@ -14,9 +14,10 @@ import com.example.dishpatch.api.user.response.UserLoginResponse;
 import com.example.dishpatch.api.user.response.UserSignupResponse;
 import com.example.dishpatch.api.user.response.UserUpdateResponse;
 import com.example.dishpatch.domain.user.exception.UserErrorCode;
-import com.example.dishpatch.global.config.JwtUtil;
+import com.example.dishpatch.global.security.JwtUtil;
 import com.example.dishpatch.global.config.SecurityConfig;
 import com.example.dishpatch.global.exception.BizException;
+import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.entity.UserGrade;
 import com.example.dishpatch.infra.db.user.entity.UserProvider;
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService {
 			throw new BizException(UserErrorCode.INVALID_PASSWORD);
 		}
 
-		String token = jwtUtil.createToken(user.getId());
+		String token = jwtUtil.createToken(user.getId(),user.getRole());
 
 		return new UserLoginResponse(token);
 	}
@@ -93,9 +94,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserUpdateResponse updateUser(UserUpdateRequest dto, HttpServletRequest request) {
 		String token = jwtUtil.extractToken(request);
-		Long id = jwtUtil.extractId(token);
+		UserAuth userAuth = jwtUtil.extractUserAuth(token);
 
-		User user = userRepository.findById(id).orElseThrow(
+		User user = userRepository.findById(userAuth.getId()).orElseThrow(
 			() -> new BizException(UserErrorCode.INVALID_ID));
 
 		String encodedpassword = passwordEncoder.encode(dto.password());

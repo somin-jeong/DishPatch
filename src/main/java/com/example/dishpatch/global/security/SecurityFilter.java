@@ -1,14 +1,14 @@
-package com.example.dishpatch.global.config;
+package com.example.dishpatch.global.security;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.dishpatch.infra.db.user.entity.UserRole;
 import com.example.dishpatch.infra.db.user.repository.RedisRepository;
 
 import jakarta.servlet.FilterChain;
@@ -40,10 +40,16 @@ public class SecurityFilter extends OncePerRequestFilter {
 			// JWT 유효성 검증
 			try {
 				if (jwtUtil.validateToken(token)) {
-					Long id = jwtUtil.extractId(token);
+					// UserRole 검증
+					UserAuth userAuth = jwtUtil.extractUserAuth(token);
+
+					List<SimpleGrantedAuthority> authorities = List.of(
+						// userAuth.getRole().name()의 .name()은 이넘타입인 UserRole을 String으로 가져오는 메서드다.
+						new SimpleGrantedAuthority("ROLE_" + userAuth.getRole().name())
+					);
 
 					UsernamePasswordAuthenticationToken authToken =
-						new UsernamePasswordAuthenticationToken(id, null, List.of());
+						new UsernamePasswordAuthenticationToken(userAuth, null, authorities);
 
 					SecurityContextHolder.getContext().setAuthentication(authToken);
 

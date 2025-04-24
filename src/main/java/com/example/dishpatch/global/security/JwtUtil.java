@@ -1,9 +1,11 @@
-package com.example.dishpatch.global.config;
+package com.example.dishpatch.global.security;
 
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.example.dishpatch.infra.db.user.entity.UserRole;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -24,10 +26,11 @@ public class JwtUtil {
 	 * JWT 토큰 생성
 	 * deprecated 예정인 메서드라고함
 	 */
-	public String createToken(Long id) {
+	public String createToken(Long id, UserRole role) {
 		// SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
 		return Jwts.builder()
 			.setSubject(String.valueOf(id))
+			.claim("role",role)
 			.setIssuedAt(new Date())
 			.setExpiration(new Date(System.currentTimeMillis() + expiration))
 			.signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
@@ -35,15 +38,16 @@ public class JwtUtil {
 	}
 
 	/**
-	 * 토큰에서 아이디 추출
+	 * 토큰에서 아이디 추출 이였으나 아이디와 UserRole 둘다 필요해서 변경
 	 */
-	public Long extractId(String token) {
-		return Long.parseLong(Jwts.parserBuilder()
+	public UserAuth extractUserAuth(String token) {
+		Claims body = Jwts.parserBuilder()
 			.setSigningKey(secretKey.getBytes())
 			.build()
 			.parseClaimsJws(token)
-			.getBody()
-			.getSubject());
+			.getBody();
+
+		return new UserAuth(Long.parseLong(body.getSubject()),UserRole.valueOf(body.get("role",String.class)));
 	}
 
 	/**
@@ -51,7 +55,7 @@ public class JwtUtil {
 	 */
 	public boolean validateToken(String token) {
 		try {
-			extractId(token);
+			extractUserAuth(token);
 			return true;
 		} catch (Exception e) {
 			return false;

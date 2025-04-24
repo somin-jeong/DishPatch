@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,4 +29,17 @@ public class Dib extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "store_id", nullable = false)
 	private Store store;
+
+	@Builder
+	public Dib(User user, Store store) {
+		this.user = user;
+		this.store = store;
+	}
+
+	public static Dib of(User user, Store store) {
+		return Dib.builder()
+			.user(user)
+			.store(store)
+			.build();
+	}
 }

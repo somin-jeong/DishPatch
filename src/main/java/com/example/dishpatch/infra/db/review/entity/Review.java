@@ -65,4 +65,10 @@ public class Review extends SoftDeletableEntity {
 		this.status = status;
 	}
 
+	public void update(int rating, String contents, String imageUrl, ReviewStatus status) {
+		this.rating = rating;
+		this.contents = contents;
+		this.imageUrl = imageUrl;
+		this.status = status;
+	}
 }

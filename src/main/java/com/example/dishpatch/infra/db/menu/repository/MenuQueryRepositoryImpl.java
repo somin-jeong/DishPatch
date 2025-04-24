@@ -1,6 +1,7 @@
 package com.example.dishpatch.infra.db.menu.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
@@ -16,17 +17,31 @@ public class MenuQueryRepositoryImpl implements MenuQueryRepository {
 
 	private final JPAQueryFactory queryFactory;
 
+	private final QMenu qMenu = QMenu.menu;
+
 	@Override
 	public List<Menu> findAllByStoreId(Long storeId) {
-		QMenu menu = QMenu.menu;
-
 		return queryFactory
-			.selectFrom(menu)
-			.leftJoin(menu.options).fetchJoin()
+			.selectFrom(qMenu)
+			.leftJoin(qMenu.options).fetchJoin()
 			.where(
-				menu.store.id.eq(storeId),
-				menu.deleted.isFalse()
+				qMenu.store.id.eq(storeId),
+				qMenu.deleted.isFalse()
 			)
 			.fetch();
+	}
+
+	@Override
+	public Optional<Menu> findByMenuId(Long menuId) {
+		return Optional.ofNullable(
+			queryFactory
+				.selectFrom(qMenu)
+				.leftJoin(qMenu.store).fetchJoin()
+				.where(
+					qMenu.id.eq(menuId),
+					qMenu.deleted.isFalse()
+				)
+				.fetchOne()
+		);
 	}
 }

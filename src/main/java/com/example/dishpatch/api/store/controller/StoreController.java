@@ -28,10 +28,10 @@ public class StoreController {
 
 	@PostMapping
 	public ResponseEntity<StoreCreateResponse> createStore(
-		// TODO: authentication user
+		@AuthenticationPrincipal Long userId,
 		@Valid @RequestBody StoreCreateRequest request
 	) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(storeService.createStore(new User(), request));
+		return ResponseEntity.status(HttpStatus.CREATED).body(storeService.createStore(userId, request));
 	}
 
 	@PostMapping("/{storeId}/like")
@@ -57,7 +57,7 @@ public class StoreController {
 		@Valid @RequestBody StoreUpdateRequest request
 	) {
 		storeService.updateStore(userId, storeId, request);
-  }
+	}
 
 	@DeleteMapping("/{storeId}")
 	public void deleteStore(

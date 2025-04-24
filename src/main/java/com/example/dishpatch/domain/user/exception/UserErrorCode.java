@@ -15,7 +15,7 @@ public enum UserErrorCode implements ErrorCode {
   INVALID_EMAIL(HttpStatus.UNAUTHORIZED, "유효하지 않은 이메일입니다."),
   INVALID_REQUEST(HttpStatus.BAD_REQUEST, "유효하지 않은 요청입니다."),
   USER_ROLE_NOT_CEO(HttpStatus.FORBIDDEN, "사장 권한이 필요한 작업입니다."),
-  INVALID_ID(HttpStatus.UNAUTHORIZED,"유효하지 않은 아이디입니다.");
+  INVALID_ID(HttpStatus.UNAUTHORIZED, "유효하지 않은 아이디입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;

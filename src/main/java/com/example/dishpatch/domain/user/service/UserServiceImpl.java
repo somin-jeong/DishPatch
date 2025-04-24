@@ -1,5 +1,8 @@
 package com.example.dishpatch.domain.user.service;
 
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,7 @@ import com.example.dishpatch.infra.db.user.entity.UserProvider;
 import com.example.dishpatch.infra.db.user.entity.UserStatus;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,6 +31,7 @@ public class UserServiceImpl implements UserService {
 	private final SecurityConfig securityConfig;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	@Override
 	public UserSignupResponse signUp(UserSignupRequest request) {
@@ -59,5 +64,25 @@ public class UserServiceImpl implements UserService {
 		String token = jwtUtil.createToken(user.getId());
 
 		return new UserLoginResponse(token);
+	}
+
+	@Override
+	public void logout(HttpServletRequest request) {
+
+		String token = jwtUtil.extractToken(request);
+		// 토큰이 없을시 오류 반환
+		if (token == null) {
+			throw new BizException(UserErrorCode.INVALID_REQUEST);
+		}
+
+		long expiration = jwtUtil.getExpiration(token);
+		/**
+		 * 만료기간이 남았을때 blacklist에 등록
+		 * "blacklist:"와 같은 prefix를 붙이는 이유는 Redis 내 다른 데이터와 충돌 방지
+		 * Redis 내 검색을 용이하게 만듬
+		 */
+		if (expiration > 0) {
+			redisTemplate.opsForValue().set("blacklist:" + token, "logout", expiration, TimeUnit.MILLISECONDS);
+		}
 	}
 }

@@ -2,8 +2,6 @@ package com.example.dishpatch.global.config;
 
 import java.util.Date;
 
-import javax.crypto.SecretKey;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,20 +18,19 @@ public class JwtUtil {
 	@Value("${jwt.secret}")
 	private String secretKey;
 
-	private final long expiration = 30 * 60 * 1000L;
+	private static final long expiration = 30 * 60 * 1000L;
 
 	/**
 	 * JWT 토큰 생성
 	 * deprecated 예정인 메서드라고함
 	 */
-	SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
-
 	public String createToken(Long id) {
+		// SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
 		return Jwts.builder()
 			.setSubject(String.valueOf(id))
 			.setIssuedAt(new Date())
 			.setExpiration(new Date(System.currentTimeMillis() + expiration))
-			.signWith(key)
+			.signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
 			.compact();
 	}
 

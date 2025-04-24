@@ -101,8 +101,8 @@ public class StoreService {
 
 		LocalDateTime now = LocalDateTime.now();
 
-		reviewRepository.bulkSoftDeleteByStoreId(storeId, now);
-		ceoReviewRepository.bulkSoftDeleteByStoreId(storeId, now);
+		reviewRepository.deleteAllByStoreId(storeId);
+		ceoReviewRepository.deleteAllByStoreId(storeId, now);
 
 		menuRepository.bulkSoftDeleteByStoreId(storeId, now);
 		menuOptionRepository.bulkSoftDeleteByStoreId(storeId, now);

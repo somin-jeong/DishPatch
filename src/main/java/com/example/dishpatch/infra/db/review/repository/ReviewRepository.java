@@ -1,6 +1,5 @@
 package com.example.dishpatch.infra.db.review.repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +33,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	void deleteAllByStoreId(Long storeId);
 
 	@Modifying(clearAutomatically = true)
-	@Query("UPDATE Review r SET r.deletedDate = :now WHERE r.store.id = :storeId AND r.deletedDate IS NULL")
-	void bulkSoftDeleteByStoreId(Long storeId, LocalDateTime now);
+	void deleteAllByStoreId(Long storeId);
 
 }

@@ -61,4 +61,23 @@ public class CeoReviewService {
 
 		return CeoReviewResponse.from(ceoReview);
 	}
+
+	public void deleteCeoReview(Long reviewId, Long ceoReviewId) {
+		Long userId = 1L;
+		ceoReviewId = 1L;
+
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+		//ceoReviewId 재설정 해야함
+		CeoReview ceoReview = ceoReviewRepository.findById(ceoReviewId)
+			.orElseThrow(() -> new BizException(CeoReviewErrorCode.CEO_REVIEW_NOT_FOUND));
+
+		//userId 재설정 해야함
+		if (!userId.equals(ceoReview.getUser().getId())) {
+			new BizException(CeoReviewErrorCode.CEO_REVIEW_AUTHOR_MISMATCH);
+		}
+
+		ceoReviewRepository.deleteById(ceoReview.getId());
+	}
 }

@@ -7,6 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,13 +27,23 @@ public class CeoReview extends SoftDeletableEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "user_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "review_id", nullable = false)
+	private Review review;
 
 	@Column(length = 500)
 	private String contents;
 
 	@Enumerated(EnumType.STRING)
 	private ReviewStatus status;
+
+	public CeoReview(User user, String contents, ReviewStatus status) {
+		this.user = user;
+		this.contents = contents;
+		this.status = status;
+	}
 }

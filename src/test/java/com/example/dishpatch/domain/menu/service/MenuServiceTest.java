@@ -4,20 +4,26 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.dishpatch.api.menu.request.MenuCreateRequest;
+import com.example.dishpatch.api.menu.request.MenuUpdateRequest;
 import com.example.dishpatch.api.menu.response.MenuCreateResponse;
 import com.example.dishpatch.api.menu.response.StoreMenuListResponse;
+import com.example.dishpatch.domain.menu.exception.MenuErrorCode;
+import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
+import com.example.dishpatch.infra.db.user.entity.User;
 
 @ExtendWith(MockitoExtension.class)
 class MenuServiceTest {
@@ -38,7 +44,7 @@ class MenuServiceTest {
 
 		given(storeRepository.existsById(storeId)).willReturn(true);
 
-		MenuCreateResponse res = menuService.createMenu(storeId, menuCreateRequest);
+		MenuCreateResponse res = menuService.createMenu(1L, storeId, menuCreateRequest);
 
 		verify(menuRepository, times(1)).save(any());
 		assertEquals(res.name(), menuCreateRequest.name());
@@ -54,16 +60,17 @@ class MenuServiceTest {
 		given(storeRepository.existsById(storeId)).willReturn(false);
 
 		RuntimeException exception = assertThrows(RuntimeException.class,
-			() -> menuService.createMenu(storeId, menuCreateRequest));
+			() -> menuService.createMenu(1L, storeId, menuCreateRequest));
 		assertEquals("존재하지 않는 가게입니다.", exception.getMessage());
 	}
 
 	@Test
 	void getStoreMenus_shouldSucceed() {
 		Long storeId = 1L;
+		Store store = mock(Store.class);
 		List<Menu> menus = List.of(
-			new Menu("메뉴 이름1", 10000, "https://image.com/image_url1", false, new Store()),
-			new Menu("메뉴 이름2", 20000, "https://image.com/image_url2", true, new Store())
+			new Menu("메뉴 이름1", 10000, "https://image.com/image_url1", false, store),
+			new Menu("메뉴 이름2", 20000, "https://image.com/image_url2", true, store)
 		);
 
 		given(storeRepository.existsById(storeId)).willReturn(true);
@@ -84,5 +91,91 @@ class MenuServiceTest {
 
 		RuntimeException exception = assertThrows(RuntimeException.class, () -> menuService.getStoreMenus(storeId));
 		assertEquals("존재하지 않는 가게입니다.", exception.getMessage());
+	}
+
+	@Test
+	void updateMenu_shouldSucceed() {
+		Long userId = 1L;
+		Long storeId = 1L;
+		Long menuId = 1L;
+
+		Menu mockMenu = createMockMenu(userId, storeId, menuId);
+
+		MenuUpdateRequest req
+			= new MenuUpdateRequest("수정된 이름", 20000, "https://image.com/image_url", true);
+
+		given(menuRepository.findByMenuId(menuId)).willReturn(Optional.of(mockMenu));
+
+		menuService.updateMenu(userId, storeId, menuId, req);
+
+		assertEquals("수정된 이름", mockMenu.getName());
+		assertEquals(20000, mockMenu.getPrice());
+		assertEquals("https://image.com/image_url", mockMenu.getImageUrl());
+		assertTrue(mockMenu.isSoldOut());
+	}
+
+	@Test
+	void updateMenu_whenMenuNotFound_shouldThrowException() {
+		Long userId = 1L;
+		Long storeId = 1L;
+		Long menuId = 1L;
+
+		MenuUpdateRequest req
+			= new MenuUpdateRequest("수정된 이름", 20000, "https://image.com/image_url", true);
+
+		given(menuRepository.findByMenuId(menuId)).willReturn(Optional.empty());
+
+		BizException exception = assertThrows(BizException.class,
+			() -> menuService.updateMenu(userId, storeId, menuId, req));
+		assertEquals(MenuErrorCode.MENU_NOT_FOUND, exception.getErrorCode());
+	}
+
+	// @Test
+	// void updateMenu_whenStoreInvalid_shouldThrowException() {
+	// 	Long userId = 1L;
+	// 	Long storeId = 1L;
+	// 	Long menuId = 1L;
+	//
+	// 	Menu mockMenu = createMockMenu(userId, storeId, menuId);
+	//
+	// 	MenuUpdateRequest req
+	// 		= new MenuUpdateRequest("수정된 이름", 20000, "https://image.com/image_url", true);
+	//
+	// 	given(menuRepository.findByMenuId(menuId)).willReturn(Optional.of(mockMenu));
+	//
+	// 	BizException exception = assertThrows(BizException.class,
+	// 		() -> menuService.updateMenu(userId, 2L, menuId, req));
+	// 	assertEquals(MenuErrorCode.MENU_FORBIDDEN, exception.getErrorCode());
+	// }
+	//
+	// @Test
+	// void updateMenu_whenStoreOwnerInvalid_shouldThrowException() {
+	// 	Long userId = 1L;
+	// 	Long storeId = 1L;
+	// 	Long menuId = 1L;
+	//
+	// 	Menu mockMenu = createMockMenu(userId, storeId, menuId);
+	//
+	// 	MenuUpdateRequest req
+	// 		= new MenuUpdateRequest("수정된 이름", 20000, "https://image.com/image_url", true);
+	//
+	// 	given(menuRepository.findByMenuId(menuId)).willReturn(Optional.of(mockMenu));
+	//
+	// 	BizException exception = assertThrows(BizException.class,
+	// 		() -> menuService.updateMenu(2L, storeId, menuId, req));
+	// 	assertEquals(MenuErrorCode.MENU_FORBIDDEN, exception.getErrorCode());
+	// }
+
+	Menu createMockMenu(Long userId, Long storeId, Long menuId) {
+		User user = new User();
+		ReflectionTestUtils.setField(user, "id", userId);
+
+		Store store = mock(Store.class);
+		ReflectionTestUtils.setField(store, "id", storeId);
+		ReflectionTestUtils.setField(store, "user", user);
+
+		Menu menu = Menu.builder().store(store).build();
+		ReflectionTestUtils.setField(menu, "id", menuId);
+		return menu;
 	}
 }

@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,15 +31,15 @@ public class Review extends SoftDeletableEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "store_id")
 	private Store store;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "menu_id")
 	private Menu menu;
 
@@ -65,4 +66,10 @@ public class Review extends SoftDeletableEntity {
 		this.status = status;
 	}
 
+	public void update(int rating, String contents, String imageUrl, ReviewStatus status) {
+		this.rating = rating;
+		this.contents = contents;
+		this.imageUrl = imageUrl;
+		this.status = status;
+	}
 }

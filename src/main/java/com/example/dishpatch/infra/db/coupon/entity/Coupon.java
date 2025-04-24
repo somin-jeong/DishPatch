@@ -1,5 +1,7 @@
 package com.example.dishpatch.infra.db.coupon.entity;
 
+import com.example.dishpatch.infra.db.common.SoftDeletableEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,7 +15,7 @@ import lombok.Getter;
 @Getter
 @Entity
 @Table(name = "coupons")
-public class Coupon {
+public class Coupon extends SoftDeletableEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +28,16 @@ public class Coupon {
 	private CouponType coupontype;
 
 	@Column(nullable = false)
-	private String deductedPrice;
+	private Integer deductedPrice;
+
+	@Column
+	private Integer maxDiscount;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private CouponUsed status;
+
+	public void useCoupon() {
+		this.status = CouponUsed.A;
+	}
 }

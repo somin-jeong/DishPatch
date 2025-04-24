@@ -47,4 +47,9 @@ public class MenuOption extends SoftDeletableEntity {
 		this.menu = menu;
 	}
 
+	public void update(String name, Integer price, boolean soldOut) {
+		this.name = name;
+		this.price = price;
+		this.soldOut = soldOut;
+	}
 }

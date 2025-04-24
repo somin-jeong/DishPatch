@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.example.dishpatch.infra.db.menu.entity.MenuOption;
 
-public interface MenuOptionRepository extends JpaRepository<MenuOption, Long> {
+public interface MenuOptionRepository extends JpaRepository<MenuOption, Long>, MenuOptionQueryRepository {
 	@Modifying(clearAutomatically = true)
 	@Query("""
 			UPDATE MenuOption mo

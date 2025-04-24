@@ -61,17 +61,38 @@ public class MenuService {
 
 	@Transactional
 	public void updateMenu(Long userId, Long storeId, Long menuId, MenuUpdateRequest req) {
-		Menu menu = menuRepository.findByMenuId(menuId)
-			.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
+		Menu menu = findMenuOrThrow(menuId);
 
+		validateMenuStoreMatch(storeId, menu);
+		validateMenuOwner(userId, menu);
+
+		menu.update(req.name(), req.price(), req.imageUrl(), req.soldOut());
+	}
+
+	@Transactional
+	public void deleteMenu(Long userId, Long storeId, Long menuId) {
+		Menu menu = findMenuOrThrow(menuId);
+
+		validateMenuStoreMatch(storeId, menu);
+		validateMenuOwner(userId, menu);
+
+		menu.softDelete();
+	}
+
+	private void validateMenuStoreMatch(Long storeId, Menu menu) {
 		if (!Objects.equals(menu.getStore().getId(), storeId)) {
 			throw new BizException(MenuErrorCode.MENU_STORE_MISMATCH);
 		}
+	}
 
+	private void validateMenuOwner(Long userId, Menu menu) {
 		if (!Objects.equals(menu.getStore().getUser().getId(), userId)) {
 			throw new BizException(MenuErrorCode.MENU_OWNER_MISMATCH);
 		}
+	}
 
-		menu.update(req.name(), req.price(), req.imageUrl(), req.soldOut());
+	private Menu findMenuOrThrow(Long menuId) {
+		return menuRepository.findByMenuId(menuId)
+			.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
 	}
 }

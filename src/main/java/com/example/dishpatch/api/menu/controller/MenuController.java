@@ -2,6 +2,8 @@ package com.example.dishpatch.api.menu.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,6 +54,16 @@ public class MenuController {
 	) {
 		// todo : 로그인된 사용자로 처리되게 수정, SecurityFilterChain 에서 권한 체크 추가
 		menuService.updateMenu(1L, storeId, menuId, req);
+		return ResponseEntity.noContent().build();
+	}
+
+	@DeleteMapping("/{menuId}")
+	public ResponseEntity<Void> deleteMenu(
+		@PathVariable("storeId") Long storeId,
+		@PathVariable("menuId") Long menuId,
+		@AuthenticationPrincipal Long userId
+	) {
+		menuService.deleteMenu(userId, storeId, menuId);
 		return ResponseEntity.noContent().build();
 	}
 }

@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.review.request.CeoReviewCreateRequest;
+import com.example.dishpatch.api.review.request.CeoReviewUpdateRequest;
 import com.example.dishpatch.api.review.response.CeoReviewResponse;
+import com.example.dishpatch.domain.review.exception.CeoReviewErrorCode;
 import com.example.dishpatch.domain.review.exception.ReviewErrorCode;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.review.entity.CeoReview;
@@ -45,6 +47,16 @@ public class CeoReviewService {
 		//DB 저장
 		//외래키 반영
 		CeoReview saved = ceoReviewRepository.save(ceoReview);
+
+		return CeoReviewResponse.from(List.of(ceoReview)).get(0);
+	}
+
+	public CeoReviewResponse updateCeoReview(Long ceoReviewId, CeoReviewUpdateRequest request) {
+
+		CeoReview ceoReview = ceoReviewRepository.findById(ceoReviewId)
+			.orElseThrow(() -> new BizException(CeoReviewErrorCode.CEO_REVIEW_NOT_FOUND));
+
+		ceoReview.update(request.contents(), request.status());
 
 		return CeoReviewResponse.from(List.of(ceoReview)).get(0);
 	}

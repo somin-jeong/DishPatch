@@ -145,7 +145,7 @@ class MenuServiceTest {
 
 		BizException exception = assertThrows(BizException.class,
 			() -> menuService.updateMenu(userId, 2L, menuId, req));
-		assertEquals(MenuErrorCode.MENU_FORBIDDEN, exception.getErrorCode());
+		assertEquals(MenuErrorCode.MENU_STORE_MISMATCH, exception.getErrorCode());
 	}
 
 	@Test
@@ -163,16 +163,15 @@ class MenuServiceTest {
 
 		BizException exception = assertThrows(BizException.class,
 			() -> menuService.updateMenu(2L, storeId, menuId, req));
-		assertEquals(MenuErrorCode.MENU_FORBIDDEN, exception.getErrorCode());
+		assertEquals(MenuErrorCode.MENU_OWNER_MISMATCH, exception.getErrorCode());
 	}
 
 	Menu createMockMenu(Long userId, Long storeId, Long menuId) {
 		User user = new User();
 		ReflectionTestUtils.setField(user, "id", userId);
 
-		Store store = new Store();
+		Store store = Store.builder().user(user).build();
 		ReflectionTestUtils.setField(store, "id", storeId);
-		ReflectionTestUtils.setField(store, "user", user);
 
 		Menu menu = Menu.builder().store(store).build();
 		ReflectionTestUtils.setField(menu, "id", menuId);

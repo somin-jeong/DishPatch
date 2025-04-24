@@ -26,7 +26,7 @@ public class StoreOrderStatMonthlyReader implements ItemReader<StoreOrderStatDai
 		if (dailyIterator == null) {
 			LocalDate now = LocalDate.now();
 			LocalDate from = now.minusDays(1).withDayOfMonth(1);
-			LocalDate to = now.plusMonths(1).withDayOfMonth(1);
+			LocalDate to = now.withDayOfMonth(1);
 			List<StoreOrderStatDaily> items = dailyRepository.findAllByDateRange(from, to);
 			dailyIterator = items.iterator();
 		}

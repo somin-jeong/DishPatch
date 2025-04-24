@@ -17,7 +17,7 @@ public class StoreOrderStatJobScheduler {
 	private final JobLauncher jobLauncher;
 	private final Job storeOrderStatDailyJob;
 
-	@Scheduled(cron = "0 13 21 * * *")
+	@Scheduled(cron = "0 1 0 * * *")
 	public void run() {
 		try {
 			log.info("storeOrderStatDailyJob started");

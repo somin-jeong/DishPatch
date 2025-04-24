@@ -6,4 +6,6 @@ import com.example.dishpatch.infra.db.pointHistory.entity.PointHistory;
 
 public interface CustomPointHistoryRepository {
 	List<PointHistory> findUnusedPointsOrderByCreatedDateAsc(Long userId);
+
+	public void applyUserPointUsage(Long userId, Integer point);
 }

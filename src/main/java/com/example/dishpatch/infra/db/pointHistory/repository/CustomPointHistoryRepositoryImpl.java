@@ -9,6 +9,7 @@ import com.example.dishpatch.infra.db.pointHistory.entity.PointUsed;
 import com.example.dishpatch.infra.db.pointHistory.entity.QPointHistory;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -30,4 +31,33 @@ public class CustomPointHistoryRepositoryImpl implements CustomPointHistoryRepos
 			.orderBy(qPointHistory.createdDate.asc())
 			.fetch();
 	}
+
+	@Override
+	@Transactional
+	public void applyUserPointUsage(Long userId, Integer point) {
+		QPointHistory q = QPointHistory.pointHistory;
+
+		List<PointHistory> pointHistories = queryFactory
+			.selectFrom(q)
+			.where(q.user.id.eq(userId)
+				.and(q.pointUsed.eq(PointUsed.UNUSED)))
+			.orderBy(q.createdDate.asc())
+			.fetch();
+
+		for (PointHistory ph : pointHistories) {
+			if (point == 0)
+				break;
+
+			int cur = ph.getRemain();
+
+			if (cur > point) {
+				ph.updateRemain(cur - point);
+				point = 0;
+			} else {
+				point -= cur;
+				ph.updateRemain(0);
+			}
+		}
+	}
+
 }

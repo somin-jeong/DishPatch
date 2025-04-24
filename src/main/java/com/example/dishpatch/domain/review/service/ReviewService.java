@@ -105,7 +105,7 @@ public class ReviewService {
 			new BizException(ReviewErrorCode.REVIEW_AUTHOR_MISMATCH);
 		}
 
-		reviewRepository.delete(review);
+		reviewRepository.deleteById(review.getId());
 	}
 
 }

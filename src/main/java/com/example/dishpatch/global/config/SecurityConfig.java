@@ -2,7 +2,6 @@ package com.example.dishpatch.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,8 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final JwtUtil jwtUtil;
-	private final RedisTemplate<String, String> redisTemplate;
+	private final SecurityFilter securityFilter;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -54,7 +52,7 @@ public class SecurityConfig {
 				.anyRequest()
 				.authenticated()
 			)
-			.addFilterBefore(new SecurityFilter(jwtUtil, redisTemplate), UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

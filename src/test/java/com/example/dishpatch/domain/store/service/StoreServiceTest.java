@@ -1,7 +1,6 @@
 package com.example.dishpatch.domain.store.service;
 
 import static com.example.dishpatch.domain.store.exception.StoreErrorCode.*;
-import static com.example.dishpatch.domain.user.exception.UserErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -14,7 +13,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
@@ -28,7 +26,6 @@ import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
 import com.example.dishpatch.infra.db.store.repository.DibRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
-import com.example.dishpatch.infra.db.user.entity.UserRole;
 import com.example.dishpatch.infra.db.user.entity.UserStatus;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
@@ -362,37 +359,17 @@ class StoreServiceTest {
 	}
 
 	@Test
-	void deleteStore_whenUserRoleNotCeo_shouldThrowException() {
-		// given
-		Long userId = 1L;
-		User user = mock(User.class);
-		ReflectionTestUtils.setField(user, "id", userId);
-		ReflectionTestUtils.setField(user, "role", UserRole.USER);
-
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-		// when & then
-		BizException exception = assertThrows(BizException.class,
-			() -> storeService.deleteStore(userId, 10L));
-
-		assertThat(USER_ROLE_NOT_CEO.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
-	}
-
-	@Test
 	void deleteStore_whenStoreNotFound_shouldThrowException() {
 		// given
-		Long userId = 1L;
 		Long storeId = 10L;
 
-		User user = mock(User.class);
-		when(user.getRole()).thenReturn(UserRole.CEO);
+		UserAuth userAuth = mock(UserAuth.class);
 
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.empty());
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.deleteStore(userId, storeId));
+			() -> storeService.deleteStore(userAuth, storeId));
 
 		assertThat(STORE_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -401,24 +378,22 @@ class StoreServiceTest {
 	void deleteStore_whenStoreOwnerMismatch_shouldThrowException() {
 		// given
 		Long userId = 1L;
-		Long ownerId = 3L;
-		Long storeId = 10L;
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
 
+		Long ownerId = 3L;
 		User owner = mock(User.class);
 		when(owner.getId()).thenReturn(ownerId);
 
+		Long storeId = 10L;
 		Store store = mock(Store.class);
 		when(store.getUser()).thenReturn(owner);
 
-		User user = mock(User.class);
-		when(user.getRole()).thenReturn(UserRole.CEO);
-
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-		when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.deleteStore(userId, storeId));
+			() -> storeService.deleteStore(userAuth, storeId));
 
 		assertThat(STORE_OWNER_MISMATCH.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}

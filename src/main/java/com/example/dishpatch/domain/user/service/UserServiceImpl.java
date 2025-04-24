@@ -5,15 +5,19 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dishpatch.api.user.request.UserLoginRequest;
 import com.example.dishpatch.api.user.request.UserSignupRequest;
+import com.example.dishpatch.api.user.request.UserUpdateRequest;
 import com.example.dishpatch.api.user.response.UserLoginResponse;
 import com.example.dishpatch.api.user.response.UserSignupResponse;
+import com.example.dishpatch.api.user.response.UserUpdateResponse;
 import com.example.dishpatch.domain.user.exception.UserErrorCode;
-import com.example.dishpatch.global.config.JwtUtil;
+import com.example.dishpatch.global.security.JwtUtil;
 import com.example.dishpatch.global.config.SecurityConfig;
 import com.example.dishpatch.global.exception.BizException;
+import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.entity.UserGrade;
 import com.example.dishpatch.infra.db.user.entity.UserProvider;
@@ -61,7 +65,7 @@ public class UserServiceImpl implements UserService {
 			throw new BizException(UserErrorCode.INVALID_PASSWORD);
 		}
 
-		String token = jwtUtil.createToken(user.getId());
+		String token = jwtUtil.createToken(user.getId(),user.getRole());
 
 		return new UserLoginResponse(token);
 	}
@@ -84,5 +88,19 @@ public class UserServiceImpl implements UserService {
 		if (expiration > 0) {
 			redisTemplate.opsForValue().set("blacklist:" + token, "logout", expiration, TimeUnit.MILLISECONDS);
 		}
+	}
+
+	@Transactional
+	@Override
+	public UserUpdateResponse updateUser(UserUpdateRequest dto, UserAuth userAuth) {
+
+		User user = userRepository.findById(userAuth.getId()).orElseThrow(
+			() -> new BizException(UserErrorCode.INVALID_ID));
+
+		String encodedpassword = passwordEncoder.encode(dto.password());
+
+		user.updateUser(encodedpassword, dto.name(), dto.phone(), dto.currentAddress());
+
+		return UserUpdateResponse.from(user);
 	}
 }

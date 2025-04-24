@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: ${MYSQL_URL:jdbc:mysql://localhost:3306/dishpatch}
-    username: ${MYSQL_USERNAME:testuser}
-    password: ${MYSQL_PASSWORD:testpass}
+    username: testuser
+    password: testpass
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   data:

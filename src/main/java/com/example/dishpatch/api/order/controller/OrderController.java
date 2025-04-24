@@ -19,6 +19,7 @@ import com.example.dishpatch.api.order.request.OrderStatusRequestDto;
 import com.example.dishpatch.api.order.response.OrderDetailResponseDto;
 import com.example.dishpatch.api.order.response.OrderResponseDto;
 import com.example.dishpatch.domain.order.service.OrderService;
+import com.example.dishpatch.global.security.UserAuth;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -33,52 +34,50 @@ public class OrderController {
 
 	@PostMapping
 	public ResponseEntity<OrderResponseDto> createOrder(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@Valid @RequestBody OrderRequestDto requestDto
 	) {
-		OrderResponseDto responseDto = orderService.createOrder(requestDto, userId);
+		OrderResponseDto responseDto = orderService.createOrder(requestDto, userAuth.getId());
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseDto);
 	}
 
 	@PatchMapping("/{orderId}/update")
 	public ResponseEntity<OrderResponseDto> updateOrder(
-		HttpServletRequest request,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable Long orderId,
 		@Valid @RequestBody OrderStatusRequestDto requestDto
 	) {
-		Long userId = (Long)request.getSession().getAttribute("userId");
-
-		OrderResponseDto responseDto = orderService.updateOrder(userId, orderId, requestDto);
+		OrderResponseDto responseDto = orderService.updateOrder(userAuth.getId(), orderId, requestDto);
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseDto);
 	}
 
 	@DeleteMapping("/{orderId}/refuse")
 	public ResponseEntity<Void> refuseOrder(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable Long orderId
 	) {
-		orderService.refuseOrder(userId, orderId);
+		orderService.refuseOrder(userAuth.getId(), orderId);
 
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
 	@GetMapping
 	public ResponseEntity<List<OrderResponseDto>> findAllOrders(
-		@AuthenticationPrincipal Long userId
+		@AuthenticationPrincipal UserAuth userAuth,
 	) {
-		List<OrderResponseDto> responseDtos = orderService.findAllOrders(userId);
+		List<OrderResponseDto> responseDtos = orderService.findAllOrders(userAuth.getId());
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseDtos);
 	}
 
 	@GetMapping("/{orderId}/details")
 	public ResponseEntity<OrderDetailResponseDto> findOrderDetails(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable Long orderId
 	) {
-		OrderDetailResponseDto responseDto = orderService.findOrderDetails(userId, orderId);
+		OrderDetailResponseDto responseDto = orderService.findOrderDetails(userAuth.getId(), orderId);
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseDto);
 	}

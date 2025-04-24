@@ -1,11 +1,13 @@
 package com.example.dishpatch.domain.review.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.review.request.ReviewCreateRequest;
 import com.example.dishpatch.api.review.request.ReviewUpdateRequest;
+import com.example.dishpatch.api.review.response.ReviewPageResponse;
 import com.example.dishpatch.api.review.response.ReviewResponse;
 import com.example.dishpatch.domain.review.exception.ReviewErrorCode;
 import com.example.dishpatch.global.exception.BizException;
@@ -51,7 +53,7 @@ public class ReviewService {
 		return ReviewResponse.from(saved);
 	}
 
-	public List<ReviewResponse> findReviews(Long storeId, Integer min, Integer max) {
+	public ReviewPageResponse findReviews(Long storeId, Integer min, Integer max, int page, int size) {
 		Integer safeMin = (min != null) ? min : 1;
 		Integer safeMax = (max != null) ? max : 5;
 
@@ -64,9 +66,12 @@ public class ReviewService {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
 
-		List<Review> reviewList = reviewRepository.findAllByStoreIdAndRating(userId, store.getId(), safeMin, safeMax);
+		Pageable pageable = PageRequest.of(page, size);
 
-		return ReviewResponse.from(reviewList);
+		Page<Review> reviewPage = reviewRepository.findAllByStoreIdAndRating(
+			userId, store.getId(), safeMin, safeMax, pageable);
+
+		return ReviewPageResponse.from(reviewPage);
 	}
 
 	public ReviewResponse updateReview(Long reviewId, ReviewUpdateRequest request) {

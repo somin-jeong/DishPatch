@@ -1,7 +1,5 @@
 package com.example.dishpatch.infra.db.review.repository;
 
-import java.time.LocalDateTime;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,5 +14,5 @@ public interface CeoReviewRepository extends JpaRepository<CeoReview, Long> {
 		        SELECT cr.id FROM Review r WHERE r.store.id = :storeId AND r.deletedDate IS NOT NULL
 		    )
 		""")
-	int deleteAllByStoreId(Long storeId, LocalDateTime now);
+	int deleteAllByStoreId(Long storeId);
 }

@@ -3,18 +3,17 @@ package com.example.dishpatch.domain.store.service;
 import static com.example.dishpatch.domain.store.exception.StoreErrorCode.*;
 import static com.example.dishpatch.domain.user.exception.UserErrorCode.*;
 
-import java.util.Objects;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.global.exception.BizException;
+import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.cart.repository.CartRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
@@ -27,7 +26,7 @@ import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
 import com.example.dishpatch.infra.db.store.repository.DibRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
-import com.example.dishpatch.infra.db.user.entity.UserRole;
+import com.example.dishpatch.infra.db.user.entity.UserStatus;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -45,13 +44,14 @@ public class StoreService {
 	private final MenuOptionRepository menuOptionRepository;
 	private final CartRepository cartRepository;
 
-	public StoreCreateResponse createStore(User user, StoreCreateRequest request) {
-		// TODO: 사용자 role이 사장인지 확인
+	public StoreCreateResponse createStore(UserAuth userAuth, StoreCreateRequest request) {
+		User user = userRepository.findByIdAndStatus(userAuth.getId(), UserStatus.ACTIVE)
+			.orElseThrow(() -> new BizException(INVALID_ID));
 
 		Category category = categoryRepository.findById(request.categoryId())
 			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 
-		int storeCount = storeRepository.countByUserIdAndDeletedDateIsNull(1L); // TODO: user.getId()
+		int storeCount = storeRepository.countByUserIdAndDeletedDateIsNull(userAuth.getId());
 		if (storeCount >= 3) {
 			throw new BizException(STORE_OWN_LIMIT_EXCEEDED);
 		}
@@ -63,31 +63,29 @@ public class StoreService {
 		return StoreCreateResponse.from(store);
 	}
 
-	public void updateStore(Long userId, Long storeId, StoreUpdateRequest request) {
-		userRepository.findById(userId).ifPresent(user -> {
-			if (user.getRole() != UserRole.CEO) {
-				throw new BizException(USER_ROLE_NOT_CEO);
-			}
-		});
-
+	@Transactional
+	public void updateStore(UserAuth userAuth, Long storeId, StoreUpdateRequest request) {
 		Category category = categoryRepository.findById(request.categoryId())
 			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 
-		Store store = storeRepository.findById(storeId)
+		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
 
-		if (!Objects.equals(store.getUser().getId(), userId)) {
+		if (!Objects.equals(store.getUser().getId(), userAuth.getId())) {
 			throw new BizException(STORE_OWNER_MISMATCH);
 		}
 
 		store.update(request, category);
 	}
 
-	public void dibStore(User user, Long storeId) {
-		Store store = storeRepository.findById(storeId)
+	public void dibStore(UserAuth userAuth, Long storeId) {
+		User user = userRepository.findByIdAndStatus(userAuth.getId(), UserStatus.ACTIVE)
+			.orElseThrow(() -> new BizException(INVALID_ID));
+
+		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
 
-		if (dibRepository.existsByUserIdAndStoreId(user.getId(), storeId)) {
+		if (dibRepository.existsByUserIdAndStoreId(userAuth.getId(), storeId)) {
 			throw new BizException(ALREADY_DIB_STORE);
 		}
 
@@ -96,44 +94,37 @@ public class StoreService {
 		dibRepository.save(dib);
 	}
 
-	public void undibStore(User user, Long storeId) {
-		if (!storeRepository.existsById(storeId)) {
+	@Transactional
+	public void undibStore(UserAuth userAuth, Long storeId) {
+		if (!storeRepository.existsByIdAndDeletedDateIsNull(storeId)) {
 			throw new BizException(STORE_NOT_FOUND);
 		}
 
-		Dib dib = dibRepository.findByUserIdAndStoreId(user.getId(), storeId)
+		Dib dib = dibRepository.findByUserIdAndStoreId(userAuth.getId(), storeId)
 			.orElseThrow(() -> new BizException(UNDIB_STORE));
 
 		dibRepository.delete(dib);
 	}
 
-	public void deleteStore(Long userId, Long storeId) {
-		userRepository.findById(userId).ifPresent(user -> {
-			if (user.getRole() != UserRole.CEO) {
-				throw new BizException(USER_ROLE_NOT_CEO);
-			}
-		});
-
-		Store store = storeRepository.findById(storeId)
+	@Transactional
+	public void deleteStore(UserAuth userAuth, Long storeId) {
+		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
 
-		if (!Objects.equals(store.getUser().getId(), userId)) {
+		if (!Objects.equals(store.getUser().getId(), userAuth.getId())) {
 			throw new BizException(STORE_OWNER_MISMATCH);
 		}
 
-		LocalDateTime now = LocalDateTime.now();
+		store.softDelete();
 
 		reviewRepository.deleteAllByStoreId(storeId);
-		ceoReviewRepository.deleteAllByStoreId(storeId, now);
+		ceoReviewRepository.deleteAllByStoreId(storeId);
 
-		menuRepository.bulkSoftDeleteByStoreId(storeId, now);
-		menuOptionRepository.bulkSoftDeleteByStoreId(storeId, now);
+		menuRepository.bulkSoftDeleteByStoreId(storeId, LocalDateTime.now());
+		menuOptionRepository.bulkSoftDeleteByStoreId(storeId, LocalDateTime.now());
 
 		dibRepository.deleteAllByStoreId(storeId);
 		cartRepository.deleteAllByStoreId(storeId);
-
-		storeRepository.findById(storeId)
-			.orElseThrow(() -> new BizException(STORE_NOT_FOUND)).softDelete();
 	}
 
 }

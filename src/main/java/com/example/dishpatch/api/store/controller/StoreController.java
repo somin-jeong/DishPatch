@@ -15,7 +15,7 @@ import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.domain.store.service.StoreService;
-import com.example.dishpatch.infra.db.user.entity.User;
+import com.example.dishpatch.global.security.UserAuth;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,42 +28,42 @@ public class StoreController {
 
 	@PostMapping
 	public ResponseEntity<StoreCreateResponse> createStore(
-		// TODO: authentication user
+		@AuthenticationPrincipal UserAuth userAuth,
 		@Valid @RequestBody StoreCreateRequest request
 	) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(storeService.createStore(new User(), request));
+		return ResponseEntity.status(HttpStatus.CREATED).body(storeService.createStore(userAuth, request));
 	}
 
 	@PostMapping("/{storeId}/like")
 	public void dibStore(
-		// TODO: authentication user
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable("storeId") Long storeId
 	) {
-		storeService.dibStore(new User(), storeId);
+		storeService.dibStore(userAuth, storeId);
 	}
 
 	@DeleteMapping("/{storeId}/like")
 	public void undibStore(
-		// TODO: authentication user
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable("storeId") Long storeId
 	) {
-		storeService.undibStore(new User(), storeId);
+		storeService.undibStore(userAuth, storeId);
 	}
 
 	@PutMapping("/{storeId}")
 	public void updateStore(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable("storeId") Long storeId,
 		@Valid @RequestBody StoreUpdateRequest request
 	) {
-		storeService.updateStore(userId, storeId, request);
-  }
+		storeService.updateStore(userAuth, storeId, request);
+	}
 
 	@DeleteMapping("/{storeId}")
 	public void deleteStore(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal UserAuth userAuth,
 		@PathVariable("storeId") Long storeId
 	) {
-		storeService.deleteStore(userId, storeId);
+		storeService.deleteStore(userAuth, storeId);
 	}
 }

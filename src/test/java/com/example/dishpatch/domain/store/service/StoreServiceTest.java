@@ -1,7 +1,6 @@
 package com.example.dishpatch.domain.store.service;
 
 import static com.example.dishpatch.domain.store.exception.StoreErrorCode.*;
-import static com.example.dishpatch.domain.user.exception.UserErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -14,17 +13,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.global.exception.BizException;
-import com.example.dishpatch.infra.db.cart.repository.CartRepository;
-import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
-import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
-import com.example.dishpatch.infra.db.review.repository.CeoReviewRepository;
-import com.example.dishpatch.infra.db.review.repository.ReviewRepository;
+import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.store.entity.Category;
 import com.example.dishpatch.infra.db.store.entity.Dib;
 import com.example.dishpatch.infra.db.store.entity.Store;
@@ -32,7 +26,7 @@ import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
 import com.example.dishpatch.infra.db.store.repository.DibRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
-import com.example.dishpatch.infra.db.user.entity.UserRole;
+import com.example.dishpatch.infra.db.user.entity.UserStatus;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,31 +42,27 @@ class StoreServiceTest {
 	private DibRepository dibRepository;
 	@Mock
 	private UserRepository userRepository;
-	@Mock
-	private ReviewRepository reviewRepository;
-	@Mock
-	private CeoReviewRepository ceoReviewRepository;
-	@Mock
-	private MenuRepository menuRepository;
-	@Mock
-	private MenuOptionRepository menuOptionRepository;
-	@Mock
-	private CartRepository cartRepository;
 
 	@Test
 	void createStore_shouldSucceed() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
 		Category category = mock(Category.class);
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
 		when(storeRepository.countByUserIdAndDeletedDateIsNull(any())).thenReturn(2);
 
 		ArgumentCaptor<Store> storeCaptor = ArgumentCaptor.forClass(Store.class);
 
 		// when
-		StoreCreateResponse response = storeService.createStore(user, request);
+		StoreCreateResponse response = storeService.createStore(userAuth, request);
 
 		// then
 		verify(storeRepository, times(1)).save(storeCaptor.capture());
@@ -86,16 +76,22 @@ class StoreServiceTest {
 	@Test
 	void createMenu_whenStoreOwnLimitExceed_shouldThrowException() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
 		Category category = mock(Category.class);
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
 		when(storeRepository.countByUserIdAndDeletedDateIsNull(any())).thenReturn(3); // 최대 초과
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.createStore(user, request));
+			() -> storeService.createStore(userAuth, request));
 
 		assertThat(STORE_OWN_LIMIT_EXCEEDED.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -103,14 +99,20 @@ class StoreServiceTest {
 	@Test
 	void createMenu_whenNotFoundCategory_shouldThrowException() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.empty());
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.createStore(user, request));
+			() -> storeService.createStore(userAuth, request));
 
 		assertThat(CATEGORY_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -118,16 +120,23 @@ class StoreServiceTest {
 	@Test
 	void dibStore_shouldSucceed() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+
+		Long storeId = 3L;
 		Store store = mock(Store.class);
 
-		when(storeRepository.findById(user.getId())).thenReturn(Optional.of(store));
-		when(dibRepository.existsByUserIdAndStoreId(user.getId(), store.getId())).thenReturn(false);
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
+		when(dibRepository.existsByUserIdAndStoreId(userId, storeId)).thenReturn(false);
 
 		ArgumentCaptor<Dib> dibCaptor = ArgumentCaptor.forClass(Dib.class);
 
 		// when
-		storeService.dibStore(user, store.getId());
+		storeService.dibStore(userAuth, storeId);
 
 		// then
 		verify(dibRepository, times(1)).save(dibCaptor.capture());
@@ -139,14 +148,20 @@ class StoreServiceTest {
 	@Test
 	void dibStore_whenNotFoundStore_shouldThrowException() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
-		Store store = mock(Store.class);
 
-		when(storeRepository.findById(user.getId())).thenReturn(Optional.empty());
+		Long storeId = 3L;
+
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.empty());
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.dibStore(user, store.getId()));
+			() -> storeService.dibStore(userAuth, storeId));
 
 		assertThat(STORE_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -154,15 +169,22 @@ class StoreServiceTest {
 	@Test
 	void dibStore_whenAlreadyDibStore_shouldThrowException() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+
+		Long storeId = 3L;
 		Store store = mock(Store.class);
 
-		when(storeRepository.findById(user.getId())).thenReturn(Optional.of(store));
-		when(dibRepository.existsByUserIdAndStoreId(user.getId(), store.getId())).thenReturn(true);
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
+		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
+		when(dibRepository.existsByUserIdAndStoreId(userId, storeId)).thenReturn(true);
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.dibStore(user, store.getId()));
+			() -> storeService.dibStore(userAuth, storeId));
 
 		assertThat(ALREADY_DIB_STORE.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -170,17 +192,24 @@ class StoreServiceTest {
 	@Test
 	void undibStore_shouldSucceed() {
 		// given
+		Long userId = 1L;
 		User user = mock(User.class);
+
+		Long storeId = 3L;
 		Store store = mock(Store.class);
+
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
 		Dib dib = Dib.of(user, store);
 
-		when(storeRepository.existsById(store.getId())).thenReturn(true);
-		when(dibRepository.findByUserIdAndStoreId(user.getId(), store.getId())).thenReturn(Optional.of(dib));
+		when(storeRepository.existsByIdAndDeletedDateIsNull(storeId)).thenReturn(true);
+		when(dibRepository.findByUserIdAndStoreId(userId, storeId)).thenReturn(Optional.of(dib));
 
 		ArgumentCaptor<Dib> dibCaptor = ArgumentCaptor.forClass(Dib.class);
 
 		// when
-		storeService.undibStore(user, store.getId());
+		storeService.undibStore(userAuth, storeId);
 
 		// then
 		verify(dibRepository, times(1)).delete(dibCaptor.capture());
@@ -192,14 +221,15 @@ class StoreServiceTest {
 	@Test
 	void undibStore_whenNotFoundStore_shouldThrowException() {
 		// given
-		User user = mock(User.class);
-		Store store = mock(Store.class);
+		Long storeId = 3L;
 
-		when(storeRepository.existsById(store.getId())).thenReturn(false);
+		UserAuth userAuth = mock(UserAuth.class);
+
+		when(storeRepository.existsByIdAndDeletedDateIsNull(storeId)).thenReturn(false);
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.undibStore(user, store.getId()));
+			() -> storeService.undibStore(userAuth, storeId));
 
 		assertThat(STORE_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -207,15 +237,18 @@ class StoreServiceTest {
 	@Test
 	void undibStore_whenUndibStore_shouldThrowException() {
 		// given
-		User user = mock(User.class);
-		Store store = mock(Store.class);
+		Long userId = 1L;
+		Long storeId = 3L;
 
-		when(storeRepository.existsById(store.getId())).thenReturn(true);
-		when(dibRepository.findByUserIdAndStoreId(user.getId(), store.getId())).thenReturn(Optional.empty());
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
+		when(storeRepository.existsByIdAndDeletedDateIsNull(storeId)).thenReturn(true);
+		when(dibRepository.findByUserIdAndStoreId(userId, storeId)).thenReturn(Optional.empty());
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.undibStore(user, store.getId()));
+			() -> storeService.undibStore(userAuth, storeId));
 
 		assertThat(UNDIB_STORE.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -224,158 +257,119 @@ class StoreServiceTest {
 	void updateStore_shouldSucceed() {
 		// given
 		Long userId = 1L;
-		Long storeId = 10L;
-		Long categoryId = 3L;
+		User user = mock(User.class);
+		when(user.getId()).thenReturn(userId);
 
-		User user = new User();
-		ReflectionTestUtils.setField(user, "id", userId);
-		ReflectionTestUtils.setField(user, "role", UserRole.CEO);
+		Long storeId = 3L;
+		Store store = mock(Store.class);
+		when(store.getUser()).thenReturn(user);
 
-		Category category = new Category();
-		ReflectionTestUtils.setField(category, "id", categoryId);
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
 
-		Store store = new Store();
-		ReflectionTestUtils.setField(store, "id", storeId);
-		ReflectionTestUtils.setField(store, "user", user);
+		Long categoryId = 5L;
+		Category category = mock(Category.class);
 
-		StoreUpdateRequest request = new StoreUpdateRequest("새이름", "주소", "전화번호", "이미지", 1000, "소개", 12000, false,
-			"10:00", "22:00", categoryId);
+		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
+		when(request.categoryId()).thenReturn(categoryId);
 
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
-		when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
 
 		// when
-		storeService.updateStore(userId, storeId, request);
+		storeService.updateStore(userAuth, storeId, request);
 
 		// then
-		assertThat(store.getName()).isEqualTo("새이름");
-		assertThat(store.getUser().getId()).isEqualTo(userId);
-		assertThat(store.getCategory().getId()).isEqualTo(categoryId);
+		verify(store, times(1)).update(request, category);
+
 	}
 
 	@Test
 	void updateStore_whenNotFoundCategory_shouldThrowException() {
-		Long storeId = 1L;
-		Long userId = 1L;
+		// given
+		Long storeId = 3L;
+
+		UserAuth userAuth = mock(UserAuth.class);
+
+		Long categoryId = 5L;
 		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
+		when(request.categoryId()).thenReturn(categoryId);
 
-		User user = new User();
-		ReflectionTestUtils.setField(user, "role", UserRole.CEO);
-
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.empty());
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.updateStore(userId, storeId, request));
+			() -> storeService.updateStore(userAuth, storeId, request));
 
 		assertThat(CATEGORY_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
 
 	@Test
 	void updateStore_whenNotFoundStore_shouldThrowException() {
+		// given
 		Long storeId = 1L;
-		Long userId = 1L;
+
+		UserAuth userAuth = mock(UserAuth.class);
+
+		Long categoryId = 5L;
+		Category category = mock(Category.class);
+
 		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
+		when(request.categoryId()).thenReturn(categoryId);
 
-		User user = new User();
-		ReflectionTestUtils.setField(user, "role", UserRole.CEO);
-
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-		when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(new Category()));
-		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+		when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.empty());
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.updateStore(userId, storeId, request));
+			() -> storeService.updateStore(userAuth, storeId, request));
 
 		assertThat(STORE_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
 
 	@Test
-	void updateStore_whenUserRoleNotCeo_shouldThrowException() {
-		// given
-		Long storeId = 1L;
-		Long userId = 3L;
-		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
-
-		User user = new User();
-		ReflectionTestUtils.setField(user, "id", userId);
-		ReflectionTestUtils.setField(user, "role", UserRole.USER);
-
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-		// when & then
-		BizException exception = assertThrows(BizException.class,
-			() -> storeService.updateStore(userId, storeId, request));
-
-		assertThat(USER_ROLE_NOT_CEO.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
-	}
-
-	@Test
 	void updateStore_whenStoreOwnerMismatch_shouldThrowException() {
 		// given
-		Long storeId = 1L;
-		Long userId = 3L;
-		Long ownerId = 10L;
+		Long ownerId = 1L;
+		User user = mock(User.class);
+		when(user.getId()).thenReturn(ownerId);
+
+		Long storeId = 3L;
+		Store store = mock(Store.class);
+		when(store.getUser()).thenReturn(user);
+
+		Long userId = 4L;
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
+
+		Long categoryId = 5L;
+		Category category = mock(Category.class);
+
 		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
+		when(request.categoryId()).thenReturn(categoryId);
 
-		User owner = new User();
-		ReflectionTestUtils.setField(owner, "id", ownerId);
-		ReflectionTestUtils.setField(owner, "role", UserRole.CEO);
-
-		User user = new User();
-		ReflectionTestUtils.setField(user, "id", userId);
-		ReflectionTestUtils.setField(user, "role", UserRole.CEO);
-
-		Store store = new Store();
-		ReflectionTestUtils.setField(store, "id", storeId);
-		ReflectionTestUtils.setField(store, "user", owner);
-
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-		when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(new Category()));
-		when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
+		when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.updateStore(userId, storeId, request));
+			() -> storeService.updateStore(userAuth, storeId, request));
 
 		assertThat(STORE_OWNER_MISMATCH.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
 
 	@Test
-	void deleteStore_whenUserRoleNotCeo_shouldThrowException() {
-		// given
-		Long userId = 1L;
-		User user = mock(User.class);
-		ReflectionTestUtils.setField(user, "id", userId);
-		ReflectionTestUtils.setField(user, "role", UserRole.USER);
-
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-		// when & then
-		BizException exception = assertThrows(BizException.class,
-			() -> storeService.deleteStore(userId, 10L));
-
-		assertThat(USER_ROLE_NOT_CEO.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
-	}
-
-	@Test
 	void deleteStore_whenStoreNotFound_shouldThrowException() {
 		// given
-		Long userId = 1L;
 		Long storeId = 10L;
 
-		User user = mock(User.class);
-		when(user.getRole()).thenReturn(UserRole.CEO);
+		UserAuth userAuth = mock(UserAuth.class);
 
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-		when(storeRepository.findById(storeId)).thenReturn(Optional.empty());
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.empty());
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.deleteStore(userId, storeId));
+			() -> storeService.deleteStore(userAuth, storeId));
 
 		assertThat(STORE_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
@@ -384,24 +378,22 @@ class StoreServiceTest {
 	void deleteStore_whenStoreOwnerMismatch_shouldThrowException() {
 		// given
 		Long userId = 1L;
-		Long ownerId = 3L;
-		Long storeId = 10L;
+		UserAuth userAuth = mock(UserAuth.class);
+		when(userAuth.getId()).thenReturn(userId);
 
+		Long ownerId = 3L;
 		User owner = mock(User.class);
 		when(owner.getId()).thenReturn(ownerId);
 
+		Long storeId = 10L;
 		Store store = mock(Store.class);
 		when(store.getUser()).thenReturn(owner);
 
-		User user = mock(User.class);
-		when(user.getRole()).thenReturn(UserRole.CEO);
-
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-		when(storeRepository.findById(storeId)).thenReturn(Optional.of(store));
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.deleteStore(userId, storeId));
+			() -> storeService.deleteStore(userAuth, storeId));
 
 		assertThat(STORE_OWNER_MISMATCH.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}

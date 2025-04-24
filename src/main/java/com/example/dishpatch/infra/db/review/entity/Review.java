@@ -1,19 +1,25 @@
 package com.example.dishpatch.infra.db.review.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.dishpatch.infra.db.common.SoftDeletableEntity;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.user.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,17 +36,20 @@ public class Review extends SoftDeletableEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "store_id")
 	private Store store;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "menu_id")
 	private Menu menu;
+
+	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<CeoReview> ceoReviews = new ArrayList<>();
 
 	@Column(nullable = false)
 	private int rating;
@@ -70,5 +79,9 @@ public class Review extends SoftDeletableEntity {
 		this.contents = contents;
 		this.imageUrl = imageUrl;
 		this.status = status;
+	}
+
+	public void addCeoReview(List<CeoReview> ceoReviews) {
+		this.ceoReviews = ceoReviews;
 	}
 }

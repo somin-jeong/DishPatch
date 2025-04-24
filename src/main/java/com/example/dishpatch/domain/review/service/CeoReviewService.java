@@ -1,5 +1,7 @@
 package com.example.dishpatch.domain.review.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.review.request.CeoReviewCreateRequest;
@@ -33,9 +35,17 @@ public class CeoReviewService {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
 
-		CeoReview ceoReview = new CeoReview(user, request.contents(), request.status());
+		//사장님 댓글(자식) 생성
+		CeoReview ceoReview = new CeoReview(user, request.contents(), request.status(), review);
+
+		//연관관계 수동 설정 (부모->자식)
+		//save 호출 전 연관된 객체들 모두 영속성 컨텍스트에 등록
+		review.getCeoReviews().add(ceoReview);
+
+		//DB 저장
+		//외래키 반영
 		CeoReview saved = ceoReviewRepository.save(ceoReview);
 
-		return CeoReviewResponse.from(saved);
+		return CeoReviewResponse.from(List.of(ceoReview)).get(0);
 	}
 }

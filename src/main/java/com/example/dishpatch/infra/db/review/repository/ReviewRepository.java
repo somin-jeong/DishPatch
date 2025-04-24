@@ -2,7 +2,9 @@ package com.example.dishpatch.infra.db.review.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -10,6 +12,7 @@ import com.example.dishpatch.infra.db.review.entity.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
+	@EntityGraph(attributePaths = "ceoReview")
 	@Query("""
 		    SELECT r FROM Review r
 		          WHERE r.store.id = :storeId
@@ -24,10 +27,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		@Param("max") Integer max,
 		Pageable pageable);
 
-	/**
-	 * 가게 폐업 시 리뷰 삭제
-	 * @param storeId
-	 */
+	@Modifying(clearAutomatically = true)
 	void deleteAllByStoreId(Long storeId);
 
 }

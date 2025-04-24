@@ -11,13 +11,11 @@ public record StoreCreateRequest(
 	String name,
 	@NotBlank
 	String address,
-	@NotBlank
 	String imageUrl,
 	@NotBlank
 	String phone,
 	@NotNull
 	int deliveryFee,
-	@NotBlank
 	String introduction,
 	@NotNull
 	int minDeliveryPrice,

@@ -47,4 +47,9 @@ public class CeoReview extends SoftDeletableEntity {
 		this.status = status;
 		this.review = review;
 	}
+
+	public void update(String contents, ReviewStatus status) {
+		this.contents = contents;
+		this.status = status;
+	}
 }

@@ -34,14 +34,14 @@ public class SecurityConfig {
 			.sessionManagement(session
 				-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/users/signup", "/users/login")
+				.requestMatchers("/users/signup", "/users/login", "/stores")
 				.permitAll()
 				.requestMatchers("/admin/**")
 				.hasRole("ADMIN")
 				.requestMatchers("/stores/{storeId}/menus", "/stores/{storeId}/menus/{menuId}",
 					"/stores/{storeId}/menus/{menuId}", "/menus/{menuId}/options", "/menus/{menuId}/options/{optionId}",
 					"/stores/{storeId}/stats/daily", "/stores/{storeId}/stats/monthly", "/orders/{orderId}/refuse",
-					"/stores", "/stores/{storeId}", "/orders/{orderId}/update")
+					"/stores/{storeId}", "/orders/{orderId}/update")
 				.hasRole("CEO")
 				.requestMatchers(HttpMethod.POST, "/ceoReviews/{reviewId}")
 				.hasRole("CEO")
@@ -51,6 +51,8 @@ public class SecurityConfig {
 				.hasAnyRole("USER", "ADMIN")
 				.requestMatchers(HttpMethod.DELETE, "/ceoReviews/{ceoReviewId}", "/stores/{storeId}")
 				.hasAnyRole("CEO", "ADMIN")
+				.requestMatchers(HttpMethod.POST, "/stores")
+				.hasRole("CEO")
 				.anyRequest()
 				.authenticated()
 			)

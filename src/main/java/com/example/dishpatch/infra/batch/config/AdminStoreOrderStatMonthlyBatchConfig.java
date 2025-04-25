@@ -8,38 +8,36 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatDaily;
+import com.example.dishpatch.infra.db.admin.entity.AdminStoreOrderStatMonthly;
 import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatMonthly;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Configuration
-public class StoreOrderStatMonthlyBatchConfig {
+public class AdminStoreOrderStatMonthlyBatchConfig {
 
 	@Bean
-	public Job storeOrderStatMonthlyJob(JobRepository jobRepository, Step storeOrderStatMonthlyStep) {
-		return new JobBuilder("storeOrderStatMonthlyJob", jobRepository)
-			.start(storeOrderStatMonthlyStep)
+	public Job adminStoreOrderStatMonthlyJob(JobRepository jobRepository, Step adminStoreOrderStatMonthlyStep) {
+		return new JobBuilder("adminStoreOrderStatMonthlyJob", jobRepository)
+			.start(adminStoreOrderStatMonthlyStep)
 			.build();
 	}
 
 	@Bean
-	public Step storeOrderStatMonthlyStep(
+	public Step adminStoreOrderStatMonthlyStep(
 		JobRepository jobRepository,
 		PlatformTransactionManager transactionManager,
-		@Qualifier("storeOrderStatMonthlyReader")
-		ItemReader<StoreOrderStatDaily> reader,
-		ItemProcessor<StoreOrderStatDaily, StoreOrderStatMonthly> processor,
-		ItemWriter<StoreOrderStatMonthly> writer
+		ItemReader<StoreOrderStatMonthly> reader,
+		ItemProcessor<StoreOrderStatMonthly, AdminStoreOrderStatMonthly> processor,
+		ItemWriter<AdminStoreOrderStatMonthly> writer
 	) {
-		return new StepBuilder("storeOrderStatMonthlyStep", jobRepository)
-			.<StoreOrderStatDaily, StoreOrderStatMonthly>chunk(100, transactionManager)
+		return new StepBuilder("adminStoreOrderStatMonthlyStep", jobRepository)
+			.<StoreOrderStatMonthly, AdminStoreOrderStatMonthly>chunk(100, transactionManager)
 			.reader(reader)
 			.processor(processor)
 			.writer(writer)

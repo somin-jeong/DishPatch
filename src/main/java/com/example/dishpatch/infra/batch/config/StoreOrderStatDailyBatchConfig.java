@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.example.dishpatch.infra.batch.listener.MonthlyJobChainingListener;
+import com.example.dishpatch.infra.batch.listener.StoreOrderStatDailyListener;
 import com.example.dishpatch.infra.db.order.entity.Order;
 import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatDaily;
 
@@ -22,9 +22,9 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 public class StoreOrderStatDailyBatchConfig {
 
-	private final MonthlyJobChainingListener monthlyJobChainingListener;
+	private final StoreOrderStatDailyListener monthlyJobChainingListener;
 
-	@Bean()
+	@Bean
 	public Job storeOrderStatDailyJob(JobRepository jobRepository, Step storeOrderStatDailyStep) {
 		return new JobBuilder("storeOrderStatDailyJob", jobRepository)
 			.start(storeOrderStatDailyStep)

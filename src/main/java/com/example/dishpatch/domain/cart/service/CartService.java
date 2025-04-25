@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.cart.request.CartCreateRequest;
+import com.example.dishpatch.api.cart.request.CartUpdateRequest;
 import com.example.dishpatch.api.cart.response.CartCreateResponse;
+import com.example.dishpatch.api.cart.response.CartResponseDto;
 import com.example.dishpatch.domain.cart.exception.CartErrorCode;
 import com.example.dishpatch.domain.menu.exception.MenuErrorCode;
 import com.example.dishpatch.domain.menu.exception.MenuOptionErrorCode;
@@ -36,11 +38,11 @@ public class CartService {
 	private final MenuRepository menuRepository;
 	private final MenuOptionRepository menuOptionRepository;
 
-	public CartCreateResponse createCart(Long storeId, CartCreateRequest request, UserAuth userAuth) {
+	public CartCreateResponse createCart(CartCreateRequest request, UserAuth userAuth) {
 		User user = userRepository.findById(userAuth.getId())
 			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
 
-		Store store = storeRepository.findById(storeId)
+		Store store = storeRepository.findById(request.storeId())
 			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
 
 		Menu menu = menuRepository.findById(request.menuId())
@@ -67,5 +69,31 @@ public class CartService {
 		Cart saved = cartRepository.save(cart);
 
 		return CartCreateResponse.from(saved);
+	}
+
+	public CartResponseDto findCarts(UserAuth userAuth) {
+		User user = userRepository.findById(userAuth.getId())
+			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
+
+		List<Cart> cartList = cartRepository.findByUserId(user.getId());
+
+		return CartResponseDto.from(cartList);
+	}
+
+	public CartResponseDto updateCart(Long cartId, CartUpdateRequest request, UserAuth userAuth) {
+		Menu menu = menuRepository.findById(request.menuId())
+			.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
+
+		MenuOption menuOption = menuOptionRepository.findById(request.menuOptionId())
+			.orElseThrow(() -> new BizException(MenuOptionErrorCode.MENU_OPTION_NOT_FOUND));
+
+		Cart cart = cartRepository.findById(cartId)
+			.orElseThrow(() -> new BizException(CartErrorCode.CART_NOT_FOUND));
+
+		cart.updateCart(menu, menuOption, request.quantity());
+
+		List<Cart> cartList = cartRepository.findByUserId(userAuth.getId());
+
+		return CartResponseDto.from(cartList);
 	}
 }

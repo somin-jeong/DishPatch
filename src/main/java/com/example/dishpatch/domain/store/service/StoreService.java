@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
+import com.example.dishpatch.api.store.response.StoreResponse;
 import com.example.dishpatch.global.exception.BizException;
+import com.example.dishpatch.global.response.pagination.SliceResponse;
 import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.cart.repository.CartRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
@@ -124,6 +126,15 @@ public class StoreService {
 
 		dibRepository.deleteAllByStoreId(storeId);
 		cartRepository.deleteAllByStoreId(storeId);
+	}
+
+	public SliceResponse<StoreResponse> getStore(Long categoryId, Long cursorId, int size) {
+		if (categoryId != null) {
+			categoryRepository.findById(categoryId)
+				.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
+		}
+
+		return SliceResponse.from(storeRepository.findAllByCategoryId(categoryId, cursorId, size));
 	}
 
 }

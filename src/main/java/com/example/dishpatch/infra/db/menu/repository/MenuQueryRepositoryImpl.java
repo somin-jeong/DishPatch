@@ -26,7 +26,7 @@ public class MenuQueryRepositoryImpl implements MenuQueryRepository {
 			.leftJoin(qMenu.options).fetchJoin()
 			.where(
 				qMenu.store.id.eq(storeId),
-				qMenu.deleted.isFalse()
+				qMenu.deletedDate.isNull()
 			)
 			.fetch();
 	}
@@ -39,7 +39,7 @@ public class MenuQueryRepositoryImpl implements MenuQueryRepository {
 				.leftJoin(qMenu.store).fetchJoin()
 				.where(
 					qMenu.id.eq(menuId),
-					qMenu.deleted.isFalse()
+					qMenu.deletedDate.isNull()
 				)
 				.fetchOne()
 		);

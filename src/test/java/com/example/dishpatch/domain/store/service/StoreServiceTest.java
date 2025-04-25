@@ -54,7 +54,7 @@ class StoreServiceTest {
 		Category category = mock(Category.class);
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
-		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
 		when(storeRepository.countByUserIdAndDeletedDateIsNull(any())).thenReturn(2);
 
@@ -84,7 +84,7 @@ class StoreServiceTest {
 		Category category = mock(Category.class);
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
-		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
 		when(storeRepository.countByUserIdAndDeletedDateIsNull(any())).thenReturn(3); // 최대 초과
 
@@ -106,7 +106,7 @@ class StoreServiceTest {
 
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
 
-		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.empty());
 
 		// when & then
@@ -128,7 +128,7 @@ class StoreServiceTest {
 		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
 
-		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
 		when(dibRepository.existsByUserIdAndStoreId(userId, storeId)).thenReturn(false);
 
@@ -155,7 +155,7 @@ class StoreServiceTest {
 		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
 
-		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.empty());
 
 		// when & then
@@ -177,7 +177,7 @@ class StoreServiceTest {
 		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
 
-		when(userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)).thenReturn(Optional.of(user));
+		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
 		when(dibRepository.existsByUserIdAndStoreId(userId, storeId)).thenReturn(true);
 

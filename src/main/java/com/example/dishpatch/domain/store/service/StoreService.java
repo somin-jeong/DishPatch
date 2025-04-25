@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
+import com.example.dishpatch.api.store.response.StoreInfoResponse;
 import com.example.dishpatch.api.store.response.StoreResponse;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.global.response.pagination.SliceResponse;
@@ -48,7 +49,7 @@ public class StoreService {
 
 	@Transactional
 	public StoreCreateResponse createStore(UserAuth userAuth, StoreCreateRequest request) {
-		User user = userRepository.findByIdAndStatus(userAuth.getId(), UserStatus.ACTIVE)
+		User user = userRepository.findByIdAndDeletedDateIsNull(userAuth.getId())
 			.orElseThrow(() -> new BizException(INVALID_ID));
 
 		Category category = categoryRepository.findById(request.categoryId())
@@ -83,7 +84,7 @@ public class StoreService {
 
 	@Transactional
 	public void dibStore(UserAuth userAuth, Long storeId) {
-		User user = userRepository.findByIdAndStatus(userAuth.getId(), UserStatus.ACTIVE)
+		User user = userRepository.findByIdAndDeletedDateIsNull(userAuth.getId())
 			.orElseThrow(() -> new BizException(INVALID_ID));
 
 		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
@@ -142,4 +143,11 @@ public class StoreService {
 		return SliceResponse.from(storeRepository.findAllByCategoryId(sortType, categoryId, cursorId, size));
 	}
 
+	@Transactional(readOnly = true)
+	public StoreInfoResponse getStoreInfo(Long storeId) {
+		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
+			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
+
+		return StoreInfoResponse.from(store);
+	}
 }

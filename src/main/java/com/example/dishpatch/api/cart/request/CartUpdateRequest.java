@@ -1,7 +1,6 @@
 package com.example.dishpatch.api.cart.request;
 
-public record CartCreateRequest(
-	Long storeId,
+public record CartUpdateRequest(
 	Long menuId,
 	Long menuOptionId,
 	int quantity

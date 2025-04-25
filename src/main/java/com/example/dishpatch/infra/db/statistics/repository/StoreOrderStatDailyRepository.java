@@ -20,8 +20,18 @@ public interface StoreOrderStatDailyRepository
 			WHERE s.id.storeId = :storeId
 			  AND s.id.date >= :from AND s.id.date < :to
 		""")
-	List<StoreOrderStatDaily> findByStoreIdAndDateRange(
+	List<StoreOrderStatDaily> findAllByStoreIdAndDateRange(
 		@Param("storeId") Long storeId,
+		@Param("from") LocalDate from,
+		@Param("to") LocalDate to
+	);
+
+	@Query("""
+			SELECT s
+			FROM StoreOrderStatDaily s
+			WHERE s.id.date >= :from AND s.id.date < :to
+		""")
+	List<StoreOrderStatDaily> findAllByDateRange(
 		@Param("from") LocalDate from,
 		@Param("to") LocalDate to
 	);

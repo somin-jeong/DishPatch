@@ -4,17 +4,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
+import com.example.dishpatch.api.store.response.StoreResponse;
 import com.example.dishpatch.domain.store.service.StoreService;
+import com.example.dishpatch.global.response.pagination.SliceResponse;
 import com.example.dishpatch.global.security.UserAuth;
 
 import jakarta.validation.Valid;
@@ -65,5 +69,14 @@ public class StoreController {
 		@PathVariable("storeId") Long storeId
 	) {
 		storeService.deleteStore(userAuth, storeId);
+	}
+
+	@GetMapping
+	public ResponseEntity<SliceResponse<StoreResponse>> getStore(
+		@RequestParam(required = false) Long categoryId,
+		@RequestParam(required = false) Long cursorId,
+		@RequestParam(defaultValue = "10") int size
+	) {
+		return ResponseEntity.ok(storeService.getStore(categoryId, cursorId, size));
 	}
 }

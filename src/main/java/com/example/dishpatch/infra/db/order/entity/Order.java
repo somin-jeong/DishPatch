@@ -1,6 +1,7 @@
 package com.example.dishpatch.infra.db.order.entity;
 
 import com.example.dishpatch.infra.db.common.BaseEntity;
+import com.example.dishpatch.infra.db.common.SoftDeletableEntity;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.user.entity.User;
 
@@ -18,7 +19,7 @@ import lombok.Getter;
 @Getter
 @Entity
 @Table(name = "orders")
-public class Order extends BaseEntity {
+public class Order extends SoftDeletableEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

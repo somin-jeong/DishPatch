@@ -3,6 +3,7 @@ package com.example.dishpatch.infra.db.order.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -16,4 +17,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 	@Query("SELECT o FROM Order o WHERE o.store.id IN :storeIds")
 	List<Order> findByStoreIds(@Param("storeIds") List<Long> storeIds);
 
+	@Query("SELECT SUM(o.totalPrice) "
+		+ "FROM Order o "
+		+ "WHERE o.user.id = :userId")
+	Long findTotalPriceByUserId(@Param("userId") Long userId);
+
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE Order o SET o.deletedDate = CURRENT_TIMESTAMP WHERE o.user.id = :userId")
+	void deleteByUserId(@Param("userId") Long userId);
 }

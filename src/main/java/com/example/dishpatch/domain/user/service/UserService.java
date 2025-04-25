@@ -10,7 +10,6 @@ import com.example.dishpatch.api.user.response.UserUpdateResponse;
 import com.example.dishpatch.global.security.UserAuth;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 
 public interface UserService {
 	UserSignupResponse signUp(UserSignupRequest request);
@@ -22,4 +21,5 @@ public interface UserService {
 	UserUpdateResponse updateUser(UserUpdateRequest dto, UserAuth userAuth);
 
 	void deleteUser(UserDeleteRequest request,UserAuth userAuth);
+
 }

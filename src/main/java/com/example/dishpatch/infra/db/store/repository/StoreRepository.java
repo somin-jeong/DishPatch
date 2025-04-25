@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -21,5 +22,9 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
 	@Query("SELECT s.id FROM Store s WHERE s.user = :user")
 	List<Long> findIdByUser(@Param("user") User user);
+
+	@Modifying(clearAutomatically = true,flushAutomatically = true)
+	@Query("UPDATE Store s SET s.deletedDate = CURRENT_TIMESTAMP WHERE s.user.id = :userId")
+	void deleteByUserId(@Param("userId") Long userId);
   
 }

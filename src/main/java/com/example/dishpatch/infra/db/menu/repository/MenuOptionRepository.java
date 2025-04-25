@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.example.dishpatch.infra.db.menu.entity.MenuOption;
 
+import io.lettuce.core.dynamic.annotation.Param;
+
 public interface MenuOptionRepository extends JpaRepository<MenuOption, Long>, MenuOptionQueryRepository {
 	@Modifying(clearAutomatically = true)
 	@Query("""
@@ -18,5 +20,15 @@ public interface MenuOptionRepository extends JpaRepository<MenuOption, Long>, M
 			)
 		""")
 	int bulkSoftDeleteByStoreId(Long storeId, LocalDateTime now);
+
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query(value = """
+     UPDATE MenuOption mo
+     JOIN Menu m ON mo.menu_id = m.id
+     JOIN Store s ON m.store_id = s.id
+     SET mo.deleted_date = current_timestamp
+     WHERE s.user_id = :userId
+""", nativeQuery = true)
+	void deleteByUserId(@Param("userId") Long userId);
 
 }

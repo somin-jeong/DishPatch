@@ -1,6 +1,7 @@
 package com.example.dishpatch.infra.db.cart.entity;
 
 import com.example.dishpatch.infra.db.common.BaseEntity;
+import com.example.dishpatch.infra.db.common.SoftDeletableEntity;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.entity.MenuOption;
 import com.example.dishpatch.infra.db.store.entity.Store;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Table(name = "cart")
-public class Cart extends BaseEntity {
+public class Cart extends SoftDeletableEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,7 @@
 package com.example.dishpatch.infra.db.pointHistory.entity;
 
 import com.example.dishpatch.infra.db.common.BaseEntity;
+import com.example.dishpatch.infra.db.common.SoftDeletableEntity;
 import com.example.dishpatch.infra.db.user.entity.User;
 
 import jakarta.persistence.Column;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Getter
-public class PointHistory extends BaseEntity {
+public class PointHistory extends SoftDeletableEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

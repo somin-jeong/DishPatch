@@ -71,6 +71,6 @@ public class UserController {
 		userService.deleteUser(request,userAuth);
 
 		return ResponseEntity.status(HttpStatus.OK).build();
-
 	}
+
 }

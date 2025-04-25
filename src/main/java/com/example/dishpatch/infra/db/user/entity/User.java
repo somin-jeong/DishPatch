@@ -55,12 +55,9 @@ public class User extends SoftDeletableEntity {
 	@Column(nullable = false)
 	private String currentAddress;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private UserStatus status;
 
 	public User(String email, String password, String phone, String name, UserProvider provider, UserGrade grade,
-		UserRole role, String currentAddress, UserStatus status) {
+		UserRole role, String currentAddress) {
 		this.email = email;
 		this.password = password;
 		this.phone = phone;
@@ -69,7 +66,6 @@ public class User extends SoftDeletableEntity {
 		this.grade = grade;
 		this.role = role;
 		this.currentAddress = currentAddress;
-		this.status = status;
 	}
 
 	public void updateUser(String password,String name,String phone,String currentAddress){
@@ -79,8 +75,9 @@ public class User extends SoftDeletableEntity {
 		this.currentAddress = currentAddress;
 	}
 
-	public void deleteUser(UserStatus status){
-		this.status = status;
+
+	public void updateGrade(UserGrade userGrade){
+		this.grade = grade;
 	}
 
 

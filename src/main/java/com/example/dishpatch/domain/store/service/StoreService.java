@@ -46,6 +46,7 @@ public class StoreService {
 	private final MenuOptionRepository menuOptionRepository;
 	private final CartRepository cartRepository;
 
+	@Transactional
 	public StoreCreateResponse createStore(UserAuth userAuth, StoreCreateRequest request) {
 		User user = userRepository.findByIdAndStatus(userAuth.getId(), UserStatus.ACTIVE)
 			.orElseThrow(() -> new BizException(INVALID_ID));
@@ -80,12 +81,14 @@ public class StoreService {
 		store.update(request, category);
 	}
 
+	@Transactional
 	public void dibStore(UserAuth userAuth, Long storeId) {
 		User user = userRepository.findByIdAndStatus(userAuth.getId(), UserStatus.ACTIVE)
 			.orElseThrow(() -> new BizException(INVALID_ID));
 
 		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
+		store.plusDib();
 
 		if (dibRepository.existsByUserIdAndStoreId(userAuth.getId(), storeId)) {
 			throw new BizException(ALREADY_DIB_STORE);
@@ -98,9 +101,9 @@ public class StoreService {
 
 	@Transactional
 	public void undibStore(UserAuth userAuth, Long storeId) {
-		if (!storeRepository.existsByIdAndDeletedDateIsNull(storeId)) {
-			throw new BizException(STORE_NOT_FOUND);
-		}
+		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
+			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
+		store.minusDib();
 
 		Dib dib = dibRepository.findByUserIdAndStoreId(userAuth.getId(), storeId)
 			.orElseThrow(() -> new BizException(UNDIB_STORE));
@@ -129,6 +132,7 @@ public class StoreService {
 		cartRepository.deleteAllByStoreId(storeId);
 	}
 
+	@Transactional(readOnly = true)
 	public SliceResponse<StoreResponse> getStore(String sortType, Long categoryId, Long cursorId, int size) {
 		if (categoryId != null) {
 			categoryRepository.findById(categoryId)

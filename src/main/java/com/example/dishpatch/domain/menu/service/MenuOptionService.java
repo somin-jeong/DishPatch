@@ -16,6 +16,7 @@ import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.entity.MenuOption;
 import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
+import com.example.dishpatch.infra.db.store.entity.Store;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +32,7 @@ public class MenuOptionService {
 		Menu menu = menuRepository.findByMenuId(menuId)
 			.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
 
-		validateStoreOwner(userId, menu);
+		validateStoreOwner(userId, menu.getStore());
 
 		MenuOption menuOption = MenuOption.builder()
 			.name(req.name())
@@ -49,7 +50,7 @@ public class MenuOptionService {
 			.orElseThrow(() -> new BizException(MenuOptionErrorCode.MENU_OPTION_NOT_FOUND));
 
 		validateOptionBelongsToMenu(menuId, option);
-		validateStoreOwner(userId, option.getMenu());
+		validateStoreOwner(userId, option.getMenu().getStore());
 
 		option.update(req.name(), req.price(), req.soldOut());
 	}
@@ -60,19 +61,19 @@ public class MenuOptionService {
 			.orElseThrow(() -> new BizException(MenuOptionErrorCode.MENU_OPTION_NOT_FOUND));
 
 		validateOptionBelongsToMenu(menuId, option);
-		validateStoreOwner(userId, option.getMenu());
+		validateStoreOwner(userId, option.getMenu().getStore());
 
 		option.softDelete();
 	}
 
 	private static void validateOptionBelongsToMenu(Long menuId, MenuOption option) {
 		if (!Objects.equals(option.getMenu().getId(), menuId)) {
-			throw new BizException(MenuOptionErrorCode.INVALID_MENU_OPTION_RELATION);
+			throw new BizException(MenuOptionErrorCode.MENU_OPTION_NOR_BELONG_TO_MENU);
 		}
 	}
 
-	private static void validateStoreOwner(Long userId, Menu menu) {
-		if (!Objects.equals(menu.getStore().getUser().getId(), userId)) {
+	private static void validateStoreOwner(Long userId, Store store) {
+		if (!Objects.equals(store.getUser().getId(), userId)) {
 			throw new BizException(StoreErrorCode.STORE_OWNER_MISMATCH);
 		}
 	}

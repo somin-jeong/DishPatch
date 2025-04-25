@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.example.dishpatch.api.cart.response.CartItemResponse;
+import com.example.dishpatch.api.cart.response.CartResponseDto;
 import com.example.dishpatch.api.order.request.OrderRequestDto;
 import com.example.dishpatch.api.order.request.OrderStatusRequestDto;
 import com.example.dishpatch.api.order.response.MenuOptionDetailResponseDto;
@@ -23,6 +25,7 @@ import com.example.dishpatch.domain.pointHistory.service.PointHistoryService;
 import com.example.dishpatch.domain.store.exception.StoreErrorCode;
 import com.example.dishpatch.domain.user.exception.UserErrorCode;
 import com.example.dishpatch.global.exception.BizException;
+import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
 import com.example.dishpatch.infra.db.coupon.entity.CouponType;
 import com.example.dishpatch.infra.db.order.aop.LogOrderCreation;
@@ -55,9 +58,11 @@ public class OrderService {
 	private final OrderItemRepository orderItemRepository;
 
 	@LogOrderCreation
-	public OrderResponseDto createOrder(OrderRequestDto requestDto, Long userId) {
+	public OrderResponseDto createOrder(OrderRequestDto requestDto, UserAuth userAuth) {
 
 		Coupon coupon = null;
+
+		Long userId = userAuth.getId();
 
 		if (requestDto.couponId() != null) {
 			coupon = couponService.getCoupon(requestDto.couponId());
@@ -76,19 +81,16 @@ public class OrderService {
 			}
 		}
 
-		List<CartResponseDto> cartResponseDtoList = cartService.findCarts(userId);
+		CartResponseDto cartResponseDto = cartService.findCarts(userAuth);
 
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
-		Store store = storeRepository.findById(cartResponseDtoList.get(0).storeId())
+		Store store = storeRepository.findById(cartResponseDto.storeId())
 			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
 
-		int totalPrice = 0;
+		List<CartItemResponse> items = cartResponseDto.cartItems();
 
-		for (CartResponseDto cartResponseDto : cartResponseDtoList) {
-			totalPrice +=
-				cartResponseDto.qunatity() * (cartResponseDto.menuPrice() + cartResponseDto.menuOptionPrice());
-		}
+		int totalPrice = cartResponseDto.totalPrice();
 
 		verifyStore(store, totalPrice);
 
@@ -106,7 +108,7 @@ public class OrderService {
 
 		Order savedOrder = orderRepository.save(order);
 
-		List<Long> orderItemIds = orderItemService.addOrderItem(savedOrder.getId(), cartResponseDtoList);
+		List<Long> orderItemIds = orderItemService.addOrderItem(savedOrder.getId(), items);
 
 		if (coupon != null) {
 			couponService.useCoupon(coupon);
@@ -117,10 +119,14 @@ public class OrderService {
 
 		}
 
+		for (CartItemResponse item : items) {
+			cartService.deleteCart(item.id(), userAuth);
+		}
+
 		return new OrderResponseDto(
 			savedOrder.getId(),
 			userId,
-			cartResponseDtoList.get(0).getStoreId(),
+			cartResponseDto.storeId(),
 			orderItemIds,
 			totalPrice,
 			savedOrder.getStatus()

@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
+import com.example.dishpatch.api.store.response.StoreInfoResponse;
 import com.example.dishpatch.api.store.response.StoreResponse;
 import com.example.dishpatch.domain.store.service.StoreService;
 import com.example.dishpatch.global.response.pagination.SliceResponse;
 import com.example.dishpatch.global.security.UserAuth;
+import com.example.dishpatch.infra.db.store.enums.SortType;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -73,10 +75,19 @@ public class StoreController {
 
 	@GetMapping
 	public ResponseEntity<SliceResponse<StoreResponse>> getStore(
+		@RequestParam(required = false) SortType sortType,  // dib, rating, orderCount
 		@RequestParam(required = false) Long categoryId,
 		@RequestParam(required = false) Long cursorId,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		return ResponseEntity.ok(storeService.getStore(categoryId, cursorId, size));
+		return ResponseEntity.ok(storeService.getStore(sortType, categoryId, cursorId, size));
 	}
+
+	@GetMapping("/{storeId}")
+	public ResponseEntity<StoreInfoResponse> getStoreInfo(
+		@PathVariable("storeId") Long storeId
+	) {
+		return ResponseEntity.ok(storeService.getStoreInfo(storeId));
+	}
+
 }

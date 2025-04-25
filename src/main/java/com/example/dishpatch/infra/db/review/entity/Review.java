@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.dishpatch.infra.db.common.SoftDeletableEntity;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
+import com.example.dishpatch.infra.db.order.entity.Order;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.user.entity.User;
 
@@ -48,6 +49,10 @@ public class Review extends SoftDeletableEntity {
 	@JoinColumn(name = "menu_id")
 	private Menu menu;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "order_id")
+	private Order order;
+
 	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CeoReview> ceoReviews = new ArrayList<>();
 
@@ -63,11 +68,12 @@ public class Review extends SoftDeletableEntity {
 	@Enumerated(EnumType.STRING)
 	private ReviewStatus status;
 
-	public Review(User user, Store store, Menu menu, int rating, String contents, String imageUrl,
+	public Review(User user, Store store, Menu menu, Order order, int rating, String contents, String imageUrl,
 		ReviewStatus status) {
 		this.user = user;
 		this.store = store;
 		this.menu = menu;
+		this.order = order;
 		this.rating = rating;
 		this.contents = contents;
 		this.imageUrl = imageUrl;

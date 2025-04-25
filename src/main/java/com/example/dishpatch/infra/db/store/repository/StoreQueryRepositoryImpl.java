@@ -40,7 +40,7 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
 				qStore.deletedDate.isNull(),
 				ltCursorId(cursorId)
 			)
-			.orderBy(qStore.id.desc())
+			.orderBy(qStore.isAdvertised.desc(), qStore.id.desc())
 			.limit(size + 1)
 			.fetch();
 
@@ -54,7 +54,7 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
 	}
 
 	private BooleanExpression categoryEq(Long categoryId) {
-		return categoryId != null ? null : qStore.category.id.eq(categoryId);
+		return categoryId == null ? null : qStore.category.id.eq(categoryId);
 	}
 
 	private BooleanExpression ltCursorId(Long cursorId) {

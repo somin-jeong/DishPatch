@@ -1,6 +1,5 @@
 package com.example.dishpatch.api.store.controller;
 
-import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +18,7 @@ import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.api.store.response.StoreResponse;
 import com.example.dishpatch.domain.store.service.StoreService;
+import com.example.dishpatch.global.response.pagination.SliceResponse;
 import com.example.dishpatch.global.security.UserAuth;
 
 import jakarta.validation.Valid;
@@ -72,7 +72,7 @@ public class StoreController {
 	}
 
 	@GetMapping
-	public ResponseEntity<Slice<StoreResponse>> getStore(
+	public ResponseEntity<SliceResponse<StoreResponse>> getStore(
 		@RequestParam(required = false) Long categoryId,
 		@RequestParam(required = false) Long cursorId,
 		@RequestParam(defaultValue = "10") int size

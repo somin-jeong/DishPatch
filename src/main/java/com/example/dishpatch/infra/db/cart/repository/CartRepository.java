@@ -16,8 +16,13 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
 	List<Cart> findByUserId(Long userId);
 
+
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("UPDATE Cart c SET c.deletedDate = current_timestamp WHERE c.user.id = :userId")
 	//@Query("DELETE FROM Cart c WHERE c.user.id = :userId")
 	void deleteAllByUserId(@Param("userId") Long userId);
+
+	@Modifying(clearAutomatically = true)
+	void deleteAllById(Long cartId);
+
 }

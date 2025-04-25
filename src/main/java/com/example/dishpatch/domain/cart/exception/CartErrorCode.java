@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CartErrorCode implements ErrorCode {
 	CART_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "C001", "존재하지 않는 장바구니입니다."),
-	INVALID_QUANTITY(HttpStatus.BAD_REQUEST.value(), "C002", "수량은 1개 이상입니다.");
+	INVALID_QUANTITY(HttpStatus.BAD_REQUEST.value(), "C002", "수량은 1개 이상입니다."),
+	CART_AUTHOR_MISMATCH(HttpStatus.FORBIDDEN.value(), "C003", "장바구니 사용자와 일치하지 않습니다.");
 
 	private final int status;
 	private final String code;

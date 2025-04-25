@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @NoArgsConstructor
@@ -41,6 +42,7 @@ public class User extends SoftDeletableEntity {
 	@Enumerated(EnumType.STRING)
 	private UserProvider provider; //이넘 LOCAL,NAVER,KAKAO
 
+	@Setter
 	private String providerId;
 
 	@Enumerated(EnumType.STRING)
@@ -79,6 +81,5 @@ public class User extends SoftDeletableEntity {
 	public void updateGrade(UserGrade userGrade){
 		this.grade = grade;
 	}
-
 
 }

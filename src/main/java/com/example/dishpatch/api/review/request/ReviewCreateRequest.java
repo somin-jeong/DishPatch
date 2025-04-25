@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 
 public record ReviewCreateRequest(
 
+	Long orderId,
+
 	Long menuId,
 
 	@NotNull

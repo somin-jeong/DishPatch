@@ -129,13 +129,13 @@ public class StoreService {
 		cartRepository.deleteAllByStoreId(storeId);
 	}
 
-	public SliceResponse<StoreResponse> getStore(Long categoryId, Long cursorId, int size) {
+	public SliceResponse<StoreResponse> getStore(String sortType, Long categoryId, Long cursorId, int size) {
 		if (categoryId != null) {
 			categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 		}
 
-		return SliceResponse.from(storeRepository.findAllByCategoryId(categoryId, cursorId, size));
+		return SliceResponse.from(storeRepository.findAllByCategoryId(sortType, categoryId, cursorId, size));
 	}
 
 }

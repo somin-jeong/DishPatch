@@ -73,10 +73,12 @@ public class StoreController {
 
 	@GetMapping
 	public ResponseEntity<SliceResponse<StoreResponse>> getStore(
+		@RequestParam(required = false) String sortType,  // dib, rating, orderCount
 		@RequestParam(required = false) Long categoryId,
 		@RequestParam(required = false) Long cursorId,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		return ResponseEntity.ok(storeService.getStore(categoryId, cursorId, size));
+		return ResponseEntity.ok(storeService.getStore(sortType, categoryId, cursorId, size));
 	}
+
 }

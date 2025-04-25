@@ -33,4 +33,5 @@ public class StoreResponse implements CursorSupport {
 	public Long getCursorId() {
 		return id;
 	}
+
 }

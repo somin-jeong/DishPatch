@@ -7,6 +7,7 @@ import com.example.dishpatch.infra.db.review.entity.ReviewStatus;
 
 public record ReviewResponse(
 	Long id,
+	Long orderId,
 	Long storeId,
 	Long menuId,
 	Integer rating,
@@ -19,6 +20,7 @@ public record ReviewResponse(
 	public static ReviewResponse from(Review review) {
 		return new ReviewResponse(
 			review.getId(),
+			review.getOrder().getId(),
 			review.getStore().getId(),
 			review.getMenu().getId(),
 			review.getRating(),

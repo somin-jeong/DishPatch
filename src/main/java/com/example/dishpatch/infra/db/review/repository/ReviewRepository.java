@@ -32,10 +32,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
 	@Modifying(clearAutomatically = true)
 	@Query(value = """
-		UPDATE review r 
-		JOIN store s ON r.store_id = s.id
-		SET r.deleted_date = CURRENT_TIMESTAMP
-		WHERE s.user_id = :userId
-""", nativeQuery = true)
+				UPDATE review r 
+				JOIN store s ON r.store_id = s.id
+				SET r.deleted_date = CURRENT_TIMESTAMP
+				WHERE s.user_id = :userId
+		""", nativeQuery = true)
 	void deleteAllByUserId(Long userId);
+
+	@Modifying(clearAutomatically = true)
+	void deleteById(Long reviewId);
 }

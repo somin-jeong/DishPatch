@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.dishpatch.global.oauth2.handler.OAuth2SuccessHandler;
+import com.example.dishpatch.global.oauth2.service.CustomOAuth2UserService;
 import com.example.dishpatch.global.security.SecurityFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	private final SecurityFilter securityFilter;
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -57,6 +61,11 @@ public class SecurityConfig {
 				.hasRole("CEO")
 				.anyRequest()
 				.authenticated()
+			)
+			.oauth2Login(oauth ->
+				oauth.userInfoEndpoint(userInfo ->
+					userInfo.userService(customOAuth2UserService))
+					.successHandler(oAuth2SuccessHandler)
 			)
 			.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 

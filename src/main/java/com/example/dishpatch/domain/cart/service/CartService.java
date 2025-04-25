@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.cart.request.CartCreateRequest;
 import com.example.dishpatch.api.cart.response.CartCreateResponse;
+import com.example.dishpatch.api.cart.response.CartResponseDto;
 import com.example.dishpatch.domain.cart.exception.CartErrorCode;
 import com.example.dishpatch.domain.menu.exception.MenuErrorCode;
 import com.example.dishpatch.domain.menu.exception.MenuOptionErrorCode;
@@ -67,5 +68,17 @@ public class CartService {
 		Cart saved = cartRepository.save(cart);
 
 		return CartCreateResponse.from(saved);
+	}
+
+	public CartResponseDto findCarts(Long storeId, UserAuth userAuth) {
+		User user = userRepository.findById(userAuth.getId())
+			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
+
+		Store store = storeRepository.findById(storeId)
+			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
+
+		List<Cart> cartList = cartRepository.findByUserId(user.getId());
+
+		return CartResponseDto.from(cartList);
 	}
 }

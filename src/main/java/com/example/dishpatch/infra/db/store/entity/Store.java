@@ -118,4 +118,14 @@ public class Store extends SoftDeletableEntity {
 		this.closeTime = request.getCloseTime();
 		this.category = category;
 	}
+
+	public void plusDib() {
+		this.dibCount++;
+	}
+
+	public void minusDib() {
+		if (dibCount > 0) {
+			this.dibCount--;
+		}
+	}
 }

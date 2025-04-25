@@ -119,6 +119,10 @@ public class OrderService {
 
 		}
 
+		for (CartItemResponse item : items) {
+			cartService.deleteCart(item.id(), userAuth);
+		}
+
 		return new OrderResponseDto(
 			savedOrder.getId(),
 			userId,

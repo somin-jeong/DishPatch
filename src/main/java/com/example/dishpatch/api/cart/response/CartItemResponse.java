@@ -3,6 +3,7 @@ package com.example.dishpatch.api.cart.response;
 import com.example.dishpatch.infra.db.cart.entity.Cart;
 
 public record CartItemResponse(
+	Long id,
 	Long menuId,
 	String menuName,
 	int menuPrice,
@@ -13,6 +14,7 @@ public record CartItemResponse(
 ) {
 	public static CartItemResponse from(Cart cart) {
 		return new CartItemResponse(
+			cart.getId(),
 			cart.getMenu().getId(),
 			cart.getMenu().getName(),
 			cart.getMenu().getPrice(),

@@ -96,4 +96,19 @@ public class CartService {
 
 		return CartResponseDto.from(cartList);
 	}
+
+	public void deleteCart(Long cartId, UserAuth userAuth) {
+		User user = userRepository.findById(userAuth.getId())
+			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
+
+		Cart cart = cartRepository.findById(cartId)
+			.orElseThrow(() -> new BizException(CartErrorCode.CART_NOT_FOUND));
+
+		if (!user.getId().equals(cart.getUser().getId())) {
+			new BizException(CartErrorCode.CART_AUTHOR_MISMATCH);
+		}
+
+		cartRepository.deleteAllById(cart.getId());
+	}
+
 }

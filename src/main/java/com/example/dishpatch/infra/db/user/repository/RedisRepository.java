@@ -16,12 +16,17 @@ public class RedisRepository {
 
 	// haskey()는 Boolean 객체를 반환하기 때문에 그냥 ==ture 또는 isTure()로 비교하면 NPE 발생가능성 존재
 
+	public String generateBlacklistKey(String token){
+		String blacklistKey = "blacklist:" + token;
+
+		return blacklistKey;
+	}
+
 	public boolean validateKey(String token) {
 		// Redis 블랙리스트 검사
-		String blacklistKey = "BlackList:" + token;
 
 		try {
-			return redisTemplate.hasKey(blacklistKey);
+			return redisTemplate.hasKey(generateBlacklistKey(token));
 		} catch (Exception e) {
 			throw new BizException(UserErrorCode.INVALID_REQUEST);
 		}

@@ -33,9 +33,11 @@ public class SecurityFilter extends OncePerRequestFilter {
 		if (header != null && header.startsWith("Bearer ")) {
 			String token = header.substring(7);
 
-			if (redisRepository.validateKey(token)) {
-				return;
-			}
+			// JWT 블랙리스트 검증
+		if (redisRepository.validateKey(token)){
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"이미 로그아웃된 아이디입니다.");
+			return;
+		}
 
 			// JWT 유효성 검증
 			try {
@@ -52,7 +54,6 @@ public class SecurityFilter extends OncePerRequestFilter {
 						new UsernamePasswordAuthenticationToken(userAuth, null, authorities);
 
 					SecurityContextHolder.getContext().setAuthentication(authToken);
-
 				}
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 접근입니다.");

@@ -15,4 +15,9 @@ public interface CeoReviewRepository extends JpaRepository<CeoReview, Long> {
 		    )
 		""")
 	int deleteAllByStoreId(Long storeId);
+
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE CeoReview c SET c.deletedDate = CURRENT_TIMESTAMP WHERE c.user.id = :userId AND c.deletedDate IS NULL")
+	void deleteAllByUserId(Long userId);
+
 }

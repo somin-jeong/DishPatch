@@ -2,7 +2,6 @@ package com.example.dishpatch.domain.pointHistory.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.domain.user.exception.UserErrorCode;
@@ -13,7 +12,6 @@ import com.example.dishpatch.infra.db.pointHistory.entity.PointUsed;
 import com.example.dishpatch.infra.db.pointHistory.repository.PointHistoryRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +23,6 @@ public class PointHistoryService {
 	private final PointHistoryRepository pointHistoryRepository;
 	private final UserRepository userRepository;
 	private final PointUseHistoryService pointUseHistoryService;
-
-	@Autowired
-	private JPAQueryFactory queryFactory;
 
 	public Integer getRemainingPoint(Long userId) {
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.dishpatch.api.cart.response.CartItemResponse;
 import com.example.dishpatch.domain.menu.exception.MenuErrorCode;
 import com.example.dishpatch.domain.order.exception.OrderErrorCode;
 import com.example.dishpatch.global.exception.BizException;
@@ -28,22 +29,22 @@ public class OrderItemService {
 	private final MenuRepository menuRepository;
 	private final MenuOptionRepository menuOptionRepository;
 
-	public List<Long> addOrderItem(Long orderId, List<CartResponseDto> cartResponseDtoList) {
+	public List<Long> addOrderItem(Long orderId, List<CartItemResponse> items) {
 
 		List<Long> addedIds = new ArrayList<>();
 
-		for (CartResponseDto cartResponseDto : cartResponseDtoList) {
+		for (CartItemResponse item : items) {
 
 			Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new BizException(OrderErrorCode.ORDER_NOT_FOUND));
 
-			Menu menu = menuRepository.findById(cartResponseDto.menuId())
+			Menu menu = menuRepository.findById(item.menuId())
 				.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
 
-			MenuOption menuOption = menuOptionRepository(cartResponseDto.menuOptionId())
+			MenuOption menuOption = menuOptionRepository.findById(item.menuOptionId())
 				.orElse(null);
 
-			OrderItem orderItem = new OrderItem(cartResponseDto.quantity(), order, menu, menuOption);
+			OrderItem orderItem = new OrderItem(item.quantity(), order, menu, menuOption);
 
 			OrderItem savedOrderItem = orderItemRepository.save(orderItem);
 

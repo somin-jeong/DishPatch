@@ -36,7 +36,7 @@ public class OrderController {
 		@AuthenticationPrincipal UserAuth userAuth,
 		@Valid @RequestBody OrderRequestDto requestDto
 	) {
-		OrderResponseDto responseDto = orderService.createOrder(requestDto, userAuth.getId());
+		OrderResponseDto responseDto = orderService.createOrder(requestDto, userAuth);
 
 		return ResponseEntity.status(HttpStatus.OK).body(responseDto);
 	}

@@ -137,6 +137,51 @@ class MenuOptionServiceTest {
 		assertEquals(StoreErrorCode.STORE_OWNER_MISMATCH, exception.getErrorCode());
 	}
 
+	@Test
+	void deleteMenuOption_shouldSucceed() {
+		MenuOption menuOption = mock(MenuOption.class);
+
+		given(menuOption.getMenu()).willReturn(menu);
+		given(menuOptionRepository.findByIdWithMenuAndStore(MENU_OPTION_ID)).willReturn(Optional.of(menuOption));
+
+		menuOptionService.deleteMenuOption(USER_ID, MENU_ID, MENU_OPTION_ID);
+
+		verify(menuOption, times(1)).softDelete();
+	}
+
+	@Test
+	void deleteMenuOption_whenMenuOptionNotFound_shouldThrowException() {
+		given(menuOptionRepository.findByIdWithMenuAndStore(MENU_OPTION_ID)).willReturn(Optional.empty());
+
+		BizException exception = assertThrows(BizException.class,
+			() -> menuOptionService.deleteMenuOption(USER_ID, MENU_ID, MENU_OPTION_ID));
+		assertEquals(MenuOptionErrorCode.MENU_OPTION_NOT_FOUND, exception.getErrorCode());
+	}
+
+	@Test
+	void deleteMenuOption_whenMenuOptionNotBelongToMenu_shouldThrowException() {
+		MenuOption menuOption = mock(MenuOption.class);
+
+		given(menuOption.getMenu()).willReturn(menu);
+		given(menuOptionRepository.findByIdWithMenuAndStore(MENU_OPTION_ID)).willReturn(Optional.of(menuOption));
+
+		BizException exception = assertThrows(BizException.class,
+			() -> menuOptionService.deleteMenuOption(USER_ID, 2L, MENU_OPTION_ID));
+		assertEquals(MenuOptionErrorCode.MENU_OPTION_NOR_BELONG_TO_MENU, exception.getErrorCode());
+	}
+
+	@Test
+	void deleteMenuOption_whenStoreOwnerMismatch_shouldThrowException() {
+		MenuOption menuOption = mock(MenuOption.class);
+
+		given(menuOption.getMenu()).willReturn(menu);
+		given(menuOptionRepository.findByIdWithMenuAndStore(MENU_OPTION_ID)).willReturn(Optional.of(menuOption));
+
+		BizException exception = assertThrows(BizException.class,
+			() -> menuOptionService.deleteMenuOption(2L, MENU_ID, MENU_OPTION_ID));
+		assertEquals(StoreErrorCode.STORE_OWNER_MISMATCH, exception.getErrorCode());
+	}
+
 	Menu createTestMenu(Long userId, Long storeId, Long menuId) {
 		User user = new User();
 		ReflectionTestUtils.setField(user, "id", userId);

@@ -26,4 +26,11 @@ public interface StoreOrderStatMonthlyRepository
 		@Param("to") LocalDate to
 	);
 
+	@Query("""
+			SELECT s
+			FROM StoreOrderStatMonthly s
+			WHERE s.id.date = :date
+		""")
+	List<StoreOrderStatMonthly> findAllByDate(@Param("date") LocalDate date);
+
 }

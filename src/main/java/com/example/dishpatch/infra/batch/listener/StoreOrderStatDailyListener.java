@@ -20,6 +20,7 @@ public class StoreOrderStatDailyListener implements JobExecutionListener {
 	private final JobLauncher jobLauncher;
 	private final Job storeOrderStatMonthlyJob;
 	private final Job adminStoreOrderStatDailyJob;
+	private final Job adminStoreOrderStatMonthlyJob;
 
 	@Override
 	public void afterJob(JobExecution jobExecution) {
@@ -42,6 +43,14 @@ public class StoreOrderStatDailyListener implements JobExecutionListener {
 							.toJobParameters());
 				} catch (Exception e) {
 					log.error("Failed to launch monthly job", e);
+				}
+				try {
+					jobLauncher.run(adminStoreOrderStatMonthlyJob,
+						new JobParametersBuilder()
+							.addLong("time", System.currentTimeMillis())
+							.toJobParameters());
+				} catch (Exception e) {
+					log.error("Failed to launch admin monthly job", e);
 				}
 			}
 		}

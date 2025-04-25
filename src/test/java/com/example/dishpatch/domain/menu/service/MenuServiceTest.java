@@ -21,6 +21,7 @@ import com.example.dishpatch.domain.menu.exception.MenuErrorCode;
 import com.example.dishpatch.domain.store.exception.StoreErrorCode;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
+import com.example.dishpatch.infra.db.menu.entity.MenuOption;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
@@ -96,9 +97,11 @@ class MenuServiceTest {
 	void getStoreMenus_shouldSucceed() {
 		Long storeId = 1L;
 		Store store = mock(Store.class);
+		MenuOption menuOption1 = MenuOption.builder().name("메뉴 옵션 이름1").price(3000).soldOut(false).build();
+		MenuOption menuOption2 = MenuOption.builder().name("메뉴 옵션 이름2").price(5000).soldOut(true).build();
 		List<Menu> menus = List.of(
-			new Menu("메뉴 이름1", 10000, "https://image.com/image_url1", false, store),
-			new Menu("메뉴 이름2", 20000, "https://image.com/image_url2", true, store)
+			new Menu("메뉴 이름1", 10000, "https://image.com/image_url1", false, store, List.of(menuOption1)),
+			new Menu("메뉴 이름2", 20000, "https://image.com/image_url2", true, store, List.of(menuOption2))
 		);
 
 		given(storeRepository.existsById(storeId)).willReturn(true);
@@ -109,6 +112,8 @@ class MenuServiceTest {
 		assertEquals(2, res.menus().size());
 		assertEquals("메뉴 이름1", res.menus().get(0).name());
 		assertEquals("메뉴 이름2", res.menus().get(1).name());
+		assertEquals("메뉴 옵션 이름1", res.menus().get(0).options().get(0).name());
+		assertEquals("메뉴 옵션 이름2", res.menus().get(1).options().get(0).name());
 	}
 
 	@Test

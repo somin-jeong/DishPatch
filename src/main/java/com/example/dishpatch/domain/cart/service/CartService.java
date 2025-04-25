@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.dishpatch.api.cart.request.CartCreateRequest;
+import com.example.dishpatch.api.cart.request.CartUpdateRequest;
 import com.example.dishpatch.api.cart.response.CartCreateResponse;
 import com.example.dishpatch.api.cart.response.CartResponseDto;
 import com.example.dishpatch.domain.cart.exception.CartErrorCode;
@@ -75,6 +76,23 @@ public class CartService {
 			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
 
 		List<Cart> cartList = cartRepository.findByUserId(user.getId());
+
+		return CartResponseDto.from(cartList);
+	}
+
+	public CartResponseDto updateCart(Long cartId, CartUpdateRequest request, UserAuth userAuth) {
+		Menu menu = menuRepository.findById(request.menuId())
+			.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
+
+		MenuOption menuOption = menuOptionRepository.findById(request.menuOptionId())
+			.orElseThrow(() -> new BizException(MenuOptionErrorCode.MENU_OPTION_NOT_FOUND));
+
+		Cart cart = cartRepository.findById(cartId)
+			.orElseThrow(() -> new BizException(CartErrorCode.CART_NOT_FOUND));
+
+		cart.updateCart(menu, menuOption, request.quantity());
+
+		List<Cart> cartList = cartRepository.findByUserId(userAuth.getId());
 
 		return CartResponseDto.from(cartList);
 	}

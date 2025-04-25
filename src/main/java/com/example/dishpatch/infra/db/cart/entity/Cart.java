@@ -55,4 +55,10 @@ public class Cart extends BaseEntity {
 		this.quantity = quantity;
 	}
 
+	public void updateCart(Menu menu, MenuOption menuOption, int quantity) {
+		this.menu = menu;
+		this.menuOption = menuOption;
+		this.quantity = quantity;
+	}
+
 }

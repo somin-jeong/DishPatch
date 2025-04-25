@@ -37,11 +37,11 @@ public class CartService {
 	private final MenuRepository menuRepository;
 	private final MenuOptionRepository menuOptionRepository;
 
-	public CartCreateResponse createCart(Long storeId, CartCreateRequest request, UserAuth userAuth) {
+	public CartCreateResponse createCart(CartCreateRequest request, UserAuth userAuth) {
 		User user = userRepository.findById(userAuth.getId())
 			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
 
-		Store store = storeRepository.findById(storeId)
+		Store store = storeRepository.findById(request.storeId())
 			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
 
 		Menu menu = menuRepository.findById(request.menuId())
@@ -70,12 +70,9 @@ public class CartService {
 		return CartCreateResponse.from(saved);
 	}
 
-	public CartResponseDto findCarts(Long storeId, UserAuth userAuth) {
+	public CartResponseDto findCarts(UserAuth userAuth) {
 		User user = userRepository.findById(userAuth.getId())
 			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
-
-		Store store = storeRepository.findById(storeId)
-			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
 
 		List<Cart> cartList = cartRepository.findByUserId(user.getId());
 

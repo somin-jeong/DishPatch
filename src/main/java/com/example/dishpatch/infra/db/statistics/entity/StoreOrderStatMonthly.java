@@ -8,9 +8,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(staticName = "of")
 @Entity
 @Table(name = "store_order_stats_monthly")
 public class StoreOrderStatMonthly implements StatConvertible {
@@ -27,5 +32,10 @@ public class StoreOrderStatMonthly implements StatConvertible {
 	@Override
 	public LocalDate getDate() {
 		return this.id.getDate();
+	}
+
+	public void add(Integer orderCount, Long totalSales) {
+		this.orderCount += orderCount;
+		this.totalSales += totalSales;
 	}
 }

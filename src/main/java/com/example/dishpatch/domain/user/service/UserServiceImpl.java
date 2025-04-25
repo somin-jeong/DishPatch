@@ -146,6 +146,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		// coupons,menu,menu_options,order,point_history,store
+		user.softDelete();
 
 		ceoReviewRepository.deleteAllByUserId(userAuth.getId());// 리뷰 대댓
 		reviewRepository.deleteAllByUserId(userAuth.getId()); // 리뷰
@@ -158,6 +159,5 @@ public class UserServiceImpl implements UserService {
 		pointHistoryRepository.deleteByUserId(userAuth.getId()); //포인트
 		couponRepository.deleteByUserId(userAuth.getId());  //쿠폰
 
-		user.softDelete();
 	}
 }

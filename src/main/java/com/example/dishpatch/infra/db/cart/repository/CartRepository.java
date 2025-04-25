@@ -12,4 +12,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 	void deleteAllByStoreId(Long storeId);
 
 	List<Cart> findByUserId(Long userId);
+
+	@Modifying(clearAutomatically = true)
+	void deleteAllById(Long cartId);
 }

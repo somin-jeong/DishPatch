@@ -20,6 +20,7 @@ import com.example.dishpatch.api.store.response.StoreResponse;
 import com.example.dishpatch.domain.store.service.StoreService;
 import com.example.dishpatch.global.response.pagination.SliceResponse;
 import com.example.dishpatch.global.security.UserAuth;
+import com.example.dishpatch.infra.db.store.enums.SortType;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +74,7 @@ public class StoreController {
 
 	@GetMapping
 	public ResponseEntity<SliceResponse<StoreResponse>> getStore(
-		@RequestParam(required = false) String sortType,  // dib, rating, orderCount
+		@RequestParam(required = false) SortType sortType,  // dib, rating, orderCount
 		@RequestParam(required = false) Long categoryId,
 		@RequestParam(required = false) Long cursorId,
 		@RequestParam(defaultValue = "10") int size

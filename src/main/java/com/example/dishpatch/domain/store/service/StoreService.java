@@ -24,6 +24,7 @@ import com.example.dishpatch.infra.db.review.repository.ReviewRepository;
 import com.example.dishpatch.infra.db.store.entity.Category;
 import com.example.dishpatch.infra.db.store.entity.Dib;
 import com.example.dishpatch.infra.db.store.entity.Store;
+import com.example.dishpatch.infra.db.store.enums.SortType;
 import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
 import com.example.dishpatch.infra.db.store.repository.DibRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
@@ -133,7 +134,7 @@ public class StoreService {
 	}
 
 	@Transactional(readOnly = true)
-	public SliceResponse<StoreResponse> getStore(String sortType, Long categoryId, Long cursorId, int size) {
+	public SliceResponse<StoreResponse> getStore(SortType sortType, Long categoryId, Long cursorId, int size) {
 		if (categoryId != null) {
 			categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));

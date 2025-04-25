@@ -12,6 +12,7 @@ import com.example.dishpatch.api.store.response.StoreResponse;
 import com.example.dishpatch.infra.db.order.entity.OrderStatus;
 import com.example.dishpatch.infra.db.order.entity.QOrder;
 import com.example.dishpatch.infra.db.store.entity.QStore;
+import com.example.dishpatch.infra.db.store.enums.SortType;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -28,10 +29,10 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
 	private final QStore qStore = QStore.store;
 
 	@Override
-	public Slice<StoreResponse> findAllByCategoryId(String sortType, Long categoryId, Long cursorId, int size) {
+	public Slice<StoreResponse> findAllByCategoryId(SortType sortType, Long categoryId, Long cursorId, int size) {
 		List<StoreResponse> stores;
 
-		if ("orderCount".equals(sortType)) {
+		if ("ORDER_COUNT".equals(sortType.name())) {
 			QOrder qOrder = QOrder.order;
 
 			stores = queryFactory
@@ -49,8 +50,7 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
 				.where(
 					categoryEq(categoryId),
 					qStore.deletedDate.isNull(),
-					ltCursorId(cursorId),
-					qOrder.status.eq(OrderStatus.FINISHED)
+					ltCursorId(cursorId)
 				)
 				.groupBy(qStore.id)
 				.orderBy(getOrderCountSortOrders().toArray(OrderSpecifier[]::new))
@@ -88,15 +88,15 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
 		return new SliceImpl<>(stores, PageRequest.of(0, size), hasNext);
 	}
 
-	private List<OrderSpecifier<?>> getSortOrders(String sortType) {
+	private List<OrderSpecifier<?>> getSortOrders(SortType sortType) {
 		List<OrderSpecifier<?>> orders = new ArrayList<>();
 		orders.add(qStore.isAdvertised.desc());
 
-		switch (sortType) {
-			case "dib" -> {
+		switch (sortType.name()) {
+			case "DIB" -> {
 				orders.add(qStore.dibCount.desc());
 			}
-			case "rating" -> {
+			case "RATING" -> {
 				orders.add(qStore.rating.desc());
 			}
 
@@ -108,8 +108,12 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
 	private List<OrderSpecifier<?>> getOrderCountSortOrders() {
 		QOrder qOrder = QOrder.order;
 
-		OrderSpecifier<Long> orderCountDesc =
-			Expressions.numberTemplate(Long.class, "count({0})", qOrder.id).desc();
+		OrderSpecifier<Long> orderCountDesc = Expressions.numberTemplate(
+			Long.class,
+			"count(case when {0} = {1} then 1 end)",
+			qOrder.status,
+			OrderStatus.FINISHED
+		).desc();
 
 		return List.of(qStore.isAdvertised.desc(), orderCountDesc, qStore.id.desc());
 	}

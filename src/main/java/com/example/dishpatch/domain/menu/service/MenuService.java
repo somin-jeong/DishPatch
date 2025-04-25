@@ -35,9 +35,7 @@ public class MenuService {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new BizException(StoreErrorCode.STORE_NOT_FOUND));
 
-		if (!Objects.equals(store.getUser().getId(), userId)) {
-			throw new BizException(StoreErrorCode.STORE_OWNER_MISMATCH);
-		}
+		validateStoreOwner(userId, store);
 
 		Menu menu = Menu.builder()
 			.name(req.name())
@@ -65,8 +63,8 @@ public class MenuService {
 	public void updateMenu(Long userId, Long storeId, Long menuId, MenuUpdateRequest req) {
 		Menu menu = findMenuOrThrow(menuId);
 
-		validateMenuStoreMatch(storeId, menu);
-		validateMenuOwner(userId, menu);
+		validateMenuBelongsToStore(storeId, menu);
+		validateStoreOwner(userId, menu.getStore());
 
 		menu.update(req.name(), req.price(), req.imageUrl(), req.soldOut());
 	}
@@ -75,22 +73,22 @@ public class MenuService {
 	public void deleteMenu(Long userId, Long storeId, Long menuId) {
 		Menu menu = findMenuOrThrow(menuId);
 
-		validateMenuStoreMatch(storeId, menu);
-		validateMenuOwner(userId, menu);
+		validateMenuBelongsToStore(storeId, menu);
+		validateStoreOwner(userId, menu.getStore());
 
 		menu.softDelete();
 		menuOptionRepository.bulkSoftDeleteByStoreId(storeId, LocalDateTime.now());
 	}
 
-	private void validateMenuStoreMatch(Long storeId, Menu menu) {
+	private void validateMenuBelongsToStore(Long storeId, Menu menu) {
 		if (!Objects.equals(menu.getStore().getId(), storeId)) {
-			throw new BizException(MenuErrorCode.MENU_STORE_MISMATCH);
+			throw new BizException(MenuErrorCode.MENU_NOT_BELONG_TO_STORE);
 		}
 	}
 
-	private void validateMenuOwner(Long userId, Menu menu) {
-		if (!Objects.equals(menu.getStore().getUser().getId(), userId)) {
-			throw new BizException(MenuErrorCode.MENU_OWNER_MISMATCH);
+	private void validateStoreOwner(Long userId, Store store) {
+		if (!Objects.equals(store.getUser().getId(), userId)) {
+			throw new BizException(StoreErrorCode.STORE_OWNER_MISMATCH);
 		}
 	}
 

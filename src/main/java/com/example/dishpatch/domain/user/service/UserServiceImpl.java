@@ -14,6 +14,7 @@ import com.example.dishpatch.api.user.request.UserLoginRequest;
 import com.example.dishpatch.api.user.request.UserSignupRequest;
 import com.example.dishpatch.api.user.request.UserUpdateRequest;
 import com.example.dishpatch.api.user.response.UserLoginResponse;
+import com.example.dishpatch.api.user.response.UserProfileResponse;
 import com.example.dishpatch.api.user.response.UserSignupResponse;
 import com.example.dishpatch.api.user.response.UserUpdateResponse;
 import com.example.dishpatch.domain.store.service.StoreService;
@@ -169,5 +170,14 @@ public class UserServiceImpl implements UserService {
 
 		user.setImageUrl(imageUrl);
 		userRepository.save(user);
+	}
+
+	@Override
+	public UserProfileResponse getUserProfile(UserAuth userAuth) {
+		User user = userRepository.findById(userAuth.getId()).orElseThrow(
+			() -> new BizException(UserErrorCode.INVALID_ID)
+		);
+
+		return UserProfileResponse.from(user);
 	}
 }

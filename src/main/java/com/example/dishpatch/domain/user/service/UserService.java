@@ -5,6 +5,7 @@ import com.example.dishpatch.api.user.request.UserLoginRequest;
 import com.example.dishpatch.api.user.request.UserSignupRequest;
 import com.example.dishpatch.api.user.request.UserUpdateRequest;
 import com.example.dishpatch.api.user.response.UserLoginResponse;
+import com.example.dishpatch.api.user.response.UserProfileResponse;
 import com.example.dishpatch.api.user.response.UserSignupResponse;
 import com.example.dishpatch.api.user.response.UserUpdateResponse;
 import com.example.dishpatch.global.security.UserAuth;
@@ -23,4 +24,6 @@ public interface UserService {
 	void deleteUser(UserDeleteRequest request,UserAuth userAuth);
 
 	void updateUserProfileImage(UserAuth userAuth, String imageUrl);
+
+	UserProfileResponse getUserProfile(UserAuth userAuth);
 }

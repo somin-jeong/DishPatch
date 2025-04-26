@@ -71,6 +71,7 @@ public class User extends SoftDeletableEntity {
 		this.currentAddress = currentAddress;
 	}
 
+
 	public void updateUser(String password,String name,String phone,String currentAddress){
 		this.password = password;
 		this.name = name;

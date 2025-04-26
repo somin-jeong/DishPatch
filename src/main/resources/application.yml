@@ -55,3 +55,15 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET:default-secret}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    region:
+      static: ap-southeast-2 # 서울 리전 (다른 리전이면 수정)
+    stack:
+      auto: false

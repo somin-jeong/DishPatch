@@ -160,4 +160,14 @@ public class UserServiceImpl implements UserService {
 		couponRepository.deleteByUserId(userAuth.getId());  //쿠폰
 
 	}
+
+	@Override
+	public void updateUserProfileImage(UserAuth userAuth, String imageUrl) {
+
+		User user = userRepository.findById(userAuth.getId()).orElseThrow(
+			() -> new BizException(UserErrorCode.INVALID_ID));
+
+		user.setImageUrl(imageUrl);
+		userRepository.save(user);
+	}
 }

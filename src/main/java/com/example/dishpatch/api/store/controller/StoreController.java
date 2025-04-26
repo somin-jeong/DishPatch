@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
+import com.example.dishpatch.api.store.response.PopularKeywordsResponse;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.api.store.response.StoreInfoResponse;
 import com.example.dishpatch.api.store.response.StoreResponse;
@@ -98,6 +99,11 @@ public class StoreController {
 		@RequestParam(defaultValue = "10") int size
 	) {
 		return ResponseEntity.ok(storeService.searchStore(keyword, cursorId, size));
+	}
+
+	@GetMapping("/search/popular")
+	public ResponseEntity<PopularKeywordsResponse> searchPopularKeyword() {
+		return ResponseEntity.ok(storeService.searchPopularKeyword());
 	}
 
 }

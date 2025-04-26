@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
+import com.example.dishpatch.api.store.response.PopularKeywordsResponse;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.api.store.response.StoreInfoResponse;
 import com.example.dishpatch.api.store.response.StoreResponse;
@@ -29,6 +30,7 @@ import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.store.enums.SortType;
 import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
 import com.example.dishpatch.infra.db.store.repository.DibRepository;
+import com.example.dishpatch.infra.db.store.repository.KeywordRedisRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
@@ -38,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class StoreService {
+	private final KeywordRedisRepository keywordRedisRepository;
 	private final StoreRepository storeRepository;
 	private final CategoryRepository categoryRepository;
 	private final DibRepository dibRepository;
@@ -153,7 +156,11 @@ public class StoreService {
 	}
 
 	public SliceResponse<StoreSearchResponse> searchStore(String keyword, Long cursorId, int size) {
+		keywordRedisRepository.increaseKeywordScore(keyword);
 		return SliceResponse.from(storeRepository.findAllByKeyword(keyword, cursorId, size));
 	}
 
+	public PopularKeywordsResponse searchPopularKeyword() {
+		return PopularKeywordsResponse.of(keywordRedisRepository.getPopularKeywords(10));
+	}
 }

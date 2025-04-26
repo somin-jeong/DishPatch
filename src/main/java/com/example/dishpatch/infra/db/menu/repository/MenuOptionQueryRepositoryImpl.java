@@ -27,7 +27,7 @@ public class MenuOptionQueryRepositoryImpl implements MenuOptionQueryRepository 
 				.leftJoin(qMenuOption.menu.store).fetchJoin()
 				.where(
 					qMenuOption.id.eq(id),
-					qMenuOption.deleted.isFalse()
+					qMenuOption.deletedDate.isNull()
 				)
 				.fetchOne()
 		);

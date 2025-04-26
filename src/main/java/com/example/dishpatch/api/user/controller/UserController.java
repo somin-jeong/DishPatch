@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ import com.example.dishpatch.api.user.request.UserLoginRequest;
 import com.example.dishpatch.api.user.request.UserSignupRequest;
 import com.example.dishpatch.api.user.request.UserUpdateRequest;
 import com.example.dishpatch.api.user.response.UserLoginResponse;
+import com.example.dishpatch.api.user.response.UserProfileResponse;
 import com.example.dishpatch.api.user.response.UserSignupResponse;
 import com.example.dishpatch.api.user.response.UserUpdateResponse;
 import com.example.dishpatch.domain.user.service.UserService;
@@ -96,4 +98,14 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패");
 		}
 	}
+
+	@GetMapping
+	public ResponseEntity<UserProfileResponse> getUserProfileFile(@AuthenticationPrincipal UserAuth userAuth){
+
+		UserProfileResponse userProfile = userService.getUserProfile(userAuth);
+
+		return ResponseEntity.status(HttpStatus.OK).body(userProfile);
+
+	}
+
 }

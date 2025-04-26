@@ -14,7 +14,7 @@ public record SliceResponse<T>(
 ) {
 	public static <T extends CursorSupport> SliceResponse<T> from(Slice<T> slice) {
 		List<T> content = slice.getContent();
-		Long nextCursorId = content.isEmpty() ? null : content.get(content.size() - 1).getCursorId();
+		Long nextCursorId = content.isEmpty() ? null : content.get(content.size() - 1).getId();
 
 		return new SliceResponse<>(
 			content,

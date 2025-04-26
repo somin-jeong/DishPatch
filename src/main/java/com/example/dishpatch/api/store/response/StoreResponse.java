@@ -30,7 +30,7 @@ public class StoreResponse implements CursorSupport {
 	}
 
 	@Override
-	public Long getCursorId() {
+	public Long getId() {
 		return id;
 	}
 

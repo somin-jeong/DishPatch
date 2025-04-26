@@ -14,6 +14,7 @@ import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.api.store.response.StoreInfoResponse;
 import com.example.dishpatch.api.store.response.StoreResponse;
+import com.example.dishpatch.api.store.response.StoreSearchResponse;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.global.response.pagination.SliceResponse;
 import com.example.dishpatch.global.security.UserAuth;
@@ -150,4 +151,9 @@ public class StoreService {
 
 		return StoreInfoResponse.from(store);
 	}
+
+	public SliceResponse<StoreSearchResponse> searchStore(String keyword, Long cursorId, int size) {
+		return SliceResponse.from(storeRepository.findAllByKeyword(keyword, cursorId, size));
+	}
+
 }

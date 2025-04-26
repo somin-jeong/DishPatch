@@ -18,6 +18,7 @@ import com.example.dishpatch.api.store.request.StoreUpdateRequest;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.api.store.response.StoreInfoResponse;
 import com.example.dishpatch.api.store.response.StoreResponse;
+import com.example.dishpatch.api.store.response.StoreSearchResponse;
 import com.example.dishpatch.domain.store.service.StoreService;
 import com.example.dishpatch.global.response.pagination.SliceResponse;
 import com.example.dishpatch.global.security.UserAuth;
@@ -88,6 +89,15 @@ public class StoreController {
 		@PathVariable("storeId") Long storeId
 	) {
 		return ResponseEntity.ok(storeService.getStoreInfo(storeId));
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<SliceResponse<StoreSearchResponse>> searchStore(
+		@RequestParam String keyword,
+		@RequestParam(required = false) Long cursorId,
+		@RequestParam(defaultValue = "10") int size
+	) {
+		return ResponseEntity.ok(storeService.searchStore(keyword, cursorId, size));
 	}
 
 }

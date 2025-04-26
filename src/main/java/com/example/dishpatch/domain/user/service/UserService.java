@@ -22,4 +22,5 @@ public interface UserService {
 
 	void deleteUser(UserDeleteRequest request,UserAuth userAuth);
 
+	void updateUserProfileImage(UserAuth userAuth, String imageUrl);
 }

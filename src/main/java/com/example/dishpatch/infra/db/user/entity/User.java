@@ -33,6 +33,7 @@ public class User extends SoftDeletableEntity {
 	@Column(nullable = false)
 	private String phone;
 
+	@Setter
 	@Column(columnDefinition = "LONGTEXT")
 	private String imageUrl;
 
@@ -79,7 +80,7 @@ public class User extends SoftDeletableEntity {
 
 
 	public void updateGrade(UserGrade userGrade){
-		this.grade = grade;
+		this.grade = userGrade;
 	}
 
 }

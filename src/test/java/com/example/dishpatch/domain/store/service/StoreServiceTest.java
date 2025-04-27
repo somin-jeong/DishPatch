@@ -22,6 +22,7 @@ import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.store.entity.Category;
 import com.example.dishpatch.infra.db.store.entity.Dib;
 import com.example.dishpatch.infra.db.store.entity.Store;
+import com.example.dishpatch.infra.db.store.enums.SortType;
 import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
 import com.example.dishpatch.infra.db.store.repository.DibRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
@@ -42,18 +43,21 @@ class StoreServiceTest {
 	@Mock
 	private UserRepository userRepository;
 
+	private final Long userId = 1L;
+	private final Long storeId = 3L;
+	private final Long categoryId = 5L;
+	private final Long ownerId = 10L;
+	private final User user = mock(User.class);
+	private final UserAuth userAuth = mock(UserAuth.class);
+	private final Category category = mock(Category.class);
+	private final Store store = mock(Store.class);
+	private final User owner = mock(User.class);
+
 	@Test
 	void createStore_shouldSucceed() {
 		// given
-		Long userId = 1L;
-		User user = mock(User.class);
-
-		UserAuth userAuth = mock(UserAuth.class);
-		when(userAuth.getId()).thenReturn(userId);
-
-		Category category = mock(Category.class);
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
-
+		when(userAuth.getId()).thenReturn(userId);
 		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
 		when(storeRepository.countByUserIdAndDeletedDateIsNull(any())).thenReturn(2);
@@ -75,15 +79,8 @@ class StoreServiceTest {
 	@Test
 	void createMenu_whenStoreOwnLimitExceed_shouldThrowException() {
 		// given
-		Long userId = 1L;
-		User user = mock(User.class);
-
-		UserAuth userAuth = mock(UserAuth.class);
-		when(userAuth.getId()).thenReturn(userId);
-
-		Category category = mock(Category.class);
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
-
+		when(userAuth.getId()).thenReturn(userId);
 		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.of(category));
 		when(storeRepository.countByUserIdAndDeletedDateIsNull(any())).thenReturn(3); // 최대 초과
@@ -98,14 +95,8 @@ class StoreServiceTest {
 	@Test
 	void createMenu_whenNotFoundCategory_shouldThrowException() {
 		// given
-		Long userId = 1L;
-		User user = mock(User.class);
-
-		UserAuth userAuth = mock(UserAuth.class);
-		when(userAuth.getId()).thenReturn(userId);
-
 		StoreCreateRequest request = mock(StoreCreateRequest.class);
-
+		when(userAuth.getId()).thenReturn(userId);
 		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(categoryRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -119,15 +110,7 @@ class StoreServiceTest {
 	@Test
 	void dibStore_shouldSucceed() {
 		// given
-		Long userId = 1L;
-		User user = mock(User.class);
-
-		Long storeId = 3L;
-		Store store = mock(Store.class);
-
-		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
-
 		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
 		when(dibRepository.existsByUserIdAndStoreId(userId, storeId)).thenReturn(false);
@@ -147,14 +130,7 @@ class StoreServiceTest {
 	@Test
 	void dibStore_whenNotFoundStore_shouldThrowException() {
 		// given
-		Long userId = 1L;
-		User user = mock(User.class);
-
-		Long storeId = 3L;
-
-		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
-
 		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.empty());
 
@@ -168,15 +144,7 @@ class StoreServiceTest {
 	@Test
 	void dibStore_whenAlreadyDibStore_shouldThrowException() {
 		// given
-		Long userId = 1L;
-		User user = mock(User.class);
-
-		Long storeId = 3L;
-		Store store = mock(Store.class);
-
-		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
-
 		when(userRepository.findByIdAndDeletedDateIsNull(userId)).thenReturn(Optional.of(user));
 		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
 		when(dibRepository.existsByUserIdAndStoreId(userId, storeId)).thenReturn(true);
@@ -191,18 +159,9 @@ class StoreServiceTest {
 	@Test
 	void undibStore_shouldSucceed() {
 		// given
-		Long userId = 1L;
-		User user = mock(User.class);
-
-		Long storeId = 3L;
-		Store store = mock(Store.class);
-
-		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
-
-		Dib dib = Dib.of(user, store);
-
 		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
+		Dib dib = Dib.of(user, store);
 		when(dibRepository.findByUserIdAndStoreId(userId, storeId)).thenReturn(Optional.of(dib));
 
 		ArgumentCaptor<Dib> dibCaptor = ArgumentCaptor.forClass(Dib.class);
@@ -220,10 +179,6 @@ class StoreServiceTest {
 	@Test
 	void undibStore_whenNotFoundStore_shouldThrowException() {
 		// given
-		Long storeId = 3L;
-
-		UserAuth userAuth = mock(UserAuth.class);
-
 		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.empty());
 
 		// when & then
@@ -236,13 +191,7 @@ class StoreServiceTest {
 	@Test
 	void undibStore_whenUndibStore_shouldThrowException() {
 		// given
-		Long userId = 1L;
-		Long storeId = 3L;
-
-		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
-
-		Store store = Store.builder().build();
 		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.of(store));
 		when(dibRepository.findByUserIdAndStoreId(userId, storeId)).thenReturn(Optional.empty());
 
@@ -256,19 +205,9 @@ class StoreServiceTest {
 	@Test
 	void updateStore_shouldSucceed() {
 		// given
-		Long userId = 1L;
-		User user = mock(User.class);
 		when(user.getId()).thenReturn(userId);
-
-		Long storeId = 3L;
-		Store store = mock(Store.class);
 		when(store.getUser()).thenReturn(user);
-
-		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
-
-		Long categoryId = 5L;
-		Category category = mock(Category.class);
 
 		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
 		when(request.categoryId()).thenReturn(categoryId);
@@ -281,20 +220,13 @@ class StoreServiceTest {
 
 		// then
 		verify(store, times(1)).update(request, category);
-
 	}
 
 	@Test
 	void updateStore_whenNotFoundCategory_shouldThrowException() {
 		// given
-		Long storeId = 3L;
-
-		UserAuth userAuth = mock(UserAuth.class);
-
-		Long categoryId = 5L;
 		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
 		when(request.categoryId()).thenReturn(categoryId);
-
 		when(categoryRepository.findById(any())).thenReturn(Optional.empty());
 
 		// when & then
@@ -307,13 +239,6 @@ class StoreServiceTest {
 	@Test
 	void updateStore_whenNotFoundStore_shouldThrowException() {
 		// given
-		Long storeId = 1L;
-
-		UserAuth userAuth = mock(UserAuth.class);
-
-		Long categoryId = 5L;
-		Category category = mock(Category.class);
-
 		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
 		when(request.categoryId()).thenReturn(categoryId);
 
@@ -330,20 +255,9 @@ class StoreServiceTest {
 	@Test
 	void updateStore_whenStoreOwnerMismatch_shouldThrowException() {
 		// given
-		Long ownerId = 1L;
-		User user = mock(User.class);
 		when(user.getId()).thenReturn(ownerId);
-
-		Long storeId = 3L;
-		Store store = mock(Store.class);
 		when(store.getUser()).thenReturn(user);
-
-		Long userId = 4L;
-		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
-
-		Long categoryId = 5L;
-		Category category = mock(Category.class);
 
 		StoreUpdateRequest request = mock(StoreUpdateRequest.class);
 		when(request.categoryId()).thenReturn(categoryId);
@@ -361,10 +275,6 @@ class StoreServiceTest {
 	@Test
 	void deleteStore_whenStoreNotFound_shouldThrowException() {
 		// given
-		Long storeId = 10L;
-
-		UserAuth userAuth = mock(UserAuth.class);
-
 		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.empty());
 
 		// when & then
@@ -377,15 +287,9 @@ class StoreServiceTest {
 	@Test
 	void deleteStore_whenStoreOwnerMismatch_shouldThrowException() {
 		// given
-		Long userId = 1L;
-		UserAuth userAuth = mock(UserAuth.class);
 		when(userAuth.getId()).thenReturn(userId);
-
-		Long ownerId = 3L;
-		User owner = mock(User.class);
 		when(owner.getId()).thenReturn(ownerId);
 
-		Long storeId = 10L;
 		Store store = mock(Store.class);
 		when(store.getUser()).thenReturn(owner);
 
@@ -396,6 +300,32 @@ class StoreServiceTest {
 			() -> storeService.deleteStore(userAuth, storeId));
 
 		assertThat(STORE_OWNER_MISMATCH.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
+	}
+
+	@Test
+	void getStore_whenNotFoundCategory_shouldThrowException() {
+		// given
+		SortType sortType = SortType.RATING;
+
+		when(categoryRepository.findById(any())).thenReturn(Optional.empty());
+
+		// when & then
+		BizException exception = assertThrows(BizException.class,
+			() -> storeService.getStore(sortType, categoryId, 1L, 10));
+
+		assertThat(CATEGORY_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
+	}
+
+	@Test
+	void getStoreInfo_whenStoreNotFound_shouldThrowException() {
+		// given
+		when(storeRepository.findByIdAndDeletedDateIsNull(storeId)).thenReturn(Optional.empty());
+
+		// when & then
+		BizException exception = assertThrows(BizException.class,
+			() -> storeService.getStoreInfo(storeId));
+
+		assertThat(STORE_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}
 
 }

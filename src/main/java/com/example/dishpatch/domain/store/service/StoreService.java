@@ -127,10 +127,10 @@ public class StoreService {
 
 		store.softDelete();
 
-		reviewRepository.deleteAllByStoreId(storeId);
-		ceoReviewRepository.deleteAllByStoreId(storeId);
+		reviewRepository.bulkSoftDeleteByStoreId(storeId);
+		ceoReviewRepository.bulkSoftDeleteByStoreId(storeId);
 
-		menuRepository.bulkSoftDeleteByStoreId(storeId, LocalDateTime.now());
+		menuRepository.bulkSoftDeleteByStoreId(storeId);
 		menuOptionRepository.bulkSoftDeleteByStoreId(storeId, LocalDateTime.now());
 
 		dibRepository.deleteAllByStoreId(storeId);

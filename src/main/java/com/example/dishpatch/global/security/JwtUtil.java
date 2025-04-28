@@ -71,6 +71,7 @@ public class JwtUtil {
 		return null;
 	}
 
+
 	// 만료시간 추출
 	public long getExpiration(String token) {
 		Claims claims = Jwts.parserBuilder()

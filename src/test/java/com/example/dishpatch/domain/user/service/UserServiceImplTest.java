@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -40,13 +42,11 @@ class UserServiceImplTest {
 	private JwtUtil jwtUtil;
 
 	@Mock
-	private RedisRepository redisRepository;
+	private ValueOperations<String, String> valueOperations;
 
 	@Mock
 	private RedisTemplate<String,String> redisTemplate;
 
-	@Mock
-	private HttpServletRequest httpServletRequest;
 
 	@InjectMocks
 	private UserServiceImpl userServiceImpl;
@@ -140,21 +140,18 @@ class UserServiceImplTest {
 		// given
 		String token = "testToken";
 
-		given(jwtUtil.extractToken(httpServletRequest))
-			.willReturn(token);
-
 		// 10분 남았다고 가정
 		given(jwtUtil.getExpiration(token))
 			.willReturn(600000L);
 
-
 		// when
-
+		given(redisTemplate.opsForValue())
+			.willReturn(valueOperations);
+		userServiceImpl.logout(token);
 
 		// then
-
-
-
+		verify(valueOperations,times(1)).set(
+			"blacklist:" + token, "logout", 600000L, TimeUnit.MILLISECONDS);
 	}
 
 	@Test

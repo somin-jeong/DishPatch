@@ -1,5 +1,6 @@
 package com.example.dishpatch.infra.db.common;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -8,6 +9,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.example.dishpatch.infra.db.admin.entity.AdminStoreOrderStatDaily;
+import com.example.dishpatch.infra.db.admin.entity.AdminStoreOrderStatMonthly;
 import com.example.dishpatch.infra.db.admin.repository.AdminStoreOrderStatDailyRepository;
 import com.example.dishpatch.infra.db.admin.repository.AdminStoreOrderStatMonthlyRepository;
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
@@ -19,12 +22,16 @@ import com.example.dishpatch.infra.db.menu.entity.MenuOption;
 import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointHistory;
+import com.example.dishpatch.infra.db.pointHistory.entity.PointUsed;
 import com.example.dishpatch.infra.db.pointHistory.repository.PointHistoryRepository;
 import com.example.dishpatch.infra.db.review.entity.CeoReview;
 import com.example.dishpatch.infra.db.review.entity.Review;
 import com.example.dishpatch.infra.db.review.entity.ReviewStatus;
 import com.example.dishpatch.infra.db.review.repository.CeoReviewRepository;
 import com.example.dishpatch.infra.db.review.repository.ReviewRepository;
+import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatDaily;
+import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatId;
+import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatMonthly;
 import com.example.dishpatch.infra.db.statistics.repository.StoreOrderStatDailyRepository;
 import com.example.dishpatch.infra.db.statistics.repository.StoreOrderStatMonthlyRepository;
 import com.example.dishpatch.infra.db.store.entity.Category;
@@ -1041,7 +1048,8 @@ public class DataInitializer implements CommandLineRunner {
 		ceoReviewRepository.save(ceoReview10);
 
 		// Sample PointHistory for User 1
-		PointHistory pointHistory1 = new PointHistory(1000, 0, user1);
+		PointHistory pointHistory1 = new PointHistory(1000, 0, user1, PointUsed.USED);
+
 		pointHistoryRepository.save(pointHistory1);
 
 		// Sample PointHistory for User 1
@@ -1060,5 +1068,41 @@ public class DataInitializer implements CommandLineRunner {
 		PointHistory pointHistory5 = new PointHistory(3000, 3000, user1);
 		pointHistoryRepository.save(pointHistory5);
 
+		List<StoreOrderStatDaily> dailyStats = List.of(
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 1)), 100, 1000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 2)), 200, 2000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 3)), 300, 3000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 4)), 400, 4000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 5)), 500, 5000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 1)), 100, 1000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 2)), 200, 2000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 3)), 300, 3000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 4)), 400, 4000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 5)), 500, 5000000L)
+		);
+		storeOrderStatDailyRepository.saveAll(dailyStats);
+
+		List<StoreOrderStatMonthly> monthlyStats = List.of(
+			StoreOrderStatMonthly.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 3, 1)), 200, 2000000L),
+			StoreOrderStatMonthly.of(StoreOrderStatId.of(2L, LocalDate.of(2025, 3, 1)), 200, 2000000L),
+			StoreOrderStatMonthly.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 1)), 500, 5000000L),
+			StoreOrderStatMonthly.of(StoreOrderStatId.of(2L, LocalDate.of(2025, 4, 1)), 500, 5000000L)
+		);
+		storeOrderStatMonthlyRepository.saveAll(monthlyStats);
+
+		List<AdminStoreOrderStatDaily> adminDailyStats = List.of(
+			new AdminStoreOrderStatDaily(LocalDate.of(2025, 4, 1), 100, 1000000L),
+			new AdminStoreOrderStatDaily(LocalDate.of(2025, 4, 2), 100, 1000000L),
+			new AdminStoreOrderStatDaily(LocalDate.of(2025, 4, 3), 100, 1000000L),
+			new AdminStoreOrderStatDaily(LocalDate.of(2025, 4, 4), 100, 1000000L),
+			new AdminStoreOrderStatDaily(LocalDate.of(2025, 4, 5), 100, 1000000L)
+		);
+		adminStoreOrderStatDailyRepository.saveAll(adminDailyStats);
+
+		List<AdminStoreOrderStatMonthly> adminMonthlyStats = List.of(
+			new AdminStoreOrderStatMonthly(LocalDate.of(2025, 3, 1), 100, 1000000L),
+			new AdminStoreOrderStatMonthly(LocalDate.of(2025, 4, 1), 100, 1000000L)
+		);
+		adminStoreOrderStatMonthlyRepository.saveAll(adminMonthlyStats);
 	}
 }

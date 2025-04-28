@@ -62,7 +62,7 @@ public class CartService {
 
 		//수량 예외처리
 		if (request.quantity() <= 0) {
-			new BizException(CartErrorCode.INVALID_QUANTITY);
+			throw new BizException(CartErrorCode.INVALID_QUANTITY);
 		}
 
 		Cart cart = new Cart(user, store, menu, menuOption, request.quantity());
@@ -92,6 +92,8 @@ public class CartService {
 
 		cart.updateCart(menu, menuOption, request.quantity());
 
+		cartRepository.save(cart);
+
 		List<Cart> cartList = cartRepository.findByUserId(userAuth.getId());
 
 		return CartResponseDto.from(cartList);
@@ -105,10 +107,10 @@ public class CartService {
 			.orElseThrow(() -> new BizException(CartErrorCode.CART_NOT_FOUND));
 
 		if (!user.getId().equals(cart.getUser().getId())) {
-			new BizException(CartErrorCode.CART_AUTHOR_MISMATCH);
+			throw new BizException(CartErrorCode.CART_AUTHOR_MISMATCH);
 		}
 
-		cartRepository.deleteAllById(cart.getId());
+		cartRepository.deleteById(cart.getId());
 	}
 
 }

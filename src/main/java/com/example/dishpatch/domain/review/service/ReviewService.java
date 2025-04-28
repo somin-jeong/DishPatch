@@ -53,7 +53,7 @@ public class ReviewService {
 			.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
 
 		if (!order.getStatus().equals("FINISHED")) {
-			new BizException(ReviewErrorCode.REVIEW_NOT_ALLOWED_BEFORE_DELIVERY);
+			throw new BizException(ReviewErrorCode.REVIEW_NOT_ALLOWED_BEFORE_DELIVERY);
 		}
 
 		Review review = new Review(user, store, menu, order, request.rating(), request.contents(), request.imageUrl(),
@@ -99,7 +99,7 @@ public class ReviewService {
 			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));
 
 		if (!userAuth.getId().equals(review.getUser().getId())) {
-			new BizException(ReviewErrorCode.REVIEW_AUTHOR_MISMATCH);
+			throw new BizException(ReviewErrorCode.REVIEW_AUTHOR_MISMATCH);
 		}
 
 		reviewRepository.deleteById(review.getId());

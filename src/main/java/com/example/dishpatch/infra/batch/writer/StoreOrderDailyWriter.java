@@ -8,9 +8,9 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
+import com.example.dishpatch.infra.batch.service.StoreOrderStatBatchService;
 import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatDaily;
 import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatId;
-import com.example.dishpatch.infra.db.statistics.repository.StoreOrderStatDailyRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class StoreOrderDailyWriter implements ItemWriter<StoreOrderStatDaily> {
 
-	private final StoreOrderStatDailyRepository dailyRepository;
+	private final StoreOrderStatBatchService service;
 
 	@Override
 	public void write(Chunk<? extends StoreOrderStatDaily> items) {
@@ -33,6 +33,6 @@ public class StoreOrderDailyWriter implements ItemWriter<StoreOrderStatDaily> {
 			})
 			.toList();
 
-		dailyRepository.saveAll(merged);
+		service.saveDaily(merged);
 	}
 }

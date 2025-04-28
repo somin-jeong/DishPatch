@@ -2,7 +2,6 @@ package com.example.dishpatch.api.menu.request;
 
 import org.hibernate.validator.constraints.Length;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,7 +13,7 @@ public record MenuCreateRequest(
 	@NotNull
 	Integer price,
 
-	@Max(255)
+	@Length(max = 255)
 	String imageUrl
 ) {
 }

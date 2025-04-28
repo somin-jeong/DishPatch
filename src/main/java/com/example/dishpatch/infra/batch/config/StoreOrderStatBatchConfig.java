@@ -13,7 +13,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.backoff.FixedBackOffPolicy;
+import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.example.dishpatch.infra.db.admin.entity.AdminStoreOrderStatDaily;
@@ -65,7 +65,7 @@ public class StoreOrderStatBatchConfig {
 			.faultTolerant()
 			.retry(Exception.class)
 			.retryLimit(3)
-			.backOffPolicy(fixedBackOffPolicy())
+			.backOffPolicy(exponentialBackOffPolicy())
 			.skip(Exception.class)
 			.skipLimit(1)
 			.build();
@@ -88,7 +88,7 @@ public class StoreOrderStatBatchConfig {
 			.faultTolerant()
 			.retry(Exception.class)
 			.retryLimit(3)
-			.backOffPolicy(fixedBackOffPolicy())
+			.backOffPolicy(exponentialBackOffPolicy())
 			.skip(Exception.class)
 			.skipLimit(1)
 			.build();
@@ -111,7 +111,7 @@ public class StoreOrderStatBatchConfig {
 			.faultTolerant()
 			.retry(Exception.class)
 			.retryLimit(3)
-			.backOffPolicy(fixedBackOffPolicy())
+			.backOffPolicy(exponentialBackOffPolicy())
 			.skip(Exception.class)
 			.skipLimit(1)
 			.build();
@@ -133,16 +133,18 @@ public class StoreOrderStatBatchConfig {
 			.faultTolerant()
 			.retry(Exception.class)
 			.retryLimit(3)
-			.backOffPolicy(fixedBackOffPolicy())
+			.backOffPolicy(exponentialBackOffPolicy())
 			.skip(Exception.class)
 			.skipLimit(1)
 			.build();
 	}
 
 	@Bean
-	public FixedBackOffPolicy fixedBackOffPolicy() {
-		FixedBackOffPolicy policy = new FixedBackOffPolicy();
-		policy.setBackOffPeriod(3000);
+	public ExponentialBackOffPolicy exponentialBackOffPolicy() {
+		ExponentialBackOffPolicy policy = new ExponentialBackOffPolicy();
+		policy.setInitialInterval(1000L);
+		policy.setMultiplier(2.0);
+		policy.setMaxInterval(30000L);
 		return policy;
 	}
 }

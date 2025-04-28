@@ -2,6 +2,8 @@ package com.example.dishpatch.domain.coupon.service;
 
 import org.springframework.stereotype.Service;
 
+import com.example.dishpatch.domain.coupon.exception.CouponErrorCode;
+import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
 import com.example.dishpatch.infra.db.coupon.entity.CouponUsed;
 import com.example.dishpatch.infra.db.coupon.repository.CouponRepository;
@@ -18,17 +20,18 @@ public class CouponService {
 	public Coupon getCoupon(Long couponId) {
 
 		Coupon coupon = couponRepository.findById(couponId)
-			.orElseThrow(() -> new RuntimeException("쿠폰이 존재하지 않습니다.")
+			.orElseThrow(() -> new BizException(CouponErrorCode.COUPON_NOT_EXIST)
 			);
 
 		if (coupon.getStatus() == CouponUsed.A) {
-			throw new RuntimeException("이미 만료된 쿠폰입니다.");
+			throw new BizException(CouponErrorCode.COUPON_EXPIRED);
 		}
 		return coupon;
 	}
 
 	@Transactional
 	public void useCoupon(Coupon coupon) {
-		coupon.useCoupon();
+		Coupon savedCoupon = coupon;
+		savedCoupon.useCoupon();
 	}
 }

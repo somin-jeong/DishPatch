@@ -1,6 +1,7 @@
 package com.example.dishpatch.global.S3.service;
 
 import java.io.IOException;
+import java.net.UnknownServiceException;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.example.dishpatch.domain.user.exception.UserErrorCode;
+import com.example.dishpatch.global.exception.BizException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +34,18 @@ public class S3Service {
 
 		// S3에 파일 업로드 요청 생성
 		PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, fileName, image.getInputStream(), metadata);
+
+		String originalFilename = image.getOriginalFilename();
+		String extension = "";
+
+		if (originalFilename != null && originalFilename.contains(".")) {
+			extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+		}
+
+		if(!extension.equals("jpg")&&!extension.equals("jpeg")&&!extension.equals("png")&&!extension.equals("jfif")){
+			throw new BizException(UserErrorCode.INVALID_FILE);
+		}
+
 
 		//  S3에 파일 업로드
 		amazonS3.putObject(putObjectRequest);

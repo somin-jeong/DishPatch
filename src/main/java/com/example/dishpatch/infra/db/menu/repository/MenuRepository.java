@@ -16,7 +16,7 @@ public interface MenuRepository extends JpaRepository<Menu, Long>, MenuQueryRepo
 
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query(value = """
-				UPDATE menu m
+				UPDATE menus m
 		      	JOIN store s ON m.store_id = s.id
 		        SET m.deleted_date = CURRENT_TIMESTAMP
 		        WHERE s.user_id = :userId

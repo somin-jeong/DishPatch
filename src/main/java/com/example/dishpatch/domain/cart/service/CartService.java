@@ -92,6 +92,8 @@ public class CartService {
 
 		cart.updateCart(menu, menuOption, request.quantity());
 
+		cartRepository.save(cart);
+
 		List<Cart> cartList = cartRepository.findByUserId(userAuth.getId());
 
 		return CartResponseDto.from(cartList);
@@ -108,7 +110,7 @@ public class CartService {
 			throw new BizException(CartErrorCode.CART_AUTHOR_MISMATCH);
 		}
 
-		cartRepository.deleteAllById(cart.getId());
+		cartRepository.deleteById(cart.getId());
 	}
 
 }

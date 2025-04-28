@@ -100,8 +100,10 @@ public class OrderService {
 			throw new BizException(PointErrorCode.EXCEEDING_POINT_AMOUNT);
 		}
 
-		totalPrice -= remainingPoint;
-
+		if (requestDto.point() != null) {
+			totalPrice -= requestDto.point();
+		}
+		
 		totalPrice += store.getDeliveryFee();
 
 		Order order = new Order(totalPrice, user, store);

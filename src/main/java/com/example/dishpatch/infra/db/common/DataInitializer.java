@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
@@ -16,6 +17,7 @@ import com.example.dishpatch.infra.db.menu.entity.MenuOption;
 import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointHistory;
+import com.example.dishpatch.infra.db.pointHistory.entity.PointUsed;
 import com.example.dishpatch.infra.db.pointHistory.repository.PointHistoryRepository;
 import com.example.dishpatch.infra.db.review.entity.CeoReview;
 import com.example.dishpatch.infra.db.review.entity.Review;
@@ -67,23 +69,33 @@ public class DataInitializer implements CommandLineRunner {
 	@Autowired
 	private PointHistoryRepository pointHistoryRepository;
 
+	private final PasswordEncoder passwordEncoder;
+
 	@Override
 	public void run(String... args) throws Exception {
 
+		String rawPassword = "!Aa123456";
+
+		String encodedPassword = passwordEncoder.encode(rawPassword);
+
 		// Sample User
-		User user1 = new User("user1@example.com", "!Aa123456", "010-1234-5678", "user1", UserProvider.LOCAL,
+		User user1 = new User("user1@example.com", encodedPassword, "010-1234-5678", "user1", UserProvider.LOCAL,
 			UserGrade.D, UserRole.USER, "Seoul");
-		User user2 = new User("user2@example.com", "!Aa123456", "010-1234-5678", "user1", UserProvider.LOCAL,
+		User user2 = new User("user2@example.com", encodedPassword, "010-1234-5678", "user1", UserProvider.LOCAL,
 			UserGrade.D, UserRole.USER, "Seoul");
-		User ceo1 = new User("ceo1@example.com", "!Aa123456", "010-3456-7890", "ceo1", UserProvider.LOCAL, UserGrade.D,
+		User ceo1 = new User("ceo1@example.com", encodedPassword, "010-3456-7890", "ceo1", UserProvider.LOCAL,
+			UserGrade.D,
 			UserRole.CEO, "Seoul");
-		User ceo2 = new User("ceo2@example.com", "!Aa123456", "010-4567-8901", "ceo2", UserProvider.LOCAL, UserGrade.D,
+		User ceo2 = new User("ceo2@example.com", encodedPassword, "010-4567-8901", "ceo2", UserProvider.LOCAL,
+			UserGrade.D,
 			UserRole.CEO, "Seoul");
-		User ceo3 = new User("ceo3@example.com", "!Aa123456", "010-5678-9012", "ceo3", UserProvider.LOCAL, UserGrade.D,
+		User ceo3 = new User("ceo3@example.com", encodedPassword, "010-5678-9012", "ceo3", UserProvider.LOCAL,
+			UserGrade.D,
 			UserRole.CEO, "Seoul");
-		User ceo4 = new User("ceo4@example.com", "!Aa123456", "010-6789-0123", "ceo4", UserProvider.LOCAL, UserGrade.D,
+		User ceo4 = new User("ceo4@example.com", encodedPassword, "010-6789-0123", "ceo4", UserProvider.LOCAL,
+			UserGrade.D,
 			UserRole.CEO, "Seoul");
-		User admin1 = new User("admin1@example.com", "!Aa123456", "010-7890-1234", "admin1", UserProvider.LOCAL,
+		User admin1 = new User("admin1@example.com", encodedPassword, "010-7890-1234", "admin1", UserProvider.LOCAL,
 			UserGrade.D, UserRole.ADMIN, "Seoul");
 		userRepository.save(user1);
 		userRepository.save(user2);
@@ -1016,7 +1028,7 @@ public class DataInitializer implements CommandLineRunner {
 		ceoReviewRepository.save(ceoReview10);
 
 		// Sample PointHistory for User 1
-		PointHistory pointHistory1 = new PointHistory(1000, 0, user1);
+		PointHistory pointHistory1 = new PointHistory(1000, 0, user1, PointUsed.USED);
 		pointHistoryRepository.save(pointHistory1);
 
 		// Sample PointHistory for User 1

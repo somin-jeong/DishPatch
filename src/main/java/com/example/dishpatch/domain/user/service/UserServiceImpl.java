@@ -169,7 +169,6 @@ public class UserServiceImpl implements UserService {
 			() -> new BizException(UserErrorCode.INVALID_ID));
 
 		user.setImageUrl(imageUrl);
-
 		userRepository.save(user);
 	}
 

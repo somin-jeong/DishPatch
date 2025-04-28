@@ -20,7 +20,7 @@ public interface DibRepository extends JpaRepository<Dib, Long> {
 
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query(value = """
-    	DELETE
+    	DELETE d
     	FROM dib d
     	JOIN store s ON d.store_id = s.id
     	WHERE s.user_id = :userId

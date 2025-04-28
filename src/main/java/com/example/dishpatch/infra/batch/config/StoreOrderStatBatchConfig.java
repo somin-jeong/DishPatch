@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class StoreOrderStatBatchConfig {
 
 	@Bean
-	public Job storeOrderStatDailyJob(
+	public Job storeOrderStatJob(
 		JobRepository jobRepository,
 		Step storeOrderStatDailyStep,
 		Step adminStoreOrderStatDailyStep,
@@ -37,7 +37,7 @@ public class StoreOrderStatBatchConfig {
 		Step adminStoreOrderStatMonthlyStep,
 		FirstDayOfMonthDecider firstDayOfMonthDecider
 	) {
-		return new JobBuilder("storeOrderStatDailyJob", jobRepository)
+		return new JobBuilder("storeOrderStatJob", jobRepository)
 			.start(storeOrderStatDailyStep)
 			.next(adminStoreOrderStatDailyStep)
 			.next(firstDayOfMonthDecider)

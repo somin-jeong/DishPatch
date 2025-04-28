@@ -58,16 +58,10 @@ public class StoreOrderStatBatchConfig {
 		ItemWriter<StoreOrderStatDaily> writer
 	) {
 		return new StepBuilder("storeOrderStatDailyStep", jobRepository)
-			.<Order, StoreOrderStatDaily>chunk(100, transactionManager)
+			.<Order, StoreOrderStatDaily>chunk(1000, transactionManager)
 			.reader(reader)
 			.processor(processor)
 			.writer(writer)
-			.faultTolerant()
-			.retry(Exception.class)
-			.retryLimit(3)
-			.backOffPolicy(exponentialBackOffPolicy())
-			.skip(Exception.class)
-			.skipLimit(1)
 			.build();
 	}
 

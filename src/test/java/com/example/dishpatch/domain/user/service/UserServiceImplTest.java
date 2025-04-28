@@ -18,9 +18,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.dishpatch.api.user.request.UserLoginRequest;
 import com.example.dishpatch.api.user.request.UserSignupRequest;
+import com.example.dishpatch.api.user.request.UserUpdateRequest;
 import com.example.dishpatch.api.user.response.UserLoginResponse;
 import com.example.dishpatch.api.user.response.UserSignupResponse;
+import com.example.dishpatch.api.user.response.UserUpdateResponse;
 import com.example.dishpatch.global.security.JwtUtil;
+import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.entity.UserGrade;
 import com.example.dishpatch.infra.db.user.entity.UserProvider;
@@ -147,6 +150,7 @@ class UserServiceImplTest {
 		// when
 		given(redisTemplate.opsForValue())
 			.willReturn(valueOperations);
+
 		userServiceImpl.logout(token);
 
 		// then
@@ -156,6 +160,38 @@ class UserServiceImplTest {
 
 	@Test
 	void updateUser() {
+		// given
+		User user = new User(
+			"test@naver.com",
+			"encodedPassword123!",
+			"01012345678",
+			"테스트이름",
+			UserProvider.LOCAL,
+			UserGrade.D,
+			UserRole.USER,
+			"테스트주소"
+		);
+		ReflectionTestUtils.setField(user,"id",1L);
+
+		UserAuth userAuth = new UserAuth(1L,UserRole.USER);
+
+		UserUpdateRequest request = new UserUpdateRequest(
+			"Modifiedpass123!",
+			"수정된 이름",
+			"01087654321",
+			"수정된 주소"
+		);
+
+		given(userRepository.findById(userAuth.getId()))
+			.willReturn(Optional.of(user));
+
+		// when
+		UserUpdateResponse response = userServiceImpl.updateUser(request, userAuth);
+
+		// then
+		assertEquals(request.name(),response.name());
+		assertEquals(request.currentAddress(),response.currentAddress());
+		assertEquals(request.phone(),response.phone());
 	}
 
 	@Test

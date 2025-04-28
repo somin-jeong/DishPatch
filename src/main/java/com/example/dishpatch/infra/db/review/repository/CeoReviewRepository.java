@@ -9,12 +9,12 @@ import com.example.dishpatch.infra.db.review.entity.CeoReview;
 public interface CeoReviewRepository extends JpaRepository<CeoReview, Long> {
 	@Modifying(clearAutomatically = true)
 	@Query("""
-		    DELETE FROM CeoReview cr
+		    UPDATE CeoReview cr SET cr.deletedDate = CURRENT_TIMESTAMP
 		    WHERE cr.review.id IN (
 		        SELECT cr.id FROM Review r WHERE r.store.id = :storeId AND r.deletedDate IS NOT NULL
 		    )
 		""")
-	int deleteAllByStoreId(Long storeId);
+	int bulkSoftDeleteByStoreId(Long storeId);
 
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE CeoReview c SET c.deletedDate = CURRENT_TIMESTAMP WHERE c.user.id = :userId AND c.deletedDate IS NULL")

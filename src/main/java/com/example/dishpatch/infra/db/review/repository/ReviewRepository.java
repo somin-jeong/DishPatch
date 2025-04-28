@@ -28,7 +28,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		Pageable pageable);
 
 	@Modifying(clearAutomatically = true)
-	void deleteAllByStoreId(Long storeId);
+	@Query("""
+		    UPDATE Review r SET r.deletedDate = CURRENT_TIMESTAMP WHERE r.store.id = :storeId
+		""")
+	void bulkSoftDeleteByStoreId(Long storeId);
 
 	@Modifying(clearAutomatically = true)
 	@Query(value = """

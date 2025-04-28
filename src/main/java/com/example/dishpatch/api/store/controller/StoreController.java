@@ -81,11 +81,7 @@ public class StoreController {
 		@RequestParam(required = false) Long cursorId,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		long start = System.currentTimeMillis();
-		SliceResponse<StoreResponse> store = storeService.getStore(categoryId, cursorId, size);
-		long end = System.currentTimeMillis();
-		System.out.println("걸린 시간 :" + (end - start));
-		return ResponseEntity.ok(store);
+		return ResponseEntity.ok(storeService.getStore(categoryId, cursorId, size));
 	}
 
 	@GetMapping("/recommend")

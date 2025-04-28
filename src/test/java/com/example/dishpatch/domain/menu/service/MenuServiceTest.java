@@ -90,7 +90,7 @@ class MenuServiceTest {
 
 		BizException exception = assertThrows(BizException.class,
 			() -> menuService.createMenu(2L, storeId, menuCreateRequest));
-		assertEquals(StoreErrorCode.STORE_NOT_FOUND, exception.getErrorCode());
+		assertEquals(StoreErrorCode.STORE_OWNER_MISMATCH, exception.getErrorCode());
 	}
 
 	@Test
@@ -178,7 +178,7 @@ class MenuServiceTest {
 
 		BizException exception = assertThrows(BizException.class,
 			() -> menuService.updateMenu(userId, 2L, menuId, req));
-		assertEquals(MenuErrorCode.MENU_STORE_MISMATCH, exception.getErrorCode());
+		assertEquals(MenuErrorCode.MENU_NOT_BELONG_TO_STORE, exception.getErrorCode());
 	}
 
 	@Test
@@ -196,7 +196,7 @@ class MenuServiceTest {
 
 		BizException exception = assertThrows(BizException.class,
 			() -> menuService.updateMenu(2L, storeId, menuId, req));
-		assertEquals(MenuErrorCode.MENU_OWNER_MISMATCH, exception.getErrorCode());
+		assertEquals(StoreErrorCode.STORE_OWNER_MISMATCH, exception.getErrorCode());
 	}
 
 	Menu createMockMenu(Long userId, Long storeId, Long menuId) {

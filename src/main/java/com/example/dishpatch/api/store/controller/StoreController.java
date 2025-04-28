@@ -77,12 +77,24 @@ public class StoreController {
 
 	@GetMapping
 	public ResponseEntity<SliceResponse<StoreResponse>> getStore(
-		@RequestParam(required = false) SortType sortType,  // dib, rating, orderCount
 		@RequestParam(required = false) Long categoryId,
 		@RequestParam(required = false) Long cursorId,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		return ResponseEntity.ok(storeService.getStore(sortType, categoryId, cursorId, size));
+		long start = System.currentTimeMillis();
+		SliceResponse<StoreResponse> store = storeService.getStore(categoryId, cursorId, size);
+		long end = System.currentTimeMillis();
+		System.out.println("걸린 시간 :" + (end - start));
+		return ResponseEntity.ok(store);
+	}
+
+	@GetMapping("/recommend")
+	public ResponseEntity<SliceResponse<StoreResponse>> getRecommendStore(
+		@RequestParam SortType sortType,  // DIB, RATING, ORDER_COUNT
+		@RequestParam(required = false) Long cursorId,
+		@RequestParam(defaultValue = "10") int size
+	) {
+		return ResponseEntity.ok(storeService.getRecommendStore(sortType, cursorId, size));
 	}
 
 	@GetMapping("/{storeId}")

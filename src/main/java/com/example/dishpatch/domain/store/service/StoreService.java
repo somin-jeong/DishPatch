@@ -6,6 +6,8 @@ import static com.example.dishpatch.domain.user.exception.UserErrorCode.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +54,7 @@ public class StoreService {
 	private final CartRepository cartRepository;
 
 	@Transactional
+	@CacheEvict(value = "store", allEntries = true)
 	public StoreCreateResponse createStore(UserAuth userAuth, StoreCreateRequest request) {
 		User user = userRepository.findByIdAndDeletedDateIsNull(userAuth.getId())
 			.orElseThrow(() -> new BizException(INVALID_ID));
@@ -72,6 +75,7 @@ public class StoreService {
 	}
 
 	@Transactional
+	@CacheEvict(value = "store", allEntries = true)
 	public void updateStore(UserAuth userAuth, Long storeId, StoreUpdateRequest request) {
 		Category category = categoryRepository.findById(request.categoryId())
 			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
@@ -117,6 +121,7 @@ public class StoreService {
 	}
 
 	@Transactional
+	@CacheEvict(value = "store", allEntries = true)
 	public void deleteStore(UserAuth userAuth, Long storeId) {
 		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
@@ -138,13 +143,20 @@ public class StoreService {
 	}
 
 	@Transactional(readOnly = true)
-	public SliceResponse<StoreResponse> getStore(SortType sortType, Long categoryId, Long cursorId, int size) {
+	@Cacheable(value = "store",
+		key = "(#categoryId != null ? #categoryId : 'ALLCATEGORY') + ':' + #size",
+		condition = "#cursorId == null")
+	public SliceResponse<StoreResponse> getStore(Long categoryId, Long cursorId, int size) {
 		if (categoryId != null) {
 			categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 		}
 
-		return SliceResponse.from(storeRepository.findAllByCategoryId(sortType, categoryId, cursorId, size));
+		return SliceResponse.from(storeRepository.findAllByCategoryId(categoryId, cursorId, size));
+	}
+
+	public SliceResponse<StoreResponse> getRecommendStore(SortType sortType, Long cursorId, int size) {
+		return SliceResponse.from(storeRepository.findAllBySortType(sortType, cursorId, size));
 	}
 
 	@Transactional(readOnly = true)

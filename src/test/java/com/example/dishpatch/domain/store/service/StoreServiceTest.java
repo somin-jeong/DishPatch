@@ -311,7 +311,7 @@ class StoreServiceTest {
 
 		// when & then
 		BizException exception = assertThrows(BizException.class,
-			() -> storeService.getStore(sortType, categoryId, 1L, 10));
+			() -> storeService.getStore(categoryId, 1L, 10));
 
 		assertThat(CATEGORY_NOT_FOUND.getMessage()).isEqualTo(exception.getErrorCode().getMessage());
 	}

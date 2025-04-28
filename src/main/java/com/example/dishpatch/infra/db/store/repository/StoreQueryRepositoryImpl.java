@@ -38,10 +38,10 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
 	private final QMenu qMenu = QMenu.menu;
 
 	@Override
-	public Slice<StoreResponse> findAllByCategoryId(SortType sortType, Long categoryId, Long cursorId, int size) {
+	public Slice<StoreResponse> findAllBySortType(SortType sortType, Long cursorId, int size) {
 		List<StoreResponse> stores;
 
-		if ("ORDER_COUNT".equals(sortType.name())) {
+		if (sortType != null && "ORDER_COUNT".equals(sortType.name())) {
 			stores = queryFactory
 				.select(Projections.constructor(StoreResponse.class,
 					qStore.id,
@@ -55,7 +55,6 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
 				.from(qStore)
 				.leftJoin(qOrder).on(qOrder.store.id.eq(qStore.id))
 				.where(
-					categoryEq(categoryId),
 					qStore.deletedDate.isNull(),
 					ltCursorId(cursorId)
 				)
@@ -77,7 +76,6 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
 				))
 				.from(qStore)
 				.where(
-					categoryEq(categoryId),
 					qStore.deletedDate.isNull(),
 					ltCursorId(cursorId)
 				)
@@ -164,19 +162,52 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
 		return new SliceImpl<>(stores, PageRequest.of(0, size), hasNext);
 	}
 
+	@Override
+	public Slice<StoreResponse> findAllByCategoryId(Long categoryId, Long cursorId, int size) {
+		List<StoreResponse> stores = queryFactory
+			.select(Projections.constructor(StoreResponse.class,
+				qStore.id,
+				qStore.name,
+				qStore.image,
+				qStore.deliveryFee,
+				qStore.minDeliveryPrice,
+				qStore.rating,
+				qStore.reviewCount
+			))
+			.from(qStore)
+			.where(
+				qStore.deletedDate.isNull(),
+				categoryEq(categoryId),
+				ltCursorId(cursorId)
+			)
+			.orderBy(qStore.isAdvertised.desc(), qStore.id.desc())
+			.limit(size + 1)
+			.fetch();
+
+		boolean hasNext = stores.size() > size;
+
+		if (hasNext) {
+			stores.remove(size);
+		}
+
+		return new SliceImpl<>(stores, PageRequest.of(0, size), hasNext);
+	}
+
 	private List<OrderSpecifier<?>> getSortOrders(SortType sortType) {
 		List<OrderSpecifier<?>> orders = new ArrayList<>();
 		orders.add(qStore.isAdvertised.desc());
 
-		switch (sortType.name()) {
-			case "DIB" -> {
-				orders.add(qStore.dibCount.desc());
+		if (sortType != null) {
+			switch (sortType.name()) {
+				case "DIB" -> {
+					orders.add(qStore.dibCount.desc());
+				}
+				case "RATING" -> {
+					orders.add(qStore.rating.desc());
+				}
 			}
-			case "RATING" -> {
-				orders.add(qStore.rating.desc());
-			}
-
 		}
+
 		orders.add(qStore.id.desc());
 		return orders;
 	}

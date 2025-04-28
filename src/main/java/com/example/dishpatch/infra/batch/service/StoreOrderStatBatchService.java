@@ -82,6 +82,8 @@ public class StoreOrderStatBatchService {
 		if (!failedUpdateStats.isEmpty()) {
 			retryDailyFailedUpdates(failedUpdateStats);
 		}
+
+		saveAllFailedStats();
 	}
 
 	private void retryFailedInsertsBatch(List<StoreOrderStatDaily> failedStats) {
@@ -89,7 +91,6 @@ public class StoreOrderStatBatchService {
 
 		for (StoreOrderStatDaily stat : failedStats) {
 			batch.add(stat);
-
 			if (batch.size() == INSERT_BATCH_SIZE) {
 				saveBatch(batch);
 				batch.clear();
@@ -118,6 +119,7 @@ public class StoreOrderStatBatchService {
 				dailyRepository.flush();
 			} catch (Exception e) {
 				log.error("Final insert failure for stat: {}", stat.getId(), e);
+				saveToFailedTable(stat, e);
 			} finally {
 				em.clear();
 			}
@@ -130,6 +132,7 @@ public class StoreOrderStatBatchService {
 				dailyRepository.bulkUpdate(stat.getId(), stat.getOrderCount(), stat.getTotalSales());
 			} catch (Exception e) {
 				log.error("Final failure after retry: stat = {}", stat.getId(), e);
+				saveToFailedTable(stat, e);
 			}
 		}
 
@@ -137,4 +140,11 @@ public class StoreOrderStatBatchService {
 		em.clear();
 	}
 
+	public void saveToFailedTable(StoreOrderStatDaily stat, Exception e) {
+
+	}
+
+	public void saveAllFailedStats() {
+
+	}
 }

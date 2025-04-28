@@ -15,7 +15,9 @@ import com.example.dishpatch.infra.db.statistics.repository.StoreOrderStatDailyR
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class StoreOrderStatBatchService {
@@ -54,8 +56,31 @@ public class StoreOrderStatBatchService {
 		if (!toInsert.isEmpty()) {
 			dailyRepository.saveAll(toInsert);
 		}
+
+		List<StoreOrderStatDaily> failedUpdateStats = new ArrayList<>();
 		for (StoreOrderStatDaily stat : toUpdate) {
-			dailyRepository.bulkUpdate(stat.getId(), stat.getOrderCount(), stat.getTotalSales());
+			try {
+				dailyRepository.bulkUpdate(stat.getId(), stat.getOrderCount(), stat.getTotalSales());
+			} catch (Exception e) {
+				failedUpdateStats.add(stat);
+			}
+		}
+
+		dailyRepository.flush();
+		em.clear();
+
+		if (!failedUpdateStats.isEmpty()) {
+			retryDailyFailedUpdates(failedUpdateStats);
+		}
+	}
+
+	private void retryDailyFailedUpdates(List<StoreOrderStatDaily> failedStats) {
+		for (StoreOrderStatDaily stat : failedStats) {
+			try {
+				dailyRepository.bulkUpdate(stat.getId(), stat.getOrderCount(), stat.getTotalSales());
+			} catch (Exception e) {
+				log.error("Final failure after retry: stat = {}", stat.getId(), e);
+			}
 		}
 
 		dailyRepository.flush();

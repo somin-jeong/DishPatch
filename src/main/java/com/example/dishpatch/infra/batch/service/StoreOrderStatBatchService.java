@@ -53,8 +53,13 @@ public class StoreOrderStatBatchService {
 			}
 		}
 
+		List<StoreOrderStatDaily> failedInsertStats = new ArrayList<>();
 		if (!toInsert.isEmpty()) {
-			dailyRepository.saveAll(toInsert);
+			try {
+				dailyRepository.saveAll(toInsert);
+			} catch (Exception e) {
+				failedInsertStats.addAll(toInsert);
+			}
 		}
 
 		List<StoreOrderStatDaily> failedUpdateStats = new ArrayList<>();
@@ -69,8 +74,24 @@ public class StoreOrderStatBatchService {
 		dailyRepository.flush();
 		em.clear();
 
+		if (!failedInsertStats.isEmpty()) {
+			retryDailyFailedInserts(failedInsertStats);
+		}
 		if (!failedUpdateStats.isEmpty()) {
 			retryDailyFailedUpdates(failedUpdateStats);
+		}
+	}
+
+	private void retryDailyFailedInserts(List<StoreOrderStatDaily> failedStats) {
+		for (StoreOrderStatDaily stat : failedStats) {
+			try {
+				dailyRepository.save(stat);
+				dailyRepository.flush();
+			} catch (Exception e) {
+				log.error("Final insert failure for stat: {}", stat.getId(), e);
+			} finally {
+				em.clear();
+			}
 		}
 	}
 

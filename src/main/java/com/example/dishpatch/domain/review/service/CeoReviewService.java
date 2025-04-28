@@ -8,6 +8,7 @@ import com.example.dishpatch.api.review.response.CeoReviewResponse;
 import com.example.dishpatch.domain.review.exception.CeoReviewErrorCode;
 import com.example.dishpatch.domain.review.exception.ReviewErrorCode;
 import com.example.dishpatch.global.exception.BizException;
+import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.review.entity.CeoReview;
 import com.example.dishpatch.infra.db.review.entity.Review;
 import com.example.dishpatch.infra.db.review.repository.CeoReviewRepository;
@@ -62,20 +63,15 @@ public class CeoReviewService {
 		return CeoReviewResponse.from(ceoReview);
 	}
 
-	public void deleteCeoReview(Long reviewId, Long ceoReviewId) {
-		Long userId = 1L;
-		ceoReviewId = 1L;
-
+	public void deleteCeoReview(Long reviewId, Long ceoReviewId, UserAuth userAuth) {
 		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));
 
-		//ceoReviewId 재설정 해야함
 		CeoReview ceoReview = ceoReviewRepository.findById(ceoReviewId)
 			.orElseThrow(() -> new BizException(CeoReviewErrorCode.CEO_REVIEW_NOT_FOUND));
 
-		//userId 재설정 해야함
-		if (!userId.equals(ceoReview.getUser().getId())) {
-			new BizException(CeoReviewErrorCode.CEO_REVIEW_AUTHOR_MISMATCH);
+		if (!userAuth.getId().equals(ceoReview.getUser().getId())) {
+			throw new BizException(CeoReviewErrorCode.CEO_REVIEW_AUTHOR_MISMATCH);
 		}
 
 		ceoReviewRepository.deleteById(ceoReview.getId());

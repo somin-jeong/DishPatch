@@ -40,11 +40,15 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/users/signup", "/users/login", "/stores", "/stores/{storeId}")
 				.permitAll()
+				.requestMatchers(HttpMethod.GET, "/stores/{storeId}/menus")
+				.permitAll()
 				.requestMatchers("/admin/**")
 				.hasRole("ADMIN")
-				.requestMatchers("/stores/{storeId}/menus", "/stores/{storeId}/menus/{menuId}",
+				.requestMatchers(HttpMethod.POST, "/stores/{storeId}/menus")
+				.hasRole("CEO")
+				.requestMatchers("/stores/{storeId}/menus/{menuId}",
 					"/stores/{storeId}/menus/{menuId}", "/menus/{menuId}/options", "/menus/{menuId}/options/{optionId}",
-					"/stores/{storeId}/stats/daily", "/stores/{storeId}/stats/monthly", "/orders/{orderId}/refuse",
+					"/stores/{storeId}/stats/orders", "/orders/{orderId}/refuse",
 					"/orders/{orderId}/update")
 				.hasRole("CEO")
 				.requestMatchers(HttpMethod.POST, "/ceoReviews/{reviewId}")
@@ -62,11 +66,11 @@ public class SecurityConfig {
 				.anyRequest()
 				.authenticated()
 			)
-			.oauth2Login(oauth ->
-				oauth.userInfoEndpoint(userInfo ->
-					userInfo.userService(customOAuth2UserService))
-					.successHandler(oAuth2SuccessHandler)
-			)
+			// .oauth2Login(oauth ->
+			// 	oauth.userInfoEndpoint(userInfo ->
+			// 		userInfo.userService(customOAuth2UserService))
+			// 		.successHandler(oAuth2SuccessHandler)
+			// )
 			.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();

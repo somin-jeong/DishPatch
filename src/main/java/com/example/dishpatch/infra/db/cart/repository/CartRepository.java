@@ -2,7 +2,9 @@ package com.example.dishpatch.infra.db.cart.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +17,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 	@Modifying(clearAutomatically = true)
 	void deleteAllByStoreId(Long storeId);
 
+	@EntityGraph(attributePaths = {"menu", "menuOption"})
 	List<Cart> findByUserId(Long userId);
 
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
@@ -24,9 +27,15 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
 	@Modifying(clearAutomatically = true)
 	void deleteAllById(Long cartId);
-	
+
 	@Modifying
 	@Query("DELETE FROM Cart c WHERE c.modifiedDate <= :expiredTime")
 	void deleteAllExpired(@Param("expiredTime") LocalDateTime expiredTime);
+
+	@EntityGraph(attributePaths = {"user"})
+	Optional<Cart> findById(Long cartId);
+
+	@Modifying(clearAutomatically = true)
+	void deleteById(Long cartId);
 
 }

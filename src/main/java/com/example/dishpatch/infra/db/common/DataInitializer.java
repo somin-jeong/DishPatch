@@ -22,6 +22,7 @@ import com.example.dishpatch.infra.db.menu.entity.MenuOption;
 import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointHistory;
+import com.example.dishpatch.infra.db.pointHistory.entity.PointUsed;
 import com.example.dishpatch.infra.db.pointHistory.repository.PointHistoryRepository;
 import com.example.dishpatch.infra.db.review.entity.CeoReview;
 import com.example.dishpatch.infra.db.review.entity.Review;
@@ -78,8 +79,7 @@ public class DataInitializer implements CommandLineRunner {
 	@Autowired
 	private PointHistoryRepository pointHistoryRepository;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
 	private StoreOrderStatDailyRepository storeOrderStatDailyRepository;
@@ -98,6 +98,7 @@ public class DataInitializer implements CommandLineRunner {
 
 		// Sample User
 		String encodedPassword = passwordEncoder.encode("!Aa123456");
+
 		User user1 = new User("user1@example.com", encodedPassword, "010-1234-5678", "user1", UserProvider.LOCAL,
 			UserGrade.D, UserRole.USER, "Seoul");
 		User user2 = new User("user2@example.com", encodedPassword, "010-1234-5678", "user1", UserProvider.LOCAL,
@@ -1047,7 +1048,8 @@ public class DataInitializer implements CommandLineRunner {
 		ceoReviewRepository.save(ceoReview10);
 
 		// Sample PointHistory for User 1
-		PointHistory pointHistory1 = new PointHistory(1000, 0, user1);
+		PointHistory pointHistory1 = new PointHistory(1000, 0, user1, PointUsed.USED);
+
 		pointHistoryRepository.save(pointHistory1);
 
 		// Sample PointHistory for User 1
@@ -1102,6 +1104,5 @@ public class DataInitializer implements CommandLineRunner {
 			new AdminStoreOrderStatMonthly(LocalDate.of(2025, 4, 1), 100, 1000000L)
 		);
 		adminStoreOrderStatMonthlyRepository.saveAll(adminMonthlyStats);
-
 	}
 }

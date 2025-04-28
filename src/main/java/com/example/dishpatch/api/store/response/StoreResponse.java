@@ -1,5 +1,7 @@
 package com.example.dishpatch.api.store.response;
 
+import java.io.Serializable;
+
 import com.example.dishpatch.global.response.pagination.CursorSupport;
 import com.example.dishpatch.infra.db.store.entity.Store;
 
@@ -8,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class StoreResponse implements CursorSupport {
+public class StoreResponse implements CursorSupport, Serializable {
 	Long id;
 	String name;
 	String imageUrl;
@@ -30,7 +32,7 @@ public class StoreResponse implements CursorSupport {
 	}
 
 	@Override
-	public Long getCursorId() {
+	public Long getId() {
 		return id;
 	}
 

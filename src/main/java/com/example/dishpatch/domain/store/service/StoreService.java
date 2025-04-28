@@ -6,14 +6,18 @@ import static com.example.dishpatch.domain.user.exception.UserErrorCode.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.dishpatch.api.store.request.StoreCreateRequest;
 import com.example.dishpatch.api.store.request.StoreUpdateRequest;
+import com.example.dishpatch.api.store.response.PopularKeywordsResponse;
 import com.example.dishpatch.api.store.response.StoreCreateResponse;
 import com.example.dishpatch.api.store.response.StoreInfoResponse;
 import com.example.dishpatch.api.store.response.StoreResponse;
+import com.example.dishpatch.api.store.response.StoreSearchResponse;
 import com.example.dishpatch.global.exception.BizException;
 import com.example.dishpatch.global.response.pagination.SliceResponse;
 import com.example.dishpatch.global.security.UserAuth;
@@ -28,6 +32,7 @@ import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.store.enums.SortType;
 import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
 import com.example.dishpatch.infra.db.store.repository.DibRepository;
+import com.example.dishpatch.infra.db.store.repository.KeywordRedisRepository;
 import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
@@ -37,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class StoreService {
+	private final KeywordRedisRepository keywordRedisRepository;
 	private final StoreRepository storeRepository;
 	private final CategoryRepository categoryRepository;
 	private final DibRepository dibRepository;
@@ -48,6 +54,7 @@ public class StoreService {
 	private final CartRepository cartRepository;
 
 	@Transactional
+	@CacheEvict(value = "store", allEntries = true)
 	public StoreCreateResponse createStore(UserAuth userAuth, StoreCreateRequest request) {
 		User user = userRepository.findByIdAndDeletedDateIsNull(userAuth.getId())
 			.orElseThrow(() -> new BizException(INVALID_ID));
@@ -68,6 +75,7 @@ public class StoreService {
 	}
 
 	@Transactional
+	@CacheEvict(value = "store", allEntries = true)
 	public void updateStore(UserAuth userAuth, Long storeId, StoreUpdateRequest request) {
 		Category category = categoryRepository.findById(request.categoryId())
 			.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
@@ -113,6 +121,7 @@ public class StoreService {
 	}
 
 	@Transactional
+	@CacheEvict(value = "store", allEntries = true)
 	public void deleteStore(UserAuth userAuth, Long storeId) {
 		Store store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
@@ -123,10 +132,10 @@ public class StoreService {
 
 		store.softDelete();
 
-		reviewRepository.deleteAllByStoreId(storeId);
-		ceoReviewRepository.deleteAllByStoreId(storeId);
+		reviewRepository.bulkSoftDeleteByStoreId(storeId);
+		ceoReviewRepository.bulkSoftDeleteByStoreId(storeId);
 
-		menuRepository.bulkSoftDeleteByStoreId(storeId, LocalDateTime.now());
+		menuRepository.bulkSoftDeleteByStoreId(storeId);
 		menuOptionRepository.bulkSoftDeleteByStoreId(storeId, LocalDateTime.now());
 
 		dibRepository.deleteAllByStoreId(storeId);
@@ -134,13 +143,20 @@ public class StoreService {
 	}
 
 	@Transactional(readOnly = true)
-	public SliceResponse<StoreResponse> getStore(SortType sortType, Long categoryId, Long cursorId, int size) {
+	@Cacheable(value = "store",
+		key = "(#categoryId != null ? #categoryId : 'ALLCATEGORY') + ':' + #size",
+		condition = "#cursorId == null")
+	public SliceResponse<StoreResponse> getStore(Long categoryId, Long cursorId, int size) {
 		if (categoryId != null) {
 			categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new BizException(CATEGORY_NOT_FOUND));
 		}
 
-		return SliceResponse.from(storeRepository.findAllByCategoryId(sortType, categoryId, cursorId, size));
+		return SliceResponse.from(storeRepository.findAllByCategoryId(categoryId, cursorId, size));
+	}
+
+	public SliceResponse<StoreResponse> getRecommendStore(SortType sortType, Long cursorId, int size) {
+		return SliceResponse.from(storeRepository.findAllBySortType(sortType, cursorId, size));
 	}
 
 	@Transactional(readOnly = true)
@@ -149,5 +165,14 @@ public class StoreService {
 			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
 
 		return StoreInfoResponse.from(store);
+	}
+
+	public SliceResponse<StoreSearchResponse> searchStore(String keyword, Long cursorId, int size) {
+		keywordRedisRepository.increaseKeywordScore(keyword);
+		return SliceResponse.from(storeRepository.findAllByKeyword(keyword, cursorId, size));
+	}
+
+	public PopularKeywordsResponse searchPopularKeyword() {
+		return PopularKeywordsResponse.of(keywordRedisRepository.getPopularKeywords(10));
 	}
 }

@@ -2,6 +2,7 @@ package com.example.dishpatch.global.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -22,6 +23,14 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.badRequest()
 			.body(ErrorResponse.of(CommonErrorCode.INVALID_INPUT_VALUE, exception.getBindingResult()));
+	}
+
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public ResponseEntity<String> handleMissingServletRequestParameter(
+		MissingServletRequestParameterException exception) {
+		String missingParam = exception.getParameterName();
+		String message = String.format("필수 파라미터 '%s'가 없습니다.", missingParam);
+		return ResponseEntity.badRequest().body(message);
 	}
 
 }

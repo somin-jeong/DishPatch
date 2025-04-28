@@ -1,12 +1,18 @@
 package com.example.dishpatch.infra.db.common;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.example.dishpatch.infra.db.admin.entity.AdminStoreOrderStatDaily;
+import com.example.dishpatch.infra.db.admin.entity.AdminStoreOrderStatMonthly;
+import com.example.dishpatch.infra.db.admin.repository.AdminStoreOrderStatDailyRepository;
+import com.example.dishpatch.infra.db.admin.repository.AdminStoreOrderStatMonthlyRepository;
 import com.example.dishpatch.infra.db.coupon.entity.Coupon;
 import com.example.dishpatch.infra.db.coupon.entity.CouponType;
 import com.example.dishpatch.infra.db.coupon.entity.CouponUsed;
@@ -22,6 +28,11 @@ import com.example.dishpatch.infra.db.review.entity.Review;
 import com.example.dishpatch.infra.db.review.entity.ReviewStatus;
 import com.example.dishpatch.infra.db.review.repository.CeoReviewRepository;
 import com.example.dishpatch.infra.db.review.repository.ReviewRepository;
+import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatDaily;
+import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatId;
+import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatMonthly;
+import com.example.dishpatch.infra.db.statistics.repository.StoreOrderStatDailyRepository;
+import com.example.dishpatch.infra.db.statistics.repository.StoreOrderStatMonthlyRepository;
 import com.example.dishpatch.infra.db.store.entity.Category;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.store.repository.CategoryRepository;
@@ -67,23 +78,43 @@ public class DataInitializer implements CommandLineRunner {
 	@Autowired
 	private PointHistoryRepository pointHistoryRepository;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private StoreOrderStatDailyRepository storeOrderStatDailyRepository;
+
+	@Autowired
+	private StoreOrderStatMonthlyRepository storeOrderStatMonthlyRepository;
+
+	@Autowired
+	private AdminStoreOrderStatDailyRepository adminStoreOrderStatDailyRepository;
+
+	@Autowired
+	private AdminStoreOrderStatMonthlyRepository adminStoreOrderStatMonthlyRepository;
+
 	@Override
 	public void run(String... args) throws Exception {
 
 		// Sample User
-		User user1 = new User("user1@example.com", "!Aa123456", "010-1234-5678", "user1", UserProvider.LOCAL,
+		String encodedPassword = passwordEncoder.encode("!Aa123456");
+		User user1 = new User("user1@example.com", encodedPassword, "010-1234-5678", "user1", UserProvider.LOCAL,
 			UserGrade.D, UserRole.USER, "Seoul");
-		User user2 = new User("user2@example.com", "!Aa123456", "010-1234-5678", "user1", UserProvider.LOCAL,
+		User user2 = new User("user2@example.com", encodedPassword, "010-1234-5678", "user1", UserProvider.LOCAL,
 			UserGrade.D, UserRole.USER, "Seoul");
-		User ceo1 = new User("ceo1@example.com", "!Aa123456", "010-3456-7890", "ceo1", UserProvider.LOCAL, UserGrade.D,
+		User ceo1 = new User("ceo1@example.com", encodedPassword, "010-3456-7890", "ceo1", UserProvider.LOCAL,
+			UserGrade.D,
 			UserRole.CEO, "Seoul");
-		User ceo2 = new User("ceo2@example.com", "!Aa123456", "010-4567-8901", "ceo2", UserProvider.LOCAL, UserGrade.D,
+		User ceo2 = new User("ceo2@example.com", encodedPassword, "010-4567-8901", "ceo2", UserProvider.LOCAL,
+			UserGrade.D,
 			UserRole.CEO, "Seoul");
-		User ceo3 = new User("ceo3@example.com", "!Aa123456", "010-5678-9012", "ceo3", UserProvider.LOCAL, UserGrade.D,
+		User ceo3 = new User("ceo3@example.com", encodedPassword, "010-5678-9012", "ceo3", UserProvider.LOCAL,
+			UserGrade.D,
 			UserRole.CEO, "Seoul");
-		User ceo4 = new User("ceo4@example.com", "!Aa123456", "010-6789-0123", "ceo4", UserProvider.LOCAL, UserGrade.D,
+		User ceo4 = new User("ceo4@example.com", encodedPassword, "010-6789-0123", "ceo4", UserProvider.LOCAL,
+			UserGrade.D,
 			UserRole.CEO, "Seoul");
-		User admin1 = new User("admin1@example.com", "!Aa123456", "010-7890-1234", "admin1", UserProvider.LOCAL,
+		User admin1 = new User("admin1@example.com", encodedPassword, "010-7890-1234", "admin1", UserProvider.LOCAL,
 			UserGrade.D, UserRole.ADMIN, "Seoul");
 		userRepository.save(user1);
 		userRepository.save(user2);
@@ -1034,6 +1065,43 @@ public class DataInitializer implements CommandLineRunner {
 		// Sample PointHistory for User 1
 		PointHistory pointHistory5 = new PointHistory(3000, 3000, user1);
 		pointHistoryRepository.save(pointHistory5);
+
+		List<StoreOrderStatDaily> dailyStats = List.of(
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 1)), 100, 1000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 2)), 200, 2000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 3)), 300, 3000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 4)), 400, 4000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 5)), 500, 5000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 1)), 100, 1000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 2)), 200, 2000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 3)), 300, 3000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 4)), 400, 4000000L),
+			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 5)), 500, 5000000L)
+		);
+		storeOrderStatDailyRepository.saveAll(dailyStats);
+
+		List<StoreOrderStatMonthly> monthlyStats = List.of(
+			StoreOrderStatMonthly.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 3, 1)), 200, 2000000L),
+			StoreOrderStatMonthly.of(StoreOrderStatId.of(2L, LocalDate.of(2025, 3, 1)), 200, 2000000L),
+			StoreOrderStatMonthly.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 1)), 500, 5000000L),
+			StoreOrderStatMonthly.of(StoreOrderStatId.of(2L, LocalDate.of(2025, 4, 1)), 500, 5000000L)
+		);
+		storeOrderStatMonthlyRepository.saveAll(monthlyStats);
+
+		List<AdminStoreOrderStatDaily> adminDailyStats = List.of(
+			new AdminStoreOrderStatDaily(LocalDate.of(2025, 4, 1), 100, 1000000L),
+			new AdminStoreOrderStatDaily(LocalDate.of(2025, 4, 2), 100, 1000000L),
+			new AdminStoreOrderStatDaily(LocalDate.of(2025, 4, 3), 100, 1000000L),
+			new AdminStoreOrderStatDaily(LocalDate.of(2025, 4, 4), 100, 1000000L),
+			new AdminStoreOrderStatDaily(LocalDate.of(2025, 4, 5), 100, 1000000L)
+		);
+		adminStoreOrderStatDailyRepository.saveAll(adminDailyStats);
+
+		List<AdminStoreOrderStatMonthly> adminMonthlyStats = List.of(
+			new AdminStoreOrderStatMonthly(LocalDate.of(2025, 3, 1), 100, 1000000L),
+			new AdminStoreOrderStatMonthly(LocalDate.of(2025, 4, 1), 100, 1000000L)
+		);
+		adminStoreOrderStatMonthlyRepository.saveAll(adminMonthlyStats);
 
 	}
 }

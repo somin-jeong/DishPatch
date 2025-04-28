@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.dishpatch.global.oauth2.handler.OAuth2SuccessHandler;
+import com.example.dishpatch.global.oauth2.service.CustomOAuth2UserService;
 import com.example.dishpatch.global.security.SecurityFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	private final SecurityFilter securityFilter;
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -34,14 +38,14 @@ public class SecurityConfig {
 			.sessionManagement(session
 				-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/users/signup", "/users/login", "/stores")
+				.requestMatchers("/users/signup", "/users/login", "/stores", "/stores/{storeId}")
 				.permitAll()
 				.requestMatchers("/admin/**")
 				.hasRole("ADMIN")
 				.requestMatchers("/stores/{storeId}/menus", "/stores/{storeId}/menus/{menuId}",
 					"/stores/{storeId}/menus/{menuId}", "/menus/{menuId}/options", "/menus/{menuId}/options/{optionId}",
 					"/stores/{storeId}/stats/daily", "/stores/{storeId}/stats/monthly", "/orders/{orderId}/refuse",
-					"/stores/{storeId}", "/orders/{orderId}/update")
+					"/orders/{orderId}/update")
 				.hasRole("CEO")
 				.requestMatchers(HttpMethod.POST, "/ceoReviews/{reviewId}")
 				.hasRole("CEO")
@@ -53,8 +57,15 @@ public class SecurityConfig {
 				.hasAnyRole("CEO", "ADMIN")
 				.requestMatchers(HttpMethod.POST, "/stores")
 				.hasRole("CEO")
+				.requestMatchers(HttpMethod.PUT, "/stores/{storeId}")
+				.hasRole("CEO")
 				.anyRequest()
 				.authenticated()
+			)
+			.oauth2Login(oauth ->
+				oauth.userInfoEndpoint(userInfo ->
+					userInfo.userService(customOAuth2UserService))
+					.successHandler(oAuth2SuccessHandler)
 			)
 			.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 

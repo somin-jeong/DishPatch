@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @NoArgsConstructor
@@ -32,6 +33,7 @@ public class User extends SoftDeletableEntity {
 	@Column(nullable = false)
 	private String phone;
 
+	@Setter
 	@Column(columnDefinition = "LONGTEXT")
 	private String imageUrl;
 
@@ -41,6 +43,7 @@ public class User extends SoftDeletableEntity {
 	@Enumerated(EnumType.STRING)
 	private UserProvider provider; //이넘 LOCAL,NAVER,KAKAO
 
+	@Setter
 	private String providerId;
 
 	@Enumerated(EnumType.STRING)
@@ -68,6 +71,7 @@ public class User extends SoftDeletableEntity {
 		this.currentAddress = currentAddress;
 	}
 
+
 	public void updateUser(String password,String name,String phone,String currentAddress){
 		this.password = password;
 		this.name = name;
@@ -77,8 +81,7 @@ public class User extends SoftDeletableEntity {
 
 
 	public void updateGrade(UserGrade userGrade){
-		this.grade = grade;
+		this.grade = userGrade;
 	}
-
 
 }

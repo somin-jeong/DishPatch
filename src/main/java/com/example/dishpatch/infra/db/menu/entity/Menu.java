@@ -51,12 +51,13 @@ public class Menu extends SoftDeletableEntity {
 	private List<MenuOption> options = new ArrayList<>();
 
 	@Builder
-	public Menu(String name, Integer price, String imageUrl, boolean soldOut, Store store) {
+	public Menu(String name, Integer price, String imageUrl, boolean soldOut, Store store, List<MenuOption> options) {
 		this.name = name;
 		this.price = price;
 		this.imageUrl = imageUrl;
 		this.soldOut = soldOut;
 		this.store = store;
+		this.options = options;
 	}
 
 	public void update(String name, Integer price, String imageUrl, boolean soldOut) {

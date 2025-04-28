@@ -15,25 +15,43 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class MonthlyJobChainingListener implements JobExecutionListener {
+public class StoreOrderStatDailyListener implements JobExecutionListener {
 
 	private final JobLauncher jobLauncher;
 	private final Job storeOrderStatMonthlyJob;
+	private final Job adminStoreOrderStatDailyJob;
+	private final Job adminStoreOrderStatMonthlyJob;
 
 	@Override
 	public void afterJob(JobExecution jobExecution) {
 		if (jobExecution.getJobInstance().getJobName().equals("storeOrderStatDailyJob")
 			&& !jobExecution.getStatus().isUnsuccessful()
-			&& LocalDate.now().getDayOfMonth() == 1
 		) {
 			try {
-				log.info("Daily job completed. Launching monthly job.");
-				jobLauncher.run(storeOrderStatMonthlyJob,
+				jobLauncher.run(adminStoreOrderStatDailyJob,
 					new JobParametersBuilder()
 						.addLong("time", System.currentTimeMillis())
 						.toJobParameters());
 			} catch (Exception e) {
-				log.error("Failed to launch monthly job after daily", e);
+				log.error("Failed to launch admin daily job", e);
+			}
+			if (LocalDate.now().getDayOfMonth() == 1) {
+				try {
+					jobLauncher.run(storeOrderStatMonthlyJob,
+						new JobParametersBuilder()
+							.addLong("time", System.currentTimeMillis())
+							.toJobParameters());
+				} catch (Exception e) {
+					log.error("Failed to launch monthly job", e);
+				}
+				try {
+					jobLauncher.run(adminStoreOrderStatMonthlyJob,
+						new JobParametersBuilder()
+							.addLong("time", System.currentTimeMillis())
+							.toJobParameters());
+				} catch (Exception e) {
+					log.error("Failed to launch admin monthly job", e);
+				}
 			}
 		}
 	}

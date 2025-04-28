@@ -13,6 +13,7 @@ import com.example.dishpatch.api.statistics.response.StoreOrderStatResponse;
 import com.example.dishpatch.domain.statistics.exception.StatErrorCode;
 import com.example.dishpatch.domain.statistics.service.strategy.StoreOrderStatStrategy;
 import com.example.dishpatch.global.exception.BizException;
+import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatDaily;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +41,9 @@ public class StoreOrderStatService {
 			throw new BizException(StatErrorCode.UNSUPPORTED_STAT_PERIOD);
 		}
 		return strategy.getStatistics(storeId, req);
+	}
+
+	public void saveDaily(List<StoreOrderStatDaily> merged) {
+
 	}
 }

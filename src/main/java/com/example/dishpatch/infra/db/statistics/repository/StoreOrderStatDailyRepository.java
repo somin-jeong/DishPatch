@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.example.dishpatch.infra.db.statistics.entity.StoreOrderStatDaily;
@@ -36,4 +37,12 @@ public interface StoreOrderStatDailyRepository
 		@Param("to") LocalDate to
 	);
 
+	@Modifying
+	@Query("""
+			UPDATE StoreOrderStatDaily s
+			SET s.orderCount = :orderCount,
+				s.totalSales = :totalSales
+			WHERE s.id = :id
+		""")
+	void bulkUpdate(StoreOrderStatId id, Integer orderCount, Long totalSales);
 }

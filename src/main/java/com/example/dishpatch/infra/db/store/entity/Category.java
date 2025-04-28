@@ -20,4 +20,8 @@ public class Category extends BaseEntity {
 
 	@Column(nullable = false)
 	private String name;
+
+	public Category(String name) {
+		this.name = name;
+	}
 }

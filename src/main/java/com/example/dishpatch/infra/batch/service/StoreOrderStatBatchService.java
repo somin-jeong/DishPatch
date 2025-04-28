@@ -22,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class StoreOrderStatBatchService {
 
+	private static final int INSERT_BATCH_SIZE = 100;
+
 	private final StoreOrderStatDailyRepository dailyRepository;
 	private final EntityManager em;
 
@@ -75,10 +77,37 @@ public class StoreOrderStatBatchService {
 		em.clear();
 
 		if (!failedInsertStats.isEmpty()) {
-			retryDailyFailedInserts(failedInsertStats);
+			retryFailedInsertsBatch(failedInsertStats);
 		}
 		if (!failedUpdateStats.isEmpty()) {
 			retryDailyFailedUpdates(failedUpdateStats);
+		}
+	}
+
+	private void retryFailedInsertsBatch(List<StoreOrderStatDaily> failedStats) {
+		List<StoreOrderStatDaily> batch = new ArrayList<>(INSERT_BATCH_SIZE);
+
+		for (StoreOrderStatDaily stat : failedStats) {
+			batch.add(stat);
+
+			if (batch.size() == INSERT_BATCH_SIZE) {
+				saveBatch(batch);
+				batch.clear();
+			}
+		}
+
+		if (!batch.isEmpty()) {
+			saveBatch(batch);
+		}
+	}
+
+	private void saveBatch(List<StoreOrderStatDaily> batch) {
+		try {
+			dailyRepository.saveAll(batch);
+			dailyRepository.flush();
+			em.clear();
+		} catch (Exception e) {
+			retryDailyFailedInserts(batch);
 		}
 	}
 

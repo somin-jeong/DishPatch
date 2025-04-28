@@ -16,6 +16,7 @@ import com.example.dishpatch.infra.db.review.repository.ReviewRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -26,6 +27,7 @@ public class CeoReviewService {
 	private final ReviewRepository reviewRepository;
 	private final CeoReviewRepository ceoReviewRepository;
 
+	@Transactional
 	public CeoReviewResponse createCeoReview(Long reviewId, CeoReviewCreateRequest request) {
 		long userId = 1L;
 
@@ -50,6 +52,7 @@ public class CeoReviewService {
 		return CeoReviewResponse.from(ceoReview);
 	}
 
+	@Transactional
 	public CeoReviewResponse updateCeoReview(Long reviewId, Long ceoReviewId, CeoReviewUpdateRequest request) {
 
 		Review review = reviewRepository.findById(reviewId)
@@ -63,6 +66,7 @@ public class CeoReviewService {
 		return CeoReviewResponse.from(ceoReview);
 	}
 
+	@Transactional
 	public void deleteCeoReview(Long reviewId, Long ceoReviewId, UserAuth userAuth) {
 		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));

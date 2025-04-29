@@ -16,6 +16,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.example.dishpatch.api.user.request.UserDeleteRequest;
 import com.example.dishpatch.api.user.request.UserLoginRequest;
 import com.example.dishpatch.api.user.request.UserSignupRequest;
 import com.example.dishpatch.api.user.request.UserUpdateRequest;
@@ -24,6 +25,16 @@ import com.example.dishpatch.api.user.response.UserSignupResponse;
 import com.example.dishpatch.api.user.response.UserUpdateResponse;
 import com.example.dishpatch.global.security.JwtUtil;
 import com.example.dishpatch.global.security.UserAuth;
+import com.example.dishpatch.infra.db.cart.repository.CartRepository;
+import com.example.dishpatch.infra.db.coupon.repository.CouponRepository;
+import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
+import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
+import com.example.dishpatch.infra.db.order.repository.OrderRepository;
+import com.example.dishpatch.infra.db.pointHistory.repository.PointHistoryRepository;
+import com.example.dishpatch.infra.db.review.repository.CeoReviewRepository;
+import com.example.dishpatch.infra.db.review.repository.ReviewRepository;
+import com.example.dishpatch.infra.db.store.repository.DibRepository;
+import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.entity.UserGrade;
 import com.example.dishpatch.infra.db.user.entity.UserProvider;
@@ -37,18 +48,34 @@ import jakarta.servlet.http.HttpServletRequest;
 class UserServiceImplTest {
 	@Mock
 	private UserRepository userRepository;
-
 	@Mock
 	private PasswordEncoder passwordEncoder;
-
 	@Mock
 	private JwtUtil jwtUtil;
-
 	@Mock
 	private ValueOperations<String, String> valueOperations;
-
 	@Mock
 	private RedisTemplate<String,String> redisTemplate;
+	@Mock
+	private CeoReviewRepository ceoReviewRepository;
+	@Mock
+	private ReviewRepository reviewRepository;
+	@Mock
+	private CartRepository cartRepository;
+	@Mock
+	private MenuOptionRepository menuOptionRepository;
+	@Mock
+	private MenuRepository menuRepository;
+	@Mock
+	private OrderRepository orderRepository;
+	@Mock
+	private DibRepository dibRepository;
+	@Mock
+	private StoreRepository storeRepository;
+	@Mock
+	private PointHistoryRepository pointHistoryRepository;
+	@Mock
+	private CouponRepository couponRepository;
 
 
 	@InjectMocks
@@ -196,5 +223,32 @@ class UserServiceImplTest {
 
 	@Test
 	void deleteUser() {
+		// given
+		User user = mock(User.class);
+		UserDeleteRequest request = new UserDeleteRequest("password");
+		UserAuth userAuth = new UserAuth(1L,UserRole.USER);
+
+		given(userRepository.findById(userAuth.getId()))
+			.willReturn(Optional.of(user));
+
+		given(passwordEncoder.matches(request.password(),user.getPassword()))
+			.willReturn(true);
+
+		// when
+		userServiceImpl.deleteUser(request,userAuth);
+
+		// then
+		verify(user,times(1)).softDelete();
+		verify(ceoReviewRepository,times(1)).deleteAllByUserId(userAuth.getId());
+		verify(reviewRepository,times(1)).deleteAllByUserId(userAuth.getId());
+		verify(cartRepository,times(1)).deleteAllByUserId(userAuth.getId());
+		verify(menuOptionRepository,times(1)).deleteByUserId(userAuth.getId());
+		verify(menuRepository,times(1)).deleteByUserId(userAuth.getId());
+		verify(orderRepository,times(1)).deleteByUserId(userAuth.getId());
+		verify(dibRepository,times(1)).deleteByUserId(userAuth.getId());
+		verify(storeRepository,times(1)).deleteByUserId(userAuth.getId());
+		verify(pointHistoryRepository,times(1)).deleteByUserId(userAuth.getId());
+		verify(couponRepository,times(1)).deleteByUserId(userAuth.getId());
+
 	}
 }

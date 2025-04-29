@@ -67,11 +67,11 @@ public class SecurityConfig {
 				.anyRequest()
 				.authenticated()
 			)
-			// .oauth2Login(oauth ->
-			// 	oauth.userInfoEndpoint(userInfo ->
-			// 		userInfo.userService(customOAuth2UserService))
-			// 		.successHandler(oAuth2SuccessHandler)
-			// )
+			.oauth2Login(oauth ->
+				oauth.userInfoEndpoint(userInfo ->
+						userInfo.userService(customOAuth2UserService))
+					.successHandler(oAuth2SuccessHandler)
+			)
 			.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();

@@ -37,6 +37,8 @@ ORM : ![Static Badge](https://img.shields.io/badge/JPA-FFA500?style=flat) ![Stat
 
 # 📘 통합 API 명세서
 
+https://documenter.getpostman.com/view/13356404/2sB2j1jD2x
+
 # 📋 기능 요약
 
 | 구분 | 기능 | 설명 |

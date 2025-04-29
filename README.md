@@ -10,18 +10,17 @@
 
 JDK : ![Static Badge](https://img.shields.io/badge/JDK-17-yellow?style=flat-square)
 
-프레임워크 : ![Static Badge](https://img.shields.io/badge/SpringBoot-%23FFFF00?logo=springboot)
+프레임워크 : ![Static Badge](https://img.shields.io/badge/SpringBoot-%23FFFF00?logo=springboot) ![Static Badge](https://img.shields.io/badge/Batch-purple?label=Spring) ![Static Badge](https://img.shields.io/badge/WEB-green?label=Spring) ![Static Badge](https://img.shields.io/badge/Security-blue?logo=springsecurity&label=Spring)
 
 DB : ![Static Badge](https://img.shields.io/badge/MySql-%23FFFFFF?style=flat&logo=mysql) ![Static Badge](https://img.shields.io/badge/Redis-green?logo=redis) 
 
 ORM : ![Static Badge](https://img.shields.io/badge/JPA-FFA500?style=flat) ![Static Badge](https://img.shields.io/badge/QueryDSL-ivory) 
 
+test: ![Static Badge](https://img.shields.io/badge/Junit5-%23F08080?logo=junit5)  ![Static Badge](https://img.shields.io/badge/Mockito-%23FFD700)
 
-그외 : ![Static Badge](https://img.shields.io/badge/WEB-green?label=Spring)
-![Static Badge](https://img.shields.io/badge/Batch-purple?label=Spring)
-![Static Badge](https://img.shields.io/badge/Security-blue?logo=springsecurity&label=Spring) ![Static Badge](https://img.shields.io/badge/JWT-chocolate?logo=jsonwebtokens) ![Static Badge](https://img.shields.io/badge/Oauth2-%2336454F?logo=auth0) ![Static Badge](https://img.shields.io/badge/Junit5-%23F08080?logo=junit5) 
-![Static Badge](https://img.shields.io/badge/AWSS3-%23FFFFFF?logo=amazons3)
-![Static Badge](https://img.shields.io/badge/Docker-%2387CEEB?logo=docker) ![Static Badge](https://img.shields.io/badge/Mockito-%23FFD700)
+기술 : ![Static Badge](https://img.shields.io/badge/JWT-chocolate?logo=jsonwebtokens) ![Static Badge](https://img.shields.io/badge/Oauth2-%2336454F?logo=auth0) 
+
+infa : ![Static Badge](https://img.shields.io/badge/AWSS3-%23FFFFFF?logo=amazons3) ![Static Badge](https://img.shields.io/badge/Docker-%2387CEEB?logo=docker) 
 
 
 ## 🛠 기능 엿보기   

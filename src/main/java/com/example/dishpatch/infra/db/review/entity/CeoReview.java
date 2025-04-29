@@ -41,7 +41,7 @@ public class CeoReview extends SoftDeletableEntity {
 	@Enumerated(EnumType.STRING)
 	private ReviewStatus status;
 
-	public CeoReview(User user, String contents, ReviewStatus status, Review reivew) {
+	public CeoReview(User user, String contents, ReviewStatus status, Review review) {
 		this.user = user;
 		this.contents = contents;
 		this.status = status;

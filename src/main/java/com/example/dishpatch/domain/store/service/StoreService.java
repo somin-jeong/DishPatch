@@ -130,8 +130,6 @@ public class StoreService {
 			throw new BizException(STORE_OWNER_MISMATCH);
 		}
 
-		store.softDelete();
-
 		reviewRepository.bulkSoftDeleteByStoreId(storeId);
 		ceoReviewRepository.bulkSoftDeleteByStoreId(storeId);
 
@@ -140,6 +138,11 @@ public class StoreService {
 
 		dibRepository.deleteAllByStoreId(storeId);
 		cartRepository.deleteAllByStoreId(storeId);
+
+		store = storeRepository.findByIdAndDeletedDateIsNull(storeId)
+			.orElseThrow(() -> new BizException(STORE_NOT_FOUND));
+
+		store.softDelete();
 	}
 
 	@Transactional(readOnly = true)

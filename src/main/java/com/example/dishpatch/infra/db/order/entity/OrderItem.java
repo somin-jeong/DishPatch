@@ -39,7 +39,10 @@ public class OrderItem {
 	private MenuOption menuOption;
 
 	public OrderItem(int quantity, Order order, Menu menu, MenuOption menuOption) {
-
+		this.quantity = quantity;
+		this.order = order;
+		this.menu = menu;
+		this.menuOption = menuOption;
 	}
 
 	public OrderItem() {

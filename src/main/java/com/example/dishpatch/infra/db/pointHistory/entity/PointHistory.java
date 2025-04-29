@@ -1,6 +1,5 @@
 package com.example.dishpatch.infra.db.pointHistory.entity;
 
-import com.example.dishpatch.infra.db.common.BaseEntity;
 import com.example.dishpatch.infra.db.common.SoftDeletableEntity;
 import com.example.dishpatch.infra.db.user.entity.User;
 
@@ -43,6 +42,13 @@ public class PointHistory extends SoftDeletableEntity {
 		this.remain = remain;
 		this.user = user;
 		this.pointUsed = PointUsed.UNUSED;
+	}
+
+	public PointHistory(Integer amount, Integer remain, User user, PointUsed pointUsed) {
+		this.amount = amount;
+		this.remain = remain;
+		this.user = user;
+		this.pointUsed = pointUsed;
 	}
 
 	public void updateRemain(int curPoint) {

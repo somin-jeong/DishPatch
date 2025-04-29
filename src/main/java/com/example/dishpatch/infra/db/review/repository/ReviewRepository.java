@@ -14,7 +14,7 @@ import com.example.dishpatch.infra.db.review.entity.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-	@EntityGraph(attributePaths = "ceoReview")
+	@EntityGraph(attributePaths = "ceoReviews")
 	@Query("""
 		    SELECT r FROM Review r
 		          WHERE r.store.id = :storeId

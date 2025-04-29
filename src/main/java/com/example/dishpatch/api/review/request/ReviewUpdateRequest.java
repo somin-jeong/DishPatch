@@ -5,6 +5,7 @@ import com.example.dishpatch.infra.db.review.entity.ReviewStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record ReviewUpdateRequest(
 
@@ -13,10 +14,10 @@ public record ReviewUpdateRequest(
 	@Max(5)
 	Integer rating,
 
-	@Max(255)
+	@Size(max = 255)
 	String contents,
 
-	@Max(255)
+	@Size(max = 255)
 	String imageUrl,
 
 	@NotNull

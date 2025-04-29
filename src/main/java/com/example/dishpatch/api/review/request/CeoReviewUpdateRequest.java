@@ -2,11 +2,11 @@ package com.example.dishpatch.api.review.request;
 
 import com.example.dishpatch.infra.db.review.entity.ReviewStatus;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record CeoReviewUpdateRequest(
-	@Max(255)
+	@Size(max = 255)
 	String contents,
 
 	@NotNull

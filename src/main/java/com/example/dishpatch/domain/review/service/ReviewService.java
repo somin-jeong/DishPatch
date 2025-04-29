@@ -19,6 +19,7 @@ import com.example.dishpatch.global.security.UserAuth;
 import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
 import com.example.dishpatch.infra.db.order.entity.Order;
+import com.example.dishpatch.infra.db.order.entity.OrderStatus;
 import com.example.dishpatch.infra.db.order.repository.OrderRepository;
 import com.example.dishpatch.infra.db.review.entity.Review;
 import com.example.dishpatch.infra.db.review.repository.ReviewRepository;
@@ -27,6 +28,7 @@ import com.example.dishpatch.infra.db.store.repository.StoreRepository;
 import com.example.dishpatch.infra.db.user.entity.User;
 import com.example.dishpatch.infra.db.user.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -52,7 +54,7 @@ public class ReviewService {
 		Menu menu = menuRepository.findById(request.menuId())
 			.orElseThrow(() -> new BizException(MenuErrorCode.MENU_NOT_FOUND));
 
-		if (!order.getStatus().equals("FINISHED")) {
+		if (!order.getStatus().equals(OrderStatus.FINISHED)) {
 			throw new BizException(ReviewErrorCode.REVIEW_NOT_ALLOWED_BEFORE_DELIVERY);
 		}
 
@@ -82,6 +84,7 @@ public class ReviewService {
 		return ReviewPageResponse.from(reviewPage);
 	}
 
+	@Transactional
 	public ReviewResponse updateReview(Long reviewId, ReviewUpdateRequest request, UserAuth userAuth) {
 		User user = userRepository.findById(userAuth.getId())
 			.orElseThrow(() -> new BizException(UserErrorCode.INVALID_ID));
@@ -94,6 +97,7 @@ public class ReviewService {
 		return ReviewResponse.from(review);
 	}
 
+	@Transactional
 	public void deleteReview(Long reviewId, UserAuth userAuth) {
 		Review review = reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new BizException(ReviewErrorCode.REVIEW_NOT_FOUND));

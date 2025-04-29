@@ -21,6 +21,11 @@ import com.example.dishpatch.infra.db.menu.entity.Menu;
 import com.example.dishpatch.infra.db.menu.entity.MenuOption;
 import com.example.dishpatch.infra.db.menu.repository.MenuOptionRepository;
 import com.example.dishpatch.infra.db.menu.repository.MenuRepository;
+import com.example.dishpatch.infra.db.order.entity.Order;
+import com.example.dishpatch.infra.db.order.entity.OrderItem;
+import com.example.dishpatch.infra.db.order.entity.OrderStatus;
+import com.example.dishpatch.infra.db.order.repository.OrderItemRepository;
+import com.example.dishpatch.infra.db.order.repository.OrderRepository;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointHistory;
 import com.example.dishpatch.infra.db.pointHistory.entity.PointUsed;
 import com.example.dishpatch.infra.db.pointHistory.repository.PointHistoryRepository;
@@ -93,6 +98,12 @@ public class DataInitializer implements CommandLineRunner {
 	@Autowired
 	private AdminStoreOrderStatMonthlyRepository adminStoreOrderStatMonthlyRepository;
 
+	@Autowired
+	private OrderRepository orderRepository;
+
+	@Autowired
+	private OrderItemRepository orderItemRepository;
+
 	@Override
 	public void run(String... args) throws Exception {
 
@@ -155,7 +166,7 @@ public class DataInitializer implements CommandLineRunner {
 			.address("456 Oak St")
 			.phone("010-2345-6789")
 			.deliveryFee(2500)
-			.minDeliveryPrice(10000)
+			.minDeliveryPrice(1000000)
 			.isAdvertised(false)
 			.openTime(LocalTime.of(10, 0))
 			.closeTime(LocalTime.of(20, 0))
@@ -171,7 +182,7 @@ public class DataInitializer implements CommandLineRunner {
 			.minDeliveryPrice(20000)
 			.isAdvertised(true)
 			.openTime(LocalTime.of(8, 30))
-			.closeTime(LocalTime.of(23, 0))
+			.closeTime(LocalTime.of(9, 0))
 			.category(category3)
 			.user(ceo1)
 			.build();
@@ -590,8 +601,19 @@ public class DataInitializer implements CommandLineRunner {
 			.status(CouponUsed.B)
 			.user(user1)
 			.build();
+
+		Coupon coupon3 = Coupon.builder()
+			.name("1000 Sale Coupon")
+			.coupontype(CouponType.B)
+			.deductedPrice(1000)
+			.maxDiscount(0)
+			.status(CouponUsed.A)
+			.user(user1)
+			.build();
+
 		couponRepository.save(coupon1);
 		couponRepository.save(coupon2);
+		couponRepository.save(coupon3);
 
 		Review review1 = new Review(user1, store1, menu1, null, 5, "Great food!", "https://example.com/image.jpg",
 			ReviewStatus.PUBLIC);
@@ -1068,6 +1090,9 @@ public class DataInitializer implements CommandLineRunner {
 		PointHistory pointHistory5 = new PointHistory(3000, 3000, user1);
 		pointHistoryRepository.save(pointHistory5);
 
+		PointHistory pointHistory6 = new PointHistory(300000, 300000, user1);
+		pointHistoryRepository.save(pointHistory6);
+
 		List<StoreOrderStatDaily> dailyStats = List.of(
 			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 1)), 100, 1000000L),
 			StoreOrderStatDaily.of(StoreOrderStatId.of(1L, LocalDate.of(2025, 4, 2)), 200, 2000000L),
@@ -1104,5 +1129,26 @@ public class DataInitializer implements CommandLineRunner {
 			new AdminStoreOrderStatMonthly(LocalDate.of(2025, 4, 1), 100, 1000000L)
 		);
 		adminStoreOrderStatMonthlyRepository.saveAll(adminMonthlyStats);
+
+		Order order1 = new Order(40000, OrderStatus.CHECKING, user1, store1);
+		Order order2 = new Order(50000, OrderStatus.COOKING, user1, store2);
+		Order order3 = new Order(35000, OrderStatus.DELIVERING, user1, store3);
+		Order order4 = new Order(43000, OrderStatus.CHECKING, user1, store4);
+		Order order5 = new Order(33000, OrderStatus.REFUSED, user1, store2);
+		Order order6 = new Order(37000, OrderStatus.FINISHED, user1, store2);
+
+		orderRepository.save(order1);
+		orderRepository.save(order2);
+		orderRepository.save(order3);
+		orderRepository.save(order4);
+		orderRepository.save(order5);
+		orderRepository.save(order6);
+
+		OrderItem orderItem1 = new OrderItem(1, order1, menu1, option1);
+		OrderItem orderItem2 = new OrderItem(2, order1, menu2, option2);
+		OrderItem orderItem3 = new OrderItem(2, order2, menu6, option6);
+		orderItemRepository.save(orderItem1);
+		orderItemRepository.save(orderItem2);
+		orderItemRepository.save(orderItem3);
 	}
 }

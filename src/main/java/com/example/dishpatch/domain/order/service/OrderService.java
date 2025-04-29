@@ -96,14 +96,14 @@ public class OrderService {
 
 		totalPrice = checkCoupon(totalPrice, coupon);
 
-		if (totalPrice < remainingPoint) {
+		if (totalPrice < requestDto.point()) {
 			throw new BizException(PointErrorCode.EXCEEDING_POINT_AMOUNT);
 		}
 
 		if (requestDto.point() != null) {
 			totalPrice -= requestDto.point();
 		}
-		
+
 		totalPrice += store.getDeliveryFee();
 
 		Order order = new Order(totalPrice, user, store);
@@ -265,6 +265,7 @@ public class OrderService {
 			.collect(Collectors.toList());
 	}
 
+	@Transactional
 	public OrderDetailResponseDto findOrderDetails(Long userId, Long orderId) {
 
 		User user = validateUser(userId);

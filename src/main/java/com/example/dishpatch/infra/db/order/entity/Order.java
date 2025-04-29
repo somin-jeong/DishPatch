@@ -1,6 +1,5 @@
 package com.example.dishpatch.infra.db.order.entity;
 
-import com.example.dishpatch.infra.db.common.BaseEntity;
 import com.example.dishpatch.infra.db.common.SoftDeletableEntity;
 import com.example.dishpatch.infra.db.store.entity.Store;
 import com.example.dishpatch.infra.db.user.entity.User;
@@ -42,6 +41,13 @@ public class Order extends SoftDeletableEntity {
 	public Order(Integer totalPrice, User user, Store store) {
 		this.totalPrice = totalPrice;
 		this.status = OrderStatus.CHECKING;
+		this.user = user;
+		this.store = store;
+	}
+
+	public Order(Integer totalPrice, OrderStatus orderStatus, User user, Store store) {
+		this.totalPrice = totalPrice;
+		this.status = orderStatus;
 		this.user = user;
 		this.store = store;
 	}

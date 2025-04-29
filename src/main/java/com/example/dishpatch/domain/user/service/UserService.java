@@ -17,7 +17,7 @@ public interface UserService {
 
 	UserLoginResponse login(UserLoginRequest request);
 
-	void logout(HttpServletRequest request);
+	void logout(String token);
 
 	UserUpdateResponse updateUser(UserUpdateRequest dto, UserAuth userAuth);
 

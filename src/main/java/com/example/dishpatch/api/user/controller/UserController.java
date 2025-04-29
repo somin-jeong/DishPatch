@@ -25,6 +25,7 @@ import com.example.dishpatch.api.user.response.UserSignupResponse;
 import com.example.dishpatch.api.user.response.UserUpdateResponse;
 import com.example.dishpatch.domain.user.service.UserService;
 import com.example.dishpatch.global.S3.service.S3Service;
+import com.example.dishpatch.global.security.JwtUtil;
 import com.example.dishpatch.global.security.UserAuth;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,6 +39,7 @@ public class UserController {
 
 	private final UserService userService;
 	private final S3Service s3Service;
+	private final JwtUtil jwtUtil;
 
 	@PostMapping("/signup")
 	public ResponseEntity<UserSignupResponse> signUp(@Valid @RequestBody UserSignupRequest request) {
@@ -58,7 +60,9 @@ public class UserController {
 	@PostMapping("/logout")
 	public ResponseEntity<Void> logout(HttpServletRequest request) {
 
-		userService.logout(request);
+		String token = jwtUtil.extractToken(request);
+
+		userService.logout(token);
 
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}

@@ -102,9 +102,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void logout(HttpServletRequest request) {
+	public void logout(String token) {
 
-		String token = jwtUtil.extractToken(request);
 		// 토큰이 없을시 오류 반환
 		if (token == null) {
 			throw new BizException(UserErrorCode.INVALID_REQUEST);
